@@ -1,0 +1,172 @@
+name: covid19india
+description: A new Flutter application.
+
+# The following line prevents the package from being accidentally published to
+# pub.dev using `pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_svg: ^0.18.0
+
+  fl_chart: ^0.10.0
+
+  intl: ^0.16.1
+
+  get_it: ^4.0.2
+
+  flutter_bloc: ^4.0.1
+
+  dartz: ^0.9.1
+
+  equatable: ^1.2.0
+
+  data_connection_checker: ^0.3.4
+
+  shared_preferences: ^0.5.7
+
+  http: ^0.12.1
+
+  cupertino_icons: ^0.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  mockito: ^4.1.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/maps/india/AN.svg
+    - assets/maps/india/AP.svg
+    - assets/maps/india/AR.svg
+    - assets/maps/india/AS.svg
+    - assets/maps/india/BR.svg
+    - assets/maps/india/CH.svg
+    - assets/maps/india/CT.svg
+    - assets/maps/india/DL.svg
+    - assets/maps/india/DN.svg
+    - assets/maps/india/GA.svg
+    - assets/maps/india/GJ.svg
+    - assets/maps/india/HP.svg
+    - assets/maps/india/HR.svg
+    - assets/maps/india/JH.svg
+    - assets/maps/india/JK.svg
+    - assets/maps/india/KA.svg
+    - assets/maps/india/KL.svg
+    - assets/maps/india/LA.svg
+    - assets/maps/india/LD.svg
+    - assets/maps/india/MH.svg
+    - assets/maps/india/ML.svg
+    - assets/maps/india/MN.svg
+    - assets/maps/india/MP.svg
+    - assets/maps/india/MZ.svg
+    - assets/maps/india/NL.svg
+    - assets/maps/india/OR.svg
+    - assets/maps/india/PB.svg
+    - assets/maps/india/PY.svg
+    - assets/maps/india/RJ.svg
+    - assets/maps/india/SK.svg
+    - assets/maps/india/TG.svg
+    - assets/maps/india/TN.svg
+    - assets/maps/india/TR.svg
+    - assets/maps/india/UP.svg
+    - assets/maps/india/UT.svg
+    - assets/maps/india/WB.svg
+    - assets/maps/districts/AN.svg
+    - assets/maps/districts/AP.svg
+    - assets/maps/districts/AR.svg
+    - assets/maps/districts/AS.svg
+    - assets/maps/districts/BR.svg
+    - assets/maps/districts/CH.svg
+    - assets/maps/districts/CT.svg
+    - assets/maps/districts/DL.svg
+    - assets/maps/districts/DN.svg
+    - assets/maps/districts/GA.svg
+    - assets/maps/districts/GJ.svg
+    - assets/maps/districts/HP.svg
+    - assets/maps/districts/HR.svg
+    - assets/maps/districts/JH.svg
+    - assets/maps/districts/JK.svg
+    - assets/maps/districts/KA.svg
+    - assets/maps/districts/KL.svg
+    - assets/maps/districts/LA.svg
+    - assets/maps/districts/LD.svg
+    - assets/maps/districts/MH.svg
+    - assets/maps/districts/ML.svg
+    - assets/maps/districts/MN.svg
+    - assets/maps/districts/MP.svg
+    - assets/maps/districts/MZ.svg
+    - assets/maps/districts/NL.svg
+    - assets/maps/districts/OR.svg
+    - assets/maps/districts/PB.svg
+    - assets/maps/districts/PY.svg
+    - assets/maps/districts/RJ.svg
+    - assets/maps/districts/SK.svg
+    - assets/maps/districts/TG.svg
+    - assets/maps/districts/TN.svg
+    - assets/maps/districts/TR.svg
+    - assets/maps/districts/UP.svg
+    - assets/maps/districts/UT.svg
+    - assets/maps/districts/WB.svg
+    - assets/maps/borders/TT.svg
+    - assets/maps/borders/AN.svg
+    - assets/maps/borders/AP.svg
+    - assets/maps/borders/AR.svg
+    - assets/maps/borders/AS.svg
+    - assets/maps/borders/BR.svg
+    - assets/maps/borders/CH.svg
+    - assets/maps/borders/CT.svg
+    - assets/maps/borders/DL.svg
+    - assets/maps/borders/DN.svg
+    - assets/maps/borders/GA.svg
+    - assets/maps/borders/GJ.svg
+    - assets/maps/borders/HP.svg
+    - assets/maps/borders/HR.svg
+    - assets/maps/borders/JH.svg
+    - assets/maps/borders/JK.svg
+    - assets/maps/borders/KA.svg
+    - assets/maps/borders/KL.svg
+    - assets/maps/borders/LA.svg
+    - assets/maps/borders/LD.svg
+    - assets/maps/borders/MH.svg
+    - assets/maps/borders/ML.svg
+    - assets/maps/borders/MN.svg
+    - assets/maps/borders/MP.svg
+    - assets/maps/borders/MZ.svg
+    - assets/maps/borders/NL.svg
+    - assets/maps/borders/OR.svg
+    - assets/maps/borders/PB.svg
+    - assets/maps/borders/PY.svg
+    - assets/maps/borders/RJ.svg
+    - assets/maps/borders/SK.svg
+    - assets/maps/borders/TG.svg
+    - assets/maps/borders/TN.svg
+    - assets/maps/borders/TR.svg
+    - assets/maps/borders/UP.svg
+    - assets/maps/borders/UT.svg
+    - assets/maps/borders/WB.svg
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path_ios: "assets/launcher/icon.png"
+  image_path_android: "assets/launcher/icon.png"

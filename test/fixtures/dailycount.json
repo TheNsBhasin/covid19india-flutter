@@ -1,0 +1,36 @@
+{
+  "AN": {
+    "districts": {
+      "North and Middle Andaman": {
+        "total": {
+          "confirmed": 1,
+          "recovered": 1
+        }
+      },
+      "South Andaman": {
+        "total": {
+          "confirmed": 35,
+          "recovered": 32
+        }
+      },
+      "Unknown": {
+        "total": {
+          "confirmed": 12,
+          "recovered": 4
+        }
+      }
+    },
+    "meta": {
+      "last_updated": "2020-06-21T19:36:22+05:30",
+      "tested": {
+        "last_updated": "2020-06-19",
+        "source": "https://dhs.andaman.gov.in/NewEvents/300.pdf"
+      }
+    },
+    "total": {
+      "confirmed": 48,
+      "recovered": 37,
+      "tested": 12930
+    }
+  }
+}
