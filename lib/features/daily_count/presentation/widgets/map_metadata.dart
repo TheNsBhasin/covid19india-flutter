@@ -24,11 +24,15 @@ class MapMetadata extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text(Constants.STATE_CODE_MAP[region],
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Constants.STATS_COLOR[statistics])),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              child: Text(Constants.STATE_CODE_MAP[region],
+                  softWrap: true,
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.STATS_COLOR[statistics])),
+            ),
             region == 'TT'
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -52,7 +56,7 @@ class MapMetadata extends StatelessWidget {
                   minWidth: 35,
                   height: 30,
                   child: RaisedButton(
-                      color: Constants.STATS_GRADIENT_COLOR[statistics][0],
+                      color: Constants.STATS_COLOR[statistics].withAlpha(80),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
                       onPressed: () => onBackPress(),
