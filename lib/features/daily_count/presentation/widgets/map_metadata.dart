@@ -1,16 +1,19 @@
 import 'package:covid19india/core/constants/constants.dart';
-import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/formatter.dart';
 import 'package:flutter/material.dart';
 
 class MapMetadata extends StatelessWidget {
-  final String region;
+  final MapView mapView;
+  final String stateCode;
+  final String districtName;
   final String statistics;
   final String lastUpdated;
   final Null Function() onBackPress;
 
   MapMetadata(
-      {this.region = 'TT',
+      {this.mapView,
+      this.stateCode = 'TT',
+      this.districtName,
       this.statistics,
       this.lastUpdated,
       this.onBackPress});
@@ -26,14 +29,14 @@ class MapMetadata extends StatelessWidget {
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width * 0.6,
-              child: Text(Constants.STATE_CODE_MAP[region],
+              child: Text(Constants.STATE_CODE_MAP[stateCode],
                   softWrap: true,
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Constants.STATS_COLOR[statistics])),
             ),
-            region == 'TT'
+            mapView == MapView.STATES
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -53,9 +56,9 @@ class MapMetadata extends StatelessWidget {
                     ],
                   )
                 : ButtonTheme(
-                  minWidth: 35,
-                  height: 30,
-                  child: RaisedButton(
+                    minWidth: 35,
+                    height: 30,
+                    child: RaisedButton(
                       color: Constants.STATS_COLOR[statistics].withAlpha(80),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
@@ -65,7 +68,7 @@ class MapMetadata extends StatelessWidget {
                               fontSize: 14,
                               color: Constants.STATS_COLOR[statistics])),
                     ),
-                )
+                  )
           ],
         ),
       ),

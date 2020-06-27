@@ -1,3 +1,4 @@
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map_metadata.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map_stats.dart';
@@ -14,14 +15,18 @@ class MapExplorer extends StatefulWidget {
 }
 
 class _MapExplorerState extends State<MapExplorer> {
+  MapView mapView;
   String selectedStatistics;
-  String selectedRegion;
+  String selectedState;
+  String selectedDistrict;
 
   @override
   void initState() {
     super.initState();
 
-    selectedRegion = 'TT';
+    mapView = MapView.STATES;
+    selectedState = 'TT';
+    selectedDistrict = null;
     selectedStatistics = 'active';
   }
 
@@ -49,7 +54,7 @@ class _MapExplorerState extends State<MapExplorer> {
           ),
           MapStats(
               dailyCount: widget.dailyCounts
-                  .where((stateData) => stateData.name == selectedRegion)
+                  .where((stateData) => stateData.name == selectedState)
                   .toList()
                   .first,
               onSelectStats: (String selected) {
@@ -59,29 +64,39 @@ class _MapExplorerState extends State<MapExplorer> {
               }),
           SizedBox(height: 32),
           MapMetadata(
-            region: selectedRegion,
-            statistics: selectedStatistics,
-            lastUpdated: widget.dailyCounts
-                .where((stateData) => stateData.name == selectedRegion)
-                .toList()
-                .first
-                .metadata
-                .lastUpdated,
-            onBackPress: () {
-              setState(() {
-                selectedRegion = 'TT';
-              });
-            }
-          ),
+              mapView: mapView,
+              stateCode: selectedState,
+              districtName: selectedDistrict,
+              statistics: selectedStatistics,
+              lastUpdated: widget.dailyCounts
+                  .where((stateData) => stateData.name == selectedState)
+                  .toList()
+                  .first
+                  .metadata
+                  .lastUpdated,
+              onBackPress: () {
+                setState(() {
+                  if (mapView == MapView.DISTRICTS) {
+                    mapView = MapView.STATES;
+                    selectedState = 'TT';
+                    selectedDistrict = null;
+                  }
+                });
+              }),
           SizedBox(height: 32),
           MapVisualizer(
+              mapView: mapView,
               dailyCounts: widget.dailyCounts,
-              region: selectedRegion,
+              stateCode: selectedState,
+              districtName: selectedDistrict,
               statistics: selectedStatistics,
-              onRegionSelected: (String region) {
-                print(region);
+              onRegionSelected: (String stateCode, String districtName) {
                 setState(() {
-                  selectedRegion = region;
+                  if (mapView == MapView.STATES) {
+                    mapView = MapView.DISTRICTS;
+                  }
+                  selectedState = stateCode;
+                  selectedDistrict = districtName;
                 });
               })
         ],

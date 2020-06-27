@@ -9,13 +9,20 @@ import 'package:flutter/rendering.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class MapVisualizer extends StatefulWidget {
+  final MapView mapView;
   final List<StateWiseDailyCount> dailyCounts;
   final String statistics;
-  final String region;
-  final Null Function(String region) onRegionSelected;
+  final String stateCode;
+  final String districtName;
+  final Null Function(String stateCode, String districtName) onRegionSelected;
 
   MapVisualizer(
-      {this.dailyCounts, this.statistics, this.region, this.onRegionSelected});
+      {this.mapView,
+      this.dailyCounts,
+      this.statistics,
+      this.stateCode,
+      this.districtName,
+      this.onRegionSelected});
 
   @override
   _MapVisualizerState createState() => _MapVisualizerState();
@@ -30,7 +37,8 @@ class _MapVisualizerState extends State<MapVisualizer> {
     super.initState();
 
     stateMap = _getDailyCountMap();
-    maxCases = _getMaxCases(widget.region);
+    maxCases =
+        _getMaxCases(widget.mapView, widget.stateCode, widget.districtName);
   }
 
   @override
@@ -38,7 +46,8 @@ class _MapVisualizerState extends State<MapVisualizer> {
     super.didUpdateWidget(oldWidget);
 
     stateMap = _getDailyCountMap();
-    maxCases = _getMaxCases(widget.region);
+    maxCases =
+        _getMaxCases(widget.mapView, widget.stateCode, widget.districtName);
   }
 
   @override
@@ -46,44 +55,72 @@ class _MapVisualizerState extends State<MapVisualizer> {
     return Center(
         child: Container(
             height: MediaQuery.of(context).size.height * 0.45,
-            child: _buildMap(widget.region)));
+            child: _buildMap(
+                widget.mapView, widget.stateCode, widget.districtName)));
   }
 
-  Widget _buildMap(String region) {
+  Widget _buildMap(MapView mapView, String stateCode, String districtName) {
     return CustomPaint(
       painter: MapPainter(
-          mapSize: _getMapSize(region),
-          shapes: _getShape(region),
+          mapView: mapView,
+          mapSize: _getMapSize(stateCode),
+          shapes: _getShape(mapView, stateCode, districtName),
           strokeColor: Constants.STATS_COLOR[widget.statistics]),
       child: SizedBox.expand(),
     );
   }
 
-  Size _getMapSize(String region) {
-    return MapPaths.MAP_SIZE[region];
+  Size _getMapSize(String stateCode) {
+    return MapPaths.MAP_SIZE[stateCode];
   }
 
-  List<Shape> _getShape(String region) {
-    if (region == 'TT') {
+  List<Shape> _getShape(
+      MapView mapView, String stateCode, String districtName) {
+    if (mapView == MapView.STATES) {
       return MapPaths.statePaths.entries
           .map((e) => Shape(
               path: e.value,
               label: e.key,
-              color: _getGradient(e.key),
+              color: _getGradient(mapView, e.key, null),
               onTap: () {
-                widget.onRegionSelected(e.key);
+                widget.onRegionSelected(e.key, null);
               }))
           .toList();
     }
 
-    return MapPaths.districtPaths[region]
-        .map((path) =>
-            Shape(path: path, label: region, color: _getGradient(region)))
+    return MapPaths.districtPaths[stateCode]
+        .asMap()
+        .entries
+        .map((e) => Shape(
+            path: e.value,
+            label: MapPaths.DISTRICT_DATA[stateCode][e.key]['district'],
+            color: _getGradient(mapView, stateCode,
+                MapPaths.DISTRICT_DATA[stateCode][e.key]['district']),
+            onTap: () {
+              String district =
+                  MapPaths.DISTRICT_DATA[stateCode][e.key]['district'];
+
+              widget.onRegionSelected(stateCode, district);
+            }))
         .toList();
   }
 
-  _getGradient(String region) {
-    int regionCases = _getStatistics(stateMap[region].total, widget.statistics);
+  _getGradient(MapView mapView, String stateCode, String districtName) {
+    int regionCases = 1;
+    if (mapView == MapView.STATES) {
+      regionCases = max(regionCases,
+          _getStatistics(stateMap[stateCode].total, widget.statistics));
+    } else {
+      List results = stateMap[stateCode]
+          .districts
+          .where((e) => e.name == districtName)
+          .toList();
+
+      if (results.length > 0) {
+        regionCases = max(regionCases,
+            _getStatistics(results.first.total, widget.statistics));
+      }
+    }
 
     return Color.lerp(
         Constants.STATS_GRADIENT_COLOR[widget.statistics][0],
@@ -96,10 +133,10 @@ class _MapVisualizerState extends State<MapVisualizer> {
         key: (e) => e.name, value: (e) => e);
   }
 
-  int _getMaxCases(String region) {
+  int _getMaxCases(MapView mapView, String stateCode, String districtName) {
     int maxCases = 1;
 
-    if (region == 'TT') {
+    if (mapView == MapView.STATES) {
       widget.dailyCounts
           .where((stateData) => stateData.name != 'TT')
           .forEach((stateData) {
@@ -107,7 +144,7 @@ class _MapVisualizerState extends State<MapVisualizer> {
             max(maxCases, _getStatistics(stateData.total, widget.statistics));
       });
     } else {
-      stateMap[region].districts.forEach((districtData) {
+      stateMap[stateCode].districts.forEach((districtData) {
         maxCases = max(
             maxCases, _getStatistics(districtData.total, widget.statistics));
       });
@@ -149,13 +186,18 @@ class Shape {
 }
 
 class MapPainter extends CustomPainter {
+  final MapView mapView;
   final List<Shape> shapes;
   final Color strokeColor;
   final Paint _paint = Paint();
   final Size mapSize;
   Size _size = Size.zero;
 
-  MapPainter({this.mapSize, this.shapes, this.strokeColor: Colors.black});
+  MapPainter(
+      {this.mapView,
+      this.mapSize,
+      this.shapes,
+      this.strokeColor: Colors.black});
 
   @override
   void paint(Canvas canvas, Size size) {
