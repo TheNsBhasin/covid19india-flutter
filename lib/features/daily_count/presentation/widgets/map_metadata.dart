@@ -61,7 +61,7 @@ class MapMetadata extends StatelessWidget {
                     minWidth: 35,
                     height: 30,
                     child: RaisedButton(
-                      color: Constants.STATS_COLOR[statistics].withAlpha(80),
+                      color: Theme.of(context).backgroundColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
                       onPressed: () => onBackPress(),
