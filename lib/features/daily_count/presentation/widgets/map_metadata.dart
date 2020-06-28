@@ -27,14 +27,16 @@ class MapMetadata extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: Text(Constants.STATE_CODE_MAP[stateCode],
-                  softWrap: true,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Constants.STATS_COLOR[statistics])),
+            Expanded(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: Text(Constants.STATE_CODE_MAP[stateCode],
+                    softWrap: true,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Constants.STATS_COLOR[statistics])),
+              ),
             ),
             mapView == MapView.STATES
                 ? Column(

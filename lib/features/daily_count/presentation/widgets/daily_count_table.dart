@@ -31,15 +31,19 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        sortColumnIndex: sortColumnIndex,
-        sortAscending: isAscending,
-        columns: _getColumns(),
-        rows: _getRows(),
+    return Row(children: [
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            sortColumnIndex: sortColumnIndex,
+            sortAscending: isAscending,
+            columns: _getColumns(),
+            rows: _getRows(),
+          ),
+        ),
       ),
-    );
+    ]);
   }
 
   _getColumns() {
@@ -76,86 +80,156 @@ class _DailyCountTableState extends State<DailyCountTable> {
   _getRows() {
     return _getRowsData()
         .map((stateData) => DataRow(cells: [
-              DataCell(Container(
-                  width: 100,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text((stateData.name == 'TT'
-                            ? 'Total'
-                            : Constants.STATE_CODE_MAP[stateData.name])
-                        .toString()),
-                  ))),
-              DataCell(Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        (stateData.delta.confirmed > 0
-                            ? "↑" +
-                                NumberFormat.decimalPattern('en_IN')
-                                    .format(stateData.delta.confirmed)
-                            : ""),
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      Text(NumberFormat.decimalPattern('en_IN')
-                          .format(stateData.total.confirmed)),
-                    ],
-                  ),
-                ),
-              )),
-              DataCell(Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text(""),
-                      Text(NumberFormat.decimalPattern('en_IN').format(
-                          stateData.total.confirmed -
-                              stateData.total.recovered -
-                              stateData.total.deceased)),
-                    ],
-                  ),
-                ),
-              )),
-              DataCell(Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        (stateData.delta.recovered > 0
-                            ? "↑" +
-                                NumberFormat.decimalPattern('en_IN')
-                                    .format(stateData.delta.recovered)
-                            : ""),
-                        style: TextStyle(color: Colors.green),
-                      ),
-                      Text(NumberFormat.decimalPattern('en_IN')
-                          .format(stateData.total.recovered)),
-                    ],
-                  ),
-                ),
-              )),
-              DataCell(Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        (stateData.delta.deceased > 0
-                            ? "↑" +
-                                NumberFormat.decimalPattern('en_IN')
-                                    .format(stateData.delta.deceased)
-                            : ""),
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      Text(NumberFormat.decimalPattern('en_IN')
-                          .format(stateData.total.deceased)),
-                    ],
-                  ),
-                ),
-              ))
+              DataCell(Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 4),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                                width: 100,
+                                child: Text((stateData.name == 'TT'
+                                        ? 'Total'
+                                        : Constants
+                                            .STATE_CODE_MAP[stateData.name])
+                                    .toString())),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    )
+                  ])),
+              DataCell(Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
+                        if (stateData.delta.confirmed > 0)
+                          Expanded(
+                            child: Center(
+                              child: Container(
+                                child: Text(
+                                  "↑" +
+                                      NumberFormat.decimalPattern('en_IN')
+                                          .format(stateData.delta.confirmed),
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 4),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                              child: Text(NumberFormat.decimalPattern('en_IN')
+                                  .format(stateData.total.confirmed)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    ),
+                  ])),
+              DataCell(Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(height: 4),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                              child: Text(NumberFormat.decimalPattern('en_IN')
+                                  .format(stateData.total.active)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    ),
+                  ])),
+              DataCell(Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
+                        if (stateData.delta.recovered > 0)
+                          Expanded(
+                            child: Center(
+                              child: Container(
+                                child: Text(
+                                  "↑" +
+                                      NumberFormat.decimalPattern('en_IN')
+                                          .format(stateData.delta.recovered),
+                                  style: TextStyle(color: Colors.green),
+                                ),
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 4),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                              child: Text(NumberFormat.decimalPattern('en_IN')
+                                  .format(stateData.total.recovered)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    ),
+                  ])),
+              DataCell(Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
+                        if (stateData.delta.deceased > 0)
+                          Expanded(
+                            child: Center(
+                              child: Container(
+                                child: Text(
+                                  "↑" +
+                                      NumberFormat.decimalPattern('en_IN')
+                                          .format(stateData.delta.deceased),
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 4),
+                        Expanded(
+                          child: Center(
+                            child: Container(
+                              child: Text(NumberFormat.decimalPattern('en_IN')
+                                  .format(stateData.total.deceased)),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                    ),
+                  ]))
             ]))
         .toList()
         .cast<DataRow>();
