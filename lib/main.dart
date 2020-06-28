@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.dark,
             primarySwatch: Colors.grey,
             accentColor: Colors.white),
+        themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
         home: HomePage(),
       ),

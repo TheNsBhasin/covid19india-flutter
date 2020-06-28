@@ -1,11 +1,11 @@
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/daily_count_level_widget.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/daily_count_table_widget.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map_explorer_widget.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_widget.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
 import 'package:covid19india/features/home/presentation/widgets/action_bar.dart';
 import 'package:covid19india/features/home/presentation/widgets/search_bar.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
-import 'package:covid19india/features/time_series/presentation/widgets/time_series_minigraph_widget.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_minigraph_widget.dart';
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 

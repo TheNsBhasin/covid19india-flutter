@@ -10,7 +10,7 @@ import 'package:path_drawing/path_drawing.dart';
 
 class MapVisualizer extends StatefulWidget {
   final MapView mapView;
-  final List<StateWiseDailyCount> dailyCounts;
+  final Map<String, StateWiseDailyCount> stateMap;
   final String statistics;
   final String stateCode;
   final String districtName;
@@ -18,7 +18,7 @@ class MapVisualizer extends StatefulWidget {
 
   MapVisualizer(
       {this.mapView,
-      this.dailyCounts,
+      this.stateMap,
       this.statistics,
       this.stateCode,
       this.districtName,
@@ -30,13 +30,11 @@ class MapVisualizer extends StatefulWidget {
 
 class _MapVisualizerState extends State<MapVisualizer> {
   int maxCases;
-  Map<String, StateWiseDailyCount> stateMap;
 
   @override
   void initState() {
     super.initState();
 
-    stateMap = _getDailyCountMap();
     maxCases =
         _getMaxCases(widget.mapView, widget.stateCode, widget.districtName);
   }
@@ -45,7 +43,6 @@ class _MapVisualizerState extends State<MapVisualizer> {
   void didUpdateWidget(MapVisualizer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    stateMap = _getDailyCountMap();
     maxCases =
         _getMaxCases(widget.mapView, widget.stateCode, widget.districtName);
   }
@@ -106,45 +103,48 @@ class _MapVisualizerState extends State<MapVisualizer> {
   }
 
   _getGradient(MapView mapView, String stateCode, String districtName) {
-    int regionCases = 1;
+    int _regionCases = 1;
     if (mapView == MapView.STATES) {
-      regionCases = max(regionCases,
-          _getStatistics(stateMap[stateCode].total, widget.statistics));
+      _regionCases = max(_regionCases,
+          _getStatistics(widget.stateMap[stateCode].total, widget.statistics));
     } else {
-      List results = stateMap[stateCode]
-          .districts
+      List results = widget.stateMap[stateCode].districts
           .where((e) => e.name == districtName)
           .toList();
 
       if (results.length > 0) {
-        regionCases = max(regionCases,
+        _regionCases = max(_regionCases,
             _getStatistics(results.first.total, widget.statistics));
       }
     }
 
-    return Color.lerp(
-        Constants.STATS_GRADIENT_COLOR[widget.statistics][0],
-        Constants.STATS_GRADIENT_COLOR[widget.statistics][1],
-        (regionCases / maxCases));
-  }
+    int _startIndex = 0;
+    int _endIndex = 1;
 
-  Map<String, StateWiseDailyCount> _getDailyCountMap() {
-    return Map.fromIterable(widget.dailyCounts,
-        key: (e) => e.name, value: (e) => e);
+    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
+      _startIndex = 1;
+      _endIndex = 0;
+    }
+
+    return Color.lerp(
+        Constants.STATS_GRADIENT_COLOR[widget.statistics][_startIndex],
+        Constants.STATS_GRADIENT_COLOR[widget.statistics][_endIndex],
+        (_regionCases / maxCases));
   }
 
   int _getMaxCases(MapView mapView, String stateCode, String districtName) {
     int maxCases = 1;
 
     if (mapView == MapView.STATES) {
-      widget.dailyCounts
-          .where((stateData) => stateData.name != 'TT')
-          .forEach((stateData) {
-        maxCases =
-            max(maxCases, _getStatistics(stateData.total, widget.statistics));
+      widget.stateMap.entries.forEach((e) {
+        String stateCode = e.key;
+        if (stateCode != 'TT') {
+          maxCases =
+              max(maxCases, _getStatistics(e.value.total, widget.statistics));
+        }
       });
     } else {
-      stateMap[stateCode].districts.forEach((districtData) {
+      widget.stateMap[stateCode].districts.forEach((districtData) {
         maxCases = max(
             maxCases, _getStatistics(districtData.total, widget.statistics));
       });

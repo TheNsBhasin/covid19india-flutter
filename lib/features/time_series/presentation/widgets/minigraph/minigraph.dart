@@ -1,5 +1,5 @@
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
-import 'package:covid19india/features/time_series/presentation/widgets/time_series_line_chart.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_line_chart.dart';
 import 'package:flutter/material.dart';
 
 class MiniGraph extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
-import 'package:covid19india/features/time_series/presentation/widgets/minigraph.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/minigraph/minigraph.dart';
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

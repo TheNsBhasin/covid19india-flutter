@@ -1,8 +1,9 @@
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map_metadata.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map_stats.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map_visualizer.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/map/map_header.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/map/map_metadata.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/map/map_stats.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/map/map_visualizer.dart';
 import 'package:flutter/material.dart';
 
 class MapExplorer extends StatefulWidget {
@@ -35,23 +36,7 @@ class _MapExplorerState extends State<MapExplorer> {
     return Center(
       child: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'India Map',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Tap over a state/UT for more details',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ),
+          MapHeader(mapView: mapView, stateCode: selectedState),
           MapStats(
               dailyCount: widget.dailyCounts
                   .where((stateData) => stateData.name == selectedState)
@@ -62,12 +47,15 @@ class _MapExplorerState extends State<MapExplorer> {
                   selectedStatistics = selected;
                 });
               }),
-          SizedBox(height: 32),
+          mapView == MapView.STATES
+              ? SizedBox(height: 32)
+              : SizedBox(height: 0),
           MapMetadata(
               mapView: mapView,
               stateCode: selectedState,
               districtName: selectedDistrict,
               statistics: selectedStatistics,
+              stateMap: _getDailyCountMap(widget.dailyCounts),
               lastUpdated: widget.dailyCounts
                   .where((stateData) => stateData.name == selectedState)
                   .toList()
@@ -83,10 +71,12 @@ class _MapExplorerState extends State<MapExplorer> {
                   }
                 });
               }),
-          SizedBox(height: 32),
+          mapView == MapView.STATES
+              ? SizedBox(height: 32)
+              : SizedBox(height: 0),
           MapVisualizer(
               mapView: mapView,
-              dailyCounts: widget.dailyCounts,
+              stateMap: _getDailyCountMap(widget.dailyCounts),
               stateCode: selectedState,
               districtName: selectedDistrict,
               statistics: selectedStatistics,
@@ -102,5 +92,10 @@ class _MapExplorerState extends State<MapExplorer> {
         ],
       ),
     );
+  }
+
+  Map<String, StateWiseDailyCount> _getDailyCountMap(
+      List<StateWiseDailyCount> dailyCounts) {
+    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
   }
 }
