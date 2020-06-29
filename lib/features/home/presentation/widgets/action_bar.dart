@@ -29,7 +29,7 @@ class _ActionBarState extends State<ActionBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding:
-          const EdgeInsets.only(top: 32.0, bottom: 16, left: 16, right: 16),
+          const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
