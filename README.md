@@ -1,6 +1,15 @@
 # covid19india
 
-A new Flutter application.
+## Light Mode
+
+| Home Page | India Map | District Map |
+| :---: | :---: | :---: |
+| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-light.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-light.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-light.jpg) |
+
+## Dark Mode
+| Home Page | India Map | District Map |
+| :---: | :---: | :---: |
+| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-dark.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-dark.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-dark.jpg) |
 
 ## Getting Started
 
