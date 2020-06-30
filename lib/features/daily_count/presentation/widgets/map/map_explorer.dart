@@ -35,6 +35,8 @@ class _MapExplorerState extends State<MapExplorer> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           MapHeader(mapView: mapView, stateCode: selectedState),
           MapStats(

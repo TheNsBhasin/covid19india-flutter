@@ -21,7 +21,7 @@ class LevelItem extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(statistics.capitalize(),
                 style: TextStyle(
-                    fontSize: 14, color: Constants.STATS_COLOR[statistics])),
+                    fontSize: 14, fontWeight: FontWeight.bold, color: Constants.STATS_COLOR[statistics])),
           ),
           Padding(
             padding: const EdgeInsets.all(4.0),

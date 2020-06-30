@@ -24,6 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  grizzly_scales: ^2.0.2
+
   autotrie: ^0.4.1
 
   hive: ^1.4.1+1

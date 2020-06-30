@@ -29,7 +29,7 @@ class TimeSeriesMiniGraphWidget extends StatelessWidget {
                   } else if (state is Loaded) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: buildMiniGraph(state.timeSeries
+                      child: _buildMiniGraph(state.timeSeries
                           .where((stateDate) => stateDate.name == 'TT')
                           .toList()[0]
                           .timeSeries),
@@ -50,7 +50,7 @@ class TimeSeriesMiniGraphWidget extends StatelessWidget {
     );
   }
 
-  Widget buildMiniGraph(timeSeries) {
+  Widget _buildMiniGraph(timeSeries) {
     return MiniGraph(timeSeries: timeSeries);
   }
 }

@@ -1,5 +1,3 @@
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
-
 class Utilities {
   static double scaleTime(DateTime start, DateTime end, DateTime current) {
     int total = end.difference(start).inDays;

@@ -1,3 +1,4 @@
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_line_chart.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +15,10 @@ class MiniGraph extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          TimeSeriesLineChart(timeSeries: timeSeries, statistics: 'confirmed'),
-          TimeSeriesLineChart(timeSeries: timeSeries, statistics: 'active'),
-          TimeSeriesLineChart(timeSeries: timeSeries, statistics: 'recovered'),
-          TimeSeriesLineChart(timeSeries: timeSeries, statistics: 'deceased'),
+          ...Constants.PRIMARY_STATISTICS
+              .map((statistics) => TimeSeriesLineChart(
+                  timeSeries: timeSeries, statistics: statistics))
+              .toList()
         ],
       ),
     );

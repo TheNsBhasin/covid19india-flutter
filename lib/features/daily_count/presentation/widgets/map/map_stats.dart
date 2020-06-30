@@ -34,7 +34,9 @@ class MapStatsItem extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(statistics.capitalize(),
                     style: TextStyle(
-                        fontSize: 14, color: Constants.STATS_COLOR[statistics])),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Constants.STATS_COLOR[statistics])),
               ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -45,7 +47,8 @@ class MapStatsItem extends StatelessWidget {
                                 .format(_getStatistics(delta, statistics))
                         : "",
                     style: TextStyle(
-                        fontSize: 12, color: Constants.STATS_COLOR[statistics])),
+                        fontSize: 12,
+                        color: Constants.STATS_COLOR[statistics])),
               ),
               Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -79,7 +82,8 @@ class MapStatsItem extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(statistics.capitalize(),
                     style: TextStyle(
-                        fontSize: 14, color: Constants.STATS_COLOR[statistics])),
+                        fontSize: 14,
+                        color: Constants.STATS_COLOR[statistics])),
               ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
@@ -89,7 +93,8 @@ class MapStatsItem extends StatelessWidget {
                             DateTime.parse(metadata.tested['last_updated'])
                                 .toLocal())),
                     style: TextStyle(
-                        fontSize: 12, color: Constants.STATS_COLOR[statistics])),
+                        fontSize: 12,
+                        color: Constants.STATS_COLOR[statistics])),
               ),
               Padding(
                 padding: const EdgeInsets.all(2.0),
@@ -143,60 +148,19 @@ class MapStats extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  onSelectStats('confirmed');
-                },
-                child: MapStatsItem(
-                    statistics: 'confirmed',
-                    total: dailyCount.total,
-                    delta: dailyCount.delta,
-                    metadata: dailyCount.metadata),
-              ),
-              SizedBox(width: 8.0),
-              GestureDetector(
-                onTap: () {
-                  onSelectStats('active');
-                },
-                child: MapStatsItem(
-                    statistics: 'active',
-                    total: dailyCount.total,
-                    delta: dailyCount.delta,
-                    metadata: dailyCount.metadata),
-              ),
-              SizedBox(width: 8.0),
-              GestureDetector(
-                onTap: () {
-                  onSelectStats('recovered');
-                },
-                child: MapStatsItem(
-                    statistics: 'recovered',
-                    total: dailyCount.total,
-                    delta: dailyCount.delta,
-                    metadata: dailyCount.metadata),
-              ),
-              SizedBox(width: 8.0),
-              GestureDetector(
-                onTap: () {
-                  onSelectStats('deceased');
-                },
-                child: MapStatsItem(
-                    statistics: 'deceased',
-                    total: dailyCount.total,
-                    delta: dailyCount.delta,
-                    metadata: dailyCount.metadata),
-              ),
-              SizedBox(width: 8.0),
-              GestureDetector(
-                onTap: () {
-                  onSelectStats('tested');
-                },
-                child: MapStatsItem(
-                    statistics: 'tested',
-                    total: dailyCount.total,
-                    delta: dailyCount.delta,
-                    metadata: dailyCount.metadata),
-              )
+              ...Constants.MAP_STATISTICS.map((statistics) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        onSelectStats(statistics);
+                      },
+                      child: MapStatsItem(
+                          statistics: statistics,
+                          total: dailyCount.total,
+                          delta: dailyCount.delta,
+                          metadata: dailyCount.metadata),
+                    ),
+                  ))
             ],
           ),
         ),

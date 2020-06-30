@@ -3,16 +3,22 @@ import 'package:flutter/material.dart';
 enum MapView { STATES, DISTRICTS }
 
 class Constants {
-  static const int MINIGRAPH_LOOKBACK_DAYS = 20;
-
-  static const int CACHE_TIMEOUT_IN_MINUTES = 15;
-
-  static const List<String> PRIMARY_STATISTICS = [
+  static const PRIMARY_STATISTICS = [
     'confirmed',
     'active',
     'recovered',
     'deceased',
   ];
+
+  static const BIG_TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+
+  static const MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+
+  static const TIME_SERIES_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+
+  static const int MINIGRAPH_LOOKBACK_DAYS = 20;
+
+  static const int CACHE_TIMEOUT_IN_MINUTES = 15;
 
   static const Map<String, Color> STATS_COLOR = {
     'confirmed': Colors.red,
@@ -28,6 +34,17 @@ class Constants {
     'recovered': <Color>[Color(0xFFA5D6A7), Color(0xFF1B5E20)],
     'deceased': <Color>[Color(0xFFEEEEEE), Color(0xFF212121)],
     'tested': <Color>[Color(0xFFCE93D8), Color(0xFF4A148C)],
+  };
+
+  static const Map<String, String> TIME_SERIES_CHART_TYPES = {
+    'total': 'Cumulative',
+    'delta': 'Daily',
+  };
+
+  static const Map<String, String> TIME_SERIES_OPTIONS = {
+    'BEGINNING': 'Beginning',
+    'MONTH': '1 Month',
+    'TWO_WEEKS': '2 Weeks',
   };
 
   static const List<String> STATE_CODES = [

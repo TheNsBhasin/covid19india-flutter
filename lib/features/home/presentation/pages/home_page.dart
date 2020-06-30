@@ -6,6 +6,7 @@ import 'package:covid19india/features/home/presentation/widgets/action_bar.dart'
 import 'package:covid19india/features/home/presentation/widgets/search_bar.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_minigraph_widget.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_explorer_widget.dart';
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 
@@ -71,13 +72,16 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.only(top: 32.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           buildSearchBar(),
           buildActionBar(),
           DailyCountLevelWidget(),
           TimeSeriesMiniGraphWidget(),
           DailyCountTableWidget(),
-          MapExplorerWidget()
+          MapExplorerWidget(),
+          TimeSeriesExplorerWidget()
         ],
       ),
     );
