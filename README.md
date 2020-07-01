@@ -4,15 +4,15 @@ Project Inspired by [COVID-19 INDIA](https://www.covid19india.org/). An open sou
 
 ## Light Mode
 
-| Home Page | India Map | District Map |
-| :---: | :---: | :---: |
-| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-light.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-light.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-light.jpg) |
+| Home Page | India Map | District Map | Spread Trend |
+| :---: | :---: | :---: | :---: |
+| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-light.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-light.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-light.jpg) | ![Spread Trend](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/spread-trend-light.jpg) |
 
 
 ## Dark Mode
-| Home Page | India Map | District Map |
-| :---: | :---: | :---: |
-| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-dark.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-dark.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-dark.jpg) |
+| Home Page | India Map | District Map | Spread Trend |
+| :---: | :---: | :---: | :---: |
+| ![Home Page](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/home-page-dark.jpg) | ![India Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/india-map-dark.jpg) | ![District Map](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/district-map-dark.jpg) | ![Spread Trend](https://github.com/TheNsBhasin/covid19india-flutter/blob/master/screenshots/spread-trend-dark.jpg) |
 
 
 ## Getting Started
