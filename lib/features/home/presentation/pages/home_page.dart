@@ -3,6 +3,7 @@ import 'package:covid19india/features/daily_count/presentation/widgets/level/dai
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
 import 'package:covid19india/features/home/presentation/widgets/action_bar.dart';
+import 'package:covid19india/features/home/presentation/widgets/footer.dart';
 import 'package:covid19india/features/home/presentation/widgets/search_bar.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_minigraph_widget.dart';
@@ -75,24 +76,29 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          buildSearchBar(),
-          buildActionBar(),
+          _buildSearchBar(),
+          _buildActionBar(),
           DailyCountLevelWidget(),
           TimeSeriesMiniGraphWidget(),
           DailyCountTableWidget(),
           MapExplorerWidget(),
-          TimeSeriesExplorerWidget()
+          TimeSeriesExplorerWidget(),
+          _buildFooter()
         ],
       ),
     );
   }
 
-  Widget buildSearchBar() {
+  Widget _buildSearchBar() {
     return SearchBar();
   }
 
-  Widget buildActionBar() {
+  Widget _buildActionBar() {
     return ActionBar();
+  }
+
+  Widget _buildFooter() {
+    return Footer();
   }
 
   Future<Null> _refreshAll() async {
