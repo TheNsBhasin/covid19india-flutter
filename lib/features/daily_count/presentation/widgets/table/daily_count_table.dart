@@ -1,5 +1,6 @@
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -112,23 +113,16 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
-                        if (stateData.delta.confirmed > 0)
-                          Center(
-                            child: Container(
-                              child: Text(
-                                "↑" +
-                                    NumberFormat.decimalPattern('en_IN')
-                                        .format(stateData.delta.confirmed),
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ),
                         SizedBox(height: 4),
                         Center(
                           child: Container(
-                            child: Text(NumberFormat.decimalPattern('en_IN')
-                                .format(stateData.total.confirmed)),
+                            child: _getDeltaText(stateData.delta, 'confirmed'),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Center(
+                          child: Container(
+                            child: _getTotalText(stateData.total, 'confirmed'),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -144,12 +138,15 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(height: 4),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                              child: Text(NumberFormat.decimalPattern('en_IN')
-                                  .format(stateData.total.active)),
-                            ),
+                        Center(
+                          child: Container(
+                            child: _getDeltaText(stateData.delta, 'active'),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Center(
+                          child: Container(
+                            child: _getTotalText(stateData.total, 'active'),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -164,23 +161,16 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
-                        if (stateData.delta.recovered > 0)
-                          Center(
-                            child: Container(
-                              child: Text(
-                                "↑" +
-                                    NumberFormat.decimalPattern('en_IN')
-                                        .format(stateData.delta.recovered),
-                                style: TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ),
                         SizedBox(height: 4),
                         Center(
                           child: Container(
-                            child: Text(NumberFormat.decimalPattern('en_IN')
-                                .format(stateData.total.recovered)),
+                            child: _getDeltaText(stateData.delta, 'recovered'),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Center(
+                          child: Container(
+                            child: _getTotalText(stateData.total, 'recovered'),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -195,23 +185,16 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        if (stateData.delta.confirmed > 0) SizedBox(height: 4),
-                        if (stateData.delta.deceased > 0)
-                          Center(
-                            child: Container(
-                              child: Text(
-                                "↑" +
-                                    NumberFormat.decimalPattern('en_IN')
-                                        .format(stateData.delta.deceased),
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                            ),
-                          ),
                         SizedBox(height: 4),
                         Center(
                           child: Container(
-                            child: Text(NumberFormat.decimalPattern('en_IN')
-                                .format(stateData.total.deceased)),
+                            child: _getDeltaText(stateData.delta, 'deceased'),
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Center(
+                          child: Container(
+                            child: _getTotalText(stateData.total, 'deceased'),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -221,6 +204,41 @@ class _DailyCountTableState extends State<DailyCountTable> {
             ]))
         .toList()
         .cast<DataRow>();
+  }
+
+  _getDeltaText(Stats delta, statistics) {
+    int value = _getStatistics(delta, statistics);
+
+    return Text(
+      (value < 0 ? "↓" : "↑") +
+          NumberFormat.decimalPattern('en_IN').format(value),
+      style: TextStyle(
+          color: value > 0
+              ? Constants.STATS_COLOR[statistics]
+              : Colors.transparent),
+    );
+  }
+
+  _getTotalText(Stats total, statistics) {
+    int value = _getStatistics(total, statistics);
+
+    return Text(NumberFormat.decimalPattern('en_IN').format(value));
+  }
+
+  int _getStatistics(Stats data, statistics) {
+    if (statistics == 'confirmed') {
+      return data.confirmed;
+    } else if (statistics == 'active') {
+      return data.active;
+    } else if (statistics == 'recovered') {
+      return data.recovered;
+    } else if (statistics == 'deceased') {
+      return data.deceased;
+    } else if (statistics == 'tested') {
+      return data.tested;
+    }
+
+    return data.confirmed;
   }
 
   _getRowsData() {
