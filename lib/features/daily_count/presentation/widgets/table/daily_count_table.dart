@@ -36,6 +36,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
+            dataRowHeight: 80,
             sortColumnIndex: sortColumnIndex,
             sortAscending: isAscending,
             columns: _getColumns(),
@@ -80,30 +81,29 @@ class _DailyCountTableState extends State<DailyCountTable> {
   _getRows() {
     return _getRowsData()
         .map((stateData) => DataRow(cells: [
-              DataCell(Row(
+              DataCell(Container(
+                width: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 4),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                                width: 100,
-                                child: Text((stateData.name == 'TT'
-                                        ? 'Total'
-                                        : Constants
-                                            .STATE_CODE_MAP[stateData.name])
-                                    .toString())),
+                    Flexible(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            (stateData.name == 'TT'
+                                    ? 'Total'
+                                    : Constants.STATE_CODE_MAP[stateData.name])
+                                .toString(),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                      ],
-                    )
-                  ])),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )),
               DataCell(Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -114,25 +114,21 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       children: <Widget>[
                         if (stateData.delta.confirmed > 0) SizedBox(height: 4),
                         if (stateData.delta.confirmed > 0)
-                          Expanded(
-                            child: Center(
-                              child: Container(
-                                child: Text(
-                                  "↑" +
-                                      NumberFormat.decimalPattern('en_IN')
-                                          .format(stateData.delta.confirmed),
-                                  style: TextStyle(color: Colors.red),
-                                ),
+                          Center(
+                            child: Container(
+                              child: Text(
+                                "↑" +
+                                    NumberFormat.decimalPattern('en_IN')
+                                        .format(stateData.delta.confirmed),
+                                style: TextStyle(color: Colors.red),
                               ),
                             ),
                           ),
                         SizedBox(height: 4),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                              child: Text(NumberFormat.decimalPattern('en_IN')
-                                  .format(stateData.total.confirmed)),
-                            ),
+                        Center(
+                          child: Container(
+                            child: Text(NumberFormat.decimalPattern('en_IN')
+                                .format(stateData.total.confirmed)),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -170,25 +166,21 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       children: <Widget>[
                         if (stateData.delta.confirmed > 0) SizedBox(height: 4),
                         if (stateData.delta.recovered > 0)
-                          Expanded(
-                            child: Center(
-                              child: Container(
-                                child: Text(
-                                  "↑" +
-                                      NumberFormat.decimalPattern('en_IN')
-                                          .format(stateData.delta.recovered),
-                                  style: TextStyle(color: Colors.green),
-                                ),
+                          Center(
+                            child: Container(
+                              child: Text(
+                                "↑" +
+                                    NumberFormat.decimalPattern('en_IN')
+                                        .format(stateData.delta.recovered),
+                                style: TextStyle(color: Colors.green),
                               ),
                             ),
                           ),
                         SizedBox(height: 4),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                              child: Text(NumberFormat.decimalPattern('en_IN')
-                                  .format(stateData.total.recovered)),
-                            ),
+                        Center(
+                          child: Container(
+                            child: Text(NumberFormat.decimalPattern('en_IN')
+                                .format(stateData.total.recovered)),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -205,25 +197,21 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       children: <Widget>[
                         if (stateData.delta.confirmed > 0) SizedBox(height: 4),
                         if (stateData.delta.deceased > 0)
-                          Expanded(
-                            child: Center(
-                              child: Container(
-                                child: Text(
-                                  "↑" +
-                                      NumberFormat.decimalPattern('en_IN')
-                                          .format(stateData.delta.deceased),
-                                  style: TextStyle(color: Colors.grey),
-                                ),
+                          Center(
+                            child: Container(
+                              child: Text(
+                                "↑" +
+                                    NumberFormat.decimalPattern('en_IN')
+                                        .format(stateData.delta.deceased),
+                                style: TextStyle(color: Colors.grey),
                               ),
                             ),
                           ),
                         SizedBox(height: 4),
-                        Expanded(
-                          child: Center(
-                            child: Container(
-                              child: Text(NumberFormat.decimalPattern('en_IN')
-                                  .format(stateData.total.deceased)),
-                            ),
+                        Center(
+                          child: Container(
+                            child: Text(NumberFormat.decimalPattern('en_IN')
+                                .format(stateData.total.deceased)),
                           ),
                         ),
                         SizedBox(height: 4),
