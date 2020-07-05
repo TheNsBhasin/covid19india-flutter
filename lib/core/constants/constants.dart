@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 enum MapView { STATES, DISTRICTS }
 
 class Constants {
-  static const PRIMARY_STATISTICS = [
+  static const List<String> PRIMARY_STATISTICS = <String>[
     'confirmed',
     'active',
     'recovered',
     'deceased',
   ];
 
-  static const BIG_TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
   static const MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
