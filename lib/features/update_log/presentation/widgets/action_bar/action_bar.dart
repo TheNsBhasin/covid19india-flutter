@@ -66,6 +66,7 @@ class _ActionBarState extends State<ActionBar> {
               SizedBox(width: 16),
               IconButton(
                 icon: Icon(_bellIcon()),
+                color: Colors.grey,
                 onPressed: () {
                   if (!showUpdates) {
                     sl<UpdateLogBloc>()
@@ -83,6 +84,7 @@ class _ActionBarState extends State<ActionBar> {
               IconButton(
                 icon: Icon(Icons.settings_backup_restore),
                 onPressed: () {},
+                color: Colors.grey,
               ),
             ],
           ),

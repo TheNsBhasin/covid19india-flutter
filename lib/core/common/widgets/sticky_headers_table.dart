@@ -227,9 +227,9 @@ class CellDimensions {
 
   static const CellDimensions base = CellDimensions(
     contentCellWidth: 135.0,
-    contentCellHeight: 56.0,
+    contentCellHeight: 64.0,
     stickyLegendWidth: 152.0,
-    stickyLegendHeight: 56.0,
+    stickyLegendHeight: 64.0,
   );
 }
 

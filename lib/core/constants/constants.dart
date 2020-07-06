@@ -10,15 +10,17 @@ class Constants {
     'deceased',
   ];
 
-  static const TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const List<String> TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
-  static const MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const List<String> MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
-  static const TIME_SERIES_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const List<String> TIME_SERIES_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
   static const int MINIGRAPH_LOOKBACK_DAYS = 20;
 
   static const int CACHE_TIMEOUT_IN_MINUTES = 15;
+
+  static const int DISTRICT_TABLE_COUNT = 30;
 
   static const Map<String, Color> STATS_COLOR = {
     'confirmed': Colors.red,
