@@ -47,10 +47,10 @@ class DailyCountTableWidget extends StatelessWidget {
   }
 
   Widget buildDailyCountTable(BuildContext context, dailyCounts) {
-    return Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        child: DailyCountTable(
-            stateWiseDailyCount: _getDailyCountMap(dailyCounts)));
+    return IntrinsicHeight(
+      child:
+          DailyCountTable(stateWiseDailyCount: _getDailyCountMap(dailyCounts)),
+    );
   }
 
   Map<String, StateWiseDailyCount> _getDailyCountMap(
