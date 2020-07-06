@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 
-@immutable
 abstract class TimeSeriesEvent extends Equatable {}
 
 class GetTimeSeriesData extends TimeSeriesEvent {
@@ -10,5 +8,5 @@ class GetTimeSeriesData extends TimeSeriesEvent {
   GetTimeSeriesData({this.forced: false});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [forced];
 }

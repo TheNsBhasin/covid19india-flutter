@@ -2,7 +2,6 @@ import 'package:covid19india/features/daily_count/domain/entities/state_wise_dai
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
-@immutable
 abstract class DailyCountState extends Equatable {}
 
 class Empty extends DailyCountState {

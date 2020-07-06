@@ -2,7 +2,6 @@ import 'package:covid19india/features/time_series/domain/entities/state_wise_tim
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
-@immutable
 abstract class TimeSeriesState extends Equatable {}
 
 class Empty extends TimeSeriesState {

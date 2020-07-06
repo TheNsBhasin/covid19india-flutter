@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 
-@immutable
 abstract class DailyCountEvent extends Equatable {}
 
 class GetDailyCountData extends DailyCountEvent {
@@ -10,5 +8,5 @@ class GetDailyCountData extends DailyCountEvent {
   GetDailyCountData({this.forced = false});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [forced];
 }

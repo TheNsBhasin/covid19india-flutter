@@ -1,5 +1,6 @@
 import 'package:covid19india/features/daily_count/data/models/state_wise_daily_count_model.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
+import 'package:covid19india/features/update_log/data/models/update_log_model.dart';
 
 class ResponseParser {
   static Map<String, dynamic> jsonToDailyCounts(Map<String, dynamic> json) {
@@ -19,6 +20,18 @@ class ResponseParser {
       List<StateWiseTimeSeriesModel> timeSeries) {
     return {
       'results': timeSeries.map((stateData) => stateData.toJson()).toList()
+    };
+  }
+
+  static Map<String, dynamic> jsonToUpdateLogs(List<dynamic> json) {
+    return {'results': parseJsonToUpdateLogs(json)};
+  }
+
+  static Map<String, dynamic> updateLogsToJson(
+      List<UpdateLogModel> updateLogs) {
+
+    return {
+      'results': updateLogs.map((updateLog) => updateLog.toJson()).toList()
     };
   }
 }
@@ -42,7 +55,8 @@ List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
             'metadata': {
               'last_updated': (e.value['meta'] ?? {})['last_updated'] ?? "",
               'notes': (e.value['meta'] ?? {})['notes'] ?? "",
-              'tested': (e.value['meta'] ?? {})['tested'] ?? Map<String, dynamic>()
+              'tested':
+                  (e.value['meta'] ?? {})['tested'] ?? Map<String, dynamic>()
             },
             'districts': (e.value['districts'] ?? {})
                 .entries
@@ -63,6 +77,13 @@ List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
                     })
                 .toList()
           })
+      .toList();
+}
+
+List<Map<String, dynamic>> parseJsonToUpdateLogs(List<dynamic> json) {
+  return json
+      .map((updateLog) =>
+          {"update": updateLog["update"], "timestamp": updateLog["timestamp"]})
       .toList();
 }
 

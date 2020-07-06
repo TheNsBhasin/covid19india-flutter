@@ -270,7 +270,6 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   List<String> _getTitleRow() {
-    print('sortColumnIndex: $sortColumnIndex, isAscending: $isAscending');
     return sortColumn(sortColumnIndex, isAscending);
   }
 

@@ -2,12 +2,13 @@ import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_widget.dart';
-import 'package:covid19india/features/home/presentation/widgets/action_bar.dart';
 import 'package:covid19india/features/home/presentation/widgets/footer.dart';
 import 'package:covid19india/features/home/presentation/widgets/search_bar.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_minigraph_widget.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_explorer_widget.dart';
+import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/update_log/presentation/widgets/action_bar/action_bar_widget.dart';
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 
@@ -76,34 +77,23 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          _buildSearchBar(),
-          _buildActionBar(),
+          SearchBar(),
+          ActionBarWidget(),
           DailyCountLevelWidget(),
           TimeSeriesMiniGraphWidget(),
           DailyCountTableWidget(),
           MapExplorerWidget(),
           TimeSeriesExplorerWidget(),
-          _buildFooter()
+          Footer()
         ],
       ),
     );
-  }
-
-  Widget _buildSearchBar() {
-    return SearchBar();
-  }
-
-  Widget _buildActionBar() {
-    return ActionBar();
-  }
-
-  Widget _buildFooter() {
-    return Footer();
   }
 
   Future<Null> _refreshAll() async {
     refreshKey.currentState?.show(atTop: false);
     sl<DailyCountBloc>()..add(GetDailyCountData(forced: true));
     sl<TimeSeriesBloc>()..add(GetTimeSeriesData(forced: true));
+    sl<UpdateLogBloc>()..add(GetUpdateLogData(forced: true));
   }
 }
