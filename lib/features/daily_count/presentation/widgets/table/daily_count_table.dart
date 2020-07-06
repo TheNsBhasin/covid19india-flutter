@@ -266,7 +266,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   List<String> _getTitleColumn() {
-    return Constants.PRIMARY_STATISTICS;
+    return Constants.TABLE_STATISTICS;
   }
 
   List<String> _getTitleRow() {

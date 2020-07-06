@@ -83,6 +83,7 @@ class MapStatsItem extends StatelessWidget {
                 child: Text(statistics.capitalize(),
                     style: TextStyle(
                         fontSize: 14,
+                        fontWeight: FontWeight.bold,
                         color: Constants.STATS_COLOR[statistics])),
               ),
               Padding(

@@ -78,7 +78,7 @@ class _UpdatesState extends State<Updates> {
             Text(
               "${Formatter.formatDuration(DateTime.now().difference(updateLog.timestamp))} ago"
                   .capitalize(),
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             SizedBox(height: 4.0),
             ...notes.map((note) => Text(

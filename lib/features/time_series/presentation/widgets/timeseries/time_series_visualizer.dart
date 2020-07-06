@@ -33,80 +33,84 @@ class TimeSeriesItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: 200),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
       child: Container(
         decoration: BoxDecoration(
             color: Constants.STATS_COLOR[statistics].withAlpha(50),
             borderRadius: BorderRadius.all(new Radius.circular(5.0))),
-        child: AspectRatio(
-            aspectRatio: 1.7,
-            child: Stack(children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
+        child: Stack(children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  statistics.capitalize(),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.STATS_COLOR[statistics]),
+                ),
+                Text(
+                  new DateFormat('d MMMM')
+                      .format(timeSeries.last.date.toLocal()),
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.STATS_COLOR[statistics]),
+                ),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      statistics.capitalize(),
+                      NumberFormat.decimalPattern('en_IN').format(
+                          _getStatistics(
+                              timeSeries.last.total, statistics)),
                       style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Constants.STATS_COLOR[statistics]),
+                    ),
+                    SizedBox(
+                      width: 4.0,
                     ),
                     Text(
-                      new DateFormat('d MMMM')
-                          .format(timeSeries.last.date.toLocal()),
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Constants.STATS_COLOR[statistics]),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          NumberFormat.decimalPattern('en_IN').format(
-                              _getStatistics(
-                                  timeSeries.last.total, statistics)),
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Constants.STATS_COLOR[statistics]),
-                        ),
-                        SizedBox(
-                          width: 4.0,
-                        ),
-                        Text(
-                            _getStatistics(timeSeries.last.delta, statistics) >
-                                    0
-                                ? "+" +
-                                    NumberFormat.decimalPattern('en_IN').format(
-                                        _getStatistics(
-                                            timeSeries.last.delta, statistics))
-                                : "",
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Constants.STATS_COLOR[statistics])),
-                      ],
-                    ),
+                        _getStatistics(
+                                    timeSeries.last.delta, statistics) >
+                                0
+                            ? "+" +
+                                NumberFormat.decimalPattern('en_IN')
+                                    .format(_getStatistics(
+                                        timeSeries.last.delta,
+                                        statistics))
+                            : "",
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Constants.STATS_COLOR[statistics])),
                   ],
                 ),
-              ),
-              _buildLineChart(),
-            ])),
+              ],
+            ),
+          ),
+          _buildLineChart(),
+        ]),
       ),
     );
   }
 
   Widget _buildLineChart() {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: LineChart(
-          _getChartData(),
-          swapAnimationDuration: const Duration(milliseconds: 250),
+    return AspectRatio(
+      aspectRatio: 1.7,
+      child: Container(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: LineChart(
+            _getChartData(),
+            swapAnimationDuration: const Duration(milliseconds: 250),
+          ),
         ),
       ),
     );

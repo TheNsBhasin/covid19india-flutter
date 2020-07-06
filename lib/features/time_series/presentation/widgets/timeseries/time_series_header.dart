@@ -58,7 +58,7 @@ class TimeSeriesHeader extends StatelessWidget {
 
   Widget _buildStatisticsTypeSelector() {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: Constants.TIME_SERIES_CHART_TYPES.entries
             .map((e) => FlatButton(
@@ -141,12 +141,10 @@ class TimeSeriesHeader extends StatelessWidget {
 
   Widget _buildStatesDropdown() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: 8.0,
-        ),
+        Expanded(flex: 1, child: SizedBox.shrink()),
         Expanded(
           flex: 2,
           child: DropdownButtonHideUnderline(
@@ -171,10 +169,7 @@ class TimeSeriesHeader extends StatelessWidget {
             ),
           ),
         ),
-        Expanded(
-          flex: 1,
-          child: SizedBox.shrink(),
-        )
+        Expanded(flex: 1, child: SizedBox.shrink()),
       ],
     );
   }

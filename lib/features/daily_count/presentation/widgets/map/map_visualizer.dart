@@ -49,11 +49,17 @@ class _MapVisualizerState extends State<MapVisualizer> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = _getMapSize(widget.stateCode);
+
+    double width = min(size.width, MediaQuery.of(context).size.width);
+    double height = size.height * (width / size.width);
+
     return Center(
         child: Container(
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: _buildMap(
-                widget.mapView, widget.stateCode, widget.districtName)));
+      width: width,
+      height: height,
+      child: _buildMap(widget.mapView, widget.stateCode, widget.districtName),
+    ));
   }
 
   Widget _buildMap(MapView mapView, String stateCode, String districtName) {

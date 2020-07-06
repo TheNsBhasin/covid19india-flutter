@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 class MapPaths {
-  static const HEIGHT = 828;
-  static const WIDTH = 800;
+  static const double HEIGHT = 828;
+  static const double WIDTH = 800;
 
   static const Map<String, String> statePaths = {
     "AN":
