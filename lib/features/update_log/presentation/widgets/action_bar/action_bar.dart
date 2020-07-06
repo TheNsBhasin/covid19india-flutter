@@ -1,28 +1,31 @@
-import 'dart:async';
-
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
+import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/update_log/presentation/widgets/action_bar/updates.dart';
+import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ActionBar extends StatefulWidget {
   final List<UpdateLog> updateLogs;
+  final DateTime lastViewedTimestamp;
 
-  ActionBar({this.updateLogs});
+  ActionBar({this.updateLogs, this.lastViewedTimestamp});
 
   @override
-  _ActionBarState createState() => _ActionBarState(updateLogs: this.updateLogs);
+  _ActionBarState createState() => _ActionBarState(
+      updateLogs: this.updateLogs,
+      lastViewedTimestamp: this.lastViewedTimestamp);
 }
 
 class _ActionBarState extends State<ActionBar> {
   final List<UpdateLog> updateLogs;
+  final DateTime lastViewedTimestamp;
 
   DateTime lastUpdateTimestamp;
-  DateTime lastViewedTimestamp;
   bool updatesAvailable;
   bool showUpdates;
 
-  _ActionBarState({this.updateLogs})
+  _ActionBarState({this.updateLogs, this.lastViewedTimestamp})
       : lastUpdateTimestamp = updateLogs.last.timestamp;
 
   @override
@@ -30,7 +33,6 @@ class _ActionBarState extends State<ActionBar> {
     super.initState();
 
     lastUpdateTimestamp = updateLogs.last.timestamp;
-    lastViewedTimestamp = DateTime.fromMillisecondsSinceEpoch(0);
 
     if (lastUpdateTimestamp != lastViewedTimestamp) {
       updatesAvailable = true;
@@ -65,8 +67,13 @@ class _ActionBarState extends State<ActionBar> {
               IconButton(
                 icon: Icon(_bellIcon()),
                 onPressed: () {
+                  if (!showUpdates) {
+                    sl<UpdateLogBloc>()
+                      ..add(StoreLastViewedTimestampData(
+                          timestamp: updateLogs.last.timestamp));
+                  }
+
                   setState(() {
-                    lastViewedTimestamp = updateLogs.last.timestamp;
                     updatesAvailable = false;
                     showUpdates = !showUpdates;
                   });

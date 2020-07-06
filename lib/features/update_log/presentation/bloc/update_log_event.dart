@@ -10,3 +10,12 @@ class GetUpdateLogData extends UpdateLogEvent {
   @override
   List<Object> get props => [forced];
 }
+
+class StoreLastViewedTimestampData extends UpdateLogEvent {
+  final DateTime timestamp;
+
+  StoreLastViewedTimestampData({this.timestamp});
+
+  @override
+  List<Object> get props => [];
+}

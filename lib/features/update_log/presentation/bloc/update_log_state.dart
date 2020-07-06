@@ -16,11 +16,12 @@ class Loading extends UpdateLogState {
 
 class Loaded extends UpdateLogState {
   final List<UpdateLog> updateLogs;
+  final DateTime lastViewedTimestamp;
 
-  Loaded({this.updateLogs});
+  Loaded({this.updateLogs, this.lastViewedTimestamp});
 
   @override
-  List<Object> get props => [updateLogs];
+  List<Object> get props => [updateLogs, lastViewedTimestamp];
 }
 
 class Error extends UpdateLogState {

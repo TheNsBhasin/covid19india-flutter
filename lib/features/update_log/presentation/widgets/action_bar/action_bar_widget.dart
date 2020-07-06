@@ -28,7 +28,8 @@ class ActionBarWidget extends StatelessWidget {
                   } else if (state is Loaded) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: buildActionBar(context, state.updateLogs),
+                      child: buildActionBar(
+                          context, state.updateLogs, state.lastViewedTimestamp),
                     );
                   } else if (state is Error) {
                     return MessageDisplay(
@@ -46,7 +47,9 @@ class ActionBarWidget extends StatelessWidget {
     );
   }
 
-  Widget buildActionBar(BuildContext context, List<UpdateLog> updateLogs) {
-    return ActionBar(updateLogs: updateLogs);
+  Widget buildActionBar(BuildContext context, List<UpdateLog> updateLogs,
+      DateTime timestamp) {
+    return ActionBar(
+        updateLogs: updateLogs, lastViewedTimestamp: timestamp);
   }
 }

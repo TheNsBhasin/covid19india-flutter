@@ -6,21 +6,22 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class GetUpdateLogs implements UseCase<List<UpdateLog>, Params> {
+class GetUpdateLogs implements UseCase<List<UpdateLog>, GetUpdateLogsParams> {
   final UpdateLogRepository repository;
 
   GetUpdateLogs(this.repository);
 
   @override
-  Future<Either<Failure, List<UpdateLog>>> call(Params params) async {
+  Future<Either<Failure, List<UpdateLog>>> call(
+      GetUpdateLogsParams params) async {
     return await repository.getUpdateLogs(forced: params.forced);
   }
 }
 
-class Params extends Equatable {
+class GetUpdateLogsParams extends Equatable {
   final bool forced;
 
-  Params({@required this.forced});
+  GetUpdateLogsParams({@required this.forced});
 
   @override
   List<Object> get props => [forced];

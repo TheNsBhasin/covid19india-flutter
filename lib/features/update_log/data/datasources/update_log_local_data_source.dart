@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:covid19india/core/error/exceptions.dart';
-import 'package:covid19india/core/util/formatter.dart';
 import 'package:covid19india/core/util/response_parser.dart';
 import 'package:covid19india/features/update_log/data/models/update_log_model.dart';
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
@@ -11,12 +10,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class UpdateLogLocalDataSource {
   Future<List<UpdateLog>> getLastUpdateLogs();
 
+  Future<DateTime> getLastViewedTimestamp();
+
+  Future<void> storeLastViewedTimestamp(DateTime timestamp);
+
   Future<DateTime> getCachedTimeStamp();
 
   Future<void> cacheUpdateLogs(List<UpdateLog> updateLogs);
 }
 
 const CACHED_UPDATE_LOG = 'CACHED_UPDATE_LOG';
+const LAST_VIEWED_UPDATE_LOG_TIMESTAMP = 'LAST_VIEWED_UPDATE_LOG_TIMESTAMP';
 
 class UpdateLogLocalDataSourceImpl implements UpdateLogLocalDataSource {
   final SharedPreferences sharedPreferences;
@@ -59,5 +63,24 @@ class UpdateLogLocalDataSourceImpl implements UpdateLogLocalDataSource {
     } else {
       throw CacheException();
     }
+  }
+
+  @override
+  Future<DateTime> getLastViewedTimestamp() {
+    final lastViewedTimestamp =
+        sharedPreferences.getString(LAST_VIEWED_UPDATE_LOG_TIMESTAMP);
+    if (lastViewedTimestamp != null) {
+      return Future.value(DateTime.parse(lastViewedTimestamp));
+    } else {
+      throw CacheException();
+    }
+  }
+
+  @override
+  Future<void> storeLastViewedTimestamp(DateTime timestamp) {
+    return sharedPreferences.setString(
+      LAST_VIEWED_UPDATE_LOG_TIMESTAMP,
+      timestamp.toString(),
+    );
   }
 }

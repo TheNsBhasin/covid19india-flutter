@@ -1,6 +1,9 @@
 import 'package:covid19india/core/error/failures.dart';
+import 'package:covid19india/core/usecases/usecase.dart';
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
+import 'package:covid19india/features/update_log/domain/usecases/get_last_viewed_timestamp.dart';
 import 'package:covid19india/features/update_log/domain/usecases/get_update_logs.dart';
+import 'package:covid19india/features/update_log/domain/usecases/store_last_viewed_timestamp.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/update_log_event.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/update_log_state.dart';
 import 'package:dartz/dartz.dart';
@@ -12,10 +15,19 @@ const String CACHE_FAILURE_MESSAGE = 'Cache Failure';
 
 class UpdateLogBloc extends Bloc<UpdateLogEvent, UpdateLogState> {
   final GetUpdateLogs getUpdateLogs;
+  final GetLastViewedTimestamp getLastViewedTimestamp;
+  final StoreLastViewedTimestamp storeLastViewedTimestamp;
 
-  UpdateLogBloc({@required GetUpdateLogs updateLogs})
+  UpdateLogBloc(
+      {@required GetUpdateLogs updateLogs,
+      @required GetLastViewedTimestamp lastViewedTimestamp,
+      @required StoreLastViewedTimestamp storeLastViewedTimestamp})
       : assert(updateLogs != null),
-        getUpdateLogs = updateLogs;
+        assert(lastViewedTimestamp != null),
+        assert(storeLastViewedTimestamp != null),
+        getUpdateLogs = updateLogs,
+        getLastViewedTimestamp = lastViewedTimestamp,
+        storeLastViewedTimestamp = storeLastViewedTimestamp;
 
   @override
   UpdateLogState get initialState => Empty();
@@ -25,18 +37,28 @@ class UpdateLogBloc extends Bloc<UpdateLogEvent, UpdateLogState> {
     if (event is GetUpdateLogData) {
       yield Loading();
       final failureOrUpdateLogs =
-          await getUpdateLogs(Params(forced: event.forced));
-      yield* _eitherLoadedOrErrorState(failureOrUpdateLogs);
+          await getUpdateLogs(GetUpdateLogsParams(forced: event.forced));
+      final failureOrLastViewedTimestamp =
+          await getLastViewedTimestamp(NoParams());
+      yield* _eitherLoadedOrErrorState(
+          failureOrUpdateLogs, failureOrLastViewedTimestamp);
+    }
+
+    if (event is StoreLastViewedTimestampData) {
+      await storeLastViewedTimestamp(
+          StoreLastViewedTimestampParams(timestamp: event.timestamp));
     }
   }
 
   Stream<UpdateLogState> _eitherLoadedOrErrorState(
-    Either<Failure, List<UpdateLog>> failureOrUpdateLogs,
-  ) async* {
+      Either<Failure, List<UpdateLog>> failureOrUpdateLogs,
+      Either<Failure, DateTime> failureOrLastViewedTimestamp) async* {
     yield failureOrUpdateLogs.fold(
-      (failure) => Error(message: _mapFailureToMessage(failure)),
-      (updateLogs) => Loaded(updateLogs: updateLogs),
-    );
+        (failure) => Error(message: _mapFailureToMessage(failure)),
+        (updateLogs) => failureOrLastViewedTimestamp.fold(
+            (failure) => Error(message: _mapFailureToMessage(failure)),
+            (timestamp) => Loaded(
+                updateLogs: updateLogs, lastViewedTimestamp: timestamp)));
   }
 
   String _mapFailureToMessage(Failure failure) {

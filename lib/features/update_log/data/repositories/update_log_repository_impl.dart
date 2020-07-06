@@ -51,4 +51,26 @@ class UpdateLogRepositoryImpl implements UpdateLogRepository {
       }
     }
   }
+
+  @override
+  Future<Either<Failure, DateTime>> getLastViewedTimestamp() async {
+    try {
+      final lastViewedTimestamp =
+          await localDataSource.getLastViewedTimestamp();
+      return Right(lastViewedTimestamp);
+    } on CacheException {
+      return Right(new DateTime.fromMillisecondsSinceEpoch(0));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> storeLastViewedTimestamp(
+      {DateTime timestamp}) async {
+    try {
+      await localDataSource.storeLastViewedTimestamp(timestamp);
+      return Right(null);
+    } on CacheException {
+      return Left(CacheFailure());
+    }
+  }
 }

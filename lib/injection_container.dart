@@ -14,7 +14,9 @@ import 'package:covid19india/features/update_log/data/datasources/update_log_loc
 import 'package:covid19india/features/update_log/data/datasources/update_log_remote_datasource.dart';
 import 'package:covid19india/features/update_log/data/repositories/update_log_repository_impl.dart';
 import 'package:covid19india/features/update_log/domain/repositories/update_log_repository.dart';
+import 'package:covid19india/features/update_log/domain/usecases/get_last_viewed_timestamp.dart';
 import 'package:covid19india/features/update_log/domain/usecases/get_update_logs.dart';
+import 'package:covid19india/features/update_log/domain/usecases/store_last_viewed_timestamp.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:get_it/get_it.dart';
@@ -41,14 +43,19 @@ Future<void> init() async {
 
   sl.registerFactory<UpdateLogBloc>(
     () => UpdateLogBloc(
-      updateLogs: sl(),
-    ),
+        updateLogs: sl(),
+        lastViewedTimestamp: sl(),
+        storeLastViewedTimestamp: sl()),
   );
 
   // Use cases
   sl.registerLazySingleton<GetDailyCount>(() => GetDailyCount(sl()));
   sl.registerLazySingleton<GetTimeSeries>(() => GetTimeSeries(sl()));
   sl.registerLazySingleton<GetUpdateLogs>(() => GetUpdateLogs(sl()));
+  sl.registerLazySingleton<GetLastViewedTimestamp>(
+      () => GetLastViewedTimestamp(sl()));
+  sl.registerLazySingleton<StoreLastViewedTimestamp>(
+      () => StoreLastViewedTimestamp(sl()));
 
   // Repository
   sl.registerLazySingleton<DailyCountRepository>(
