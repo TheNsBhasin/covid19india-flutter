@@ -30,10 +30,15 @@ class DailyCountRemoteDataSourceImpl implements DailyCountRemoteDataSource {
       Map<String, dynamic> jsonMap = ResponseParser.jsonToDailyCounts(
           json.decode(response.body.toString()));
 
-      return jsonMap["results"]
-          .map((result) => StateWiseDailyCountModel.fromJson(result))
-          .toList()
-          .cast<StateWiseDailyCountModel>();
+      try {
+        return jsonMap["results"]
+            .map((result) => StateWiseDailyCountModel.fromJson(result))
+            .toList()
+            .cast<StateWiseDailyCountModel>();
+      } catch (e) {
+        debugPrint("_getDailyCountFromUrl: ${e.toString()}");
+        throw ServerException();
+      }
     } else {
       print('ServerException');
       throw ServerException();

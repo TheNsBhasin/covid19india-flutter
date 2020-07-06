@@ -47,6 +47,7 @@ class StateWiseDailyCountModel extends StateWiseDailyCount {
           .toJson(),
       'metadata': MetadataModel(
               lastUpdated: metadata.lastUpdated,
+              population: metadata.population,
               notes: metadata.notes,
               tested: metadata.tested)
           .toJson(),
@@ -64,6 +65,12 @@ class StateWiseDailyCountModel extends StateWiseDailyCount {
                 recovered: district.delta.recovered,
                 deceased: district.delta.deceased,
                 tested: district.total.tested,
+              ),
+              metadata: MetadataModel(
+                lastUpdated: district.metadata.lastUpdated,
+                population: district.metadata.population,
+                notes: district.metadata.notes,
+                tested: district.metadata.tested,
               )).toJson())
           .toList()
     };

@@ -48,23 +48,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   @override
   Widget build(BuildContext context) {
-    print(titleRow.length);
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DailyCountTableTop(
-          setDistrict: (bool district) {
+          district: tableOption == TableOption.DISTRICTS,
+          perMillion: perMillion,
+          setDistrict: () {
             setState(() {
-              tableOption =
-                  district ? TableOption.DISTRICTS : TableOption.STATES;
+              tableOption = (tableOption == TableOption.DISTRICTS)
+                  ? TableOption.STATES
+                  : TableOption.DISTRICTS;
               titleRow = _getTitleRow();
             });
           },
-          setPerMillion: (bool perMillion) {
+          setPerMillion: () {
             setState(() {
-              perMillion = perMillion;
+              perMillion = !perMillion;
             });
           },
         ),
@@ -128,17 +129,14 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
                 return _buildContentCell(
                     child: _buildStats(
-                        widget.stateWiseDailyCount[stateCode].delta,
-                        widget.stateWiseDailyCount[stateCode].total,
-                        statistics));
+                        widget.stateWiseDailyCount[stateCode], statistics));
               } else {
                 String districtName = titleRow[rowIndex];
                 String statistics = titleColumn[columnIndex];
 
                 return _buildContentCell(
                     child: _buildStats(
-                        widget.districtWiseDailyCount[districtName].delta,
-                        widget.districtWiseDailyCount[districtName].total,
+                        widget.districtWiseDailyCount[districtName],
                         statistics));
               }
             },
@@ -211,7 +209,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  Widget _buildStats(Stats delta, Stats total, String statistics) {
+  Widget _buildStats(dynamic data, String statistics) {
     return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -223,13 +221,13 @@ class _DailyCountTableState extends State<DailyCountTable> {
               SizedBox(height: 4),
               Center(
                 child: Container(
-                  child: _getDeltaText(delta, statistics),
+                  child: _getDeltaText(data, statistics),
                 ),
               ),
               SizedBox(height: 4),
               Center(
                 child: Container(
-                  child: _getTotalText(total, statistics),
+                  child: _getTotalText(data, statistics),
                 ),
               ),
               SizedBox(height: 4),
@@ -295,8 +293,9 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  _getDeltaText(Stats delta, statistics) {
-    int value = _getStatistics(delta, statistics);
+  _getDeltaText(dynamic data, statistics) {
+    int value =
+        _getStatistics(data, 'delta', statistics, perMillion: perMillion);
 
     return Text(
       (value < 0 ? "↓" : "↑") +
@@ -309,8 +308,9 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  _getTotalText(Stats total, statistics) {
-    int value = _getStatistics(total, statistics);
+  _getTotalText(dynamic data, statistics) {
+    int value =
+        _getStatistics(data, 'total', statistics, perMillion: perMillion);
 
     return Text(
       NumberFormat.decimalPattern('en_IN').format(value),
@@ -331,7 +331,18 @@ class _DailyCountTableState extends State<DailyCountTable> {
     return sortColumn(sortColumnIndex, isAscending);
   }
 
-  int _getStatistics(Stats data, statistics) {
+  int _getStatistics(dynamic data, String type, String statistic,
+      {perMillion: false}) {
+    int count = _getStatisticValue(_getStatisticType(data, type), statistic);
+
+    if (perMillion && data.metadata.population == null) {
+      return 0;
+    }
+
+    return perMillion ? (1000000 * count) ~/ data.metadata.population : count;
+  }
+
+  int _getStatisticValue(Stats data, String statistics) {
     if (statistics == 'confirmed') {
       return data.confirmed;
     } else if (statistics == 'active') {
@@ -345,6 +356,14 @@ class _DailyCountTableState extends State<DailyCountTable> {
     }
 
     return data.confirmed;
+  }
+
+  Stats _getStatisticType(dynamic data, String type) {
+    if (type == 'delta') {
+      return data.delta;
+    } else {
+      return data.total;
+    }
   }
 
   List<String> sortColumn(int columnIndex, bool ascending) {
@@ -381,16 +400,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[a].total.confirmed
-                  .compareTo(widget.stateWiseDailyCount[b].total.confirmed))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'confirmed',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'confirmed',
+                      perMillion: perMillion)))
               ..add('TT');
       } else {
         return widget.stateWiseDailyCount.keys
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[b].total.confirmed
-                  .compareTo(widget.stateWiseDailyCount[a].total.confirmed))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'confirmed',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'confirmed',
+                      perMillion: perMillion)))
               ..add('TT');
       }
     } else if (columnIndex == 2) {
@@ -399,16 +426,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[a].total.active
-                  .compareTo(widget.stateWiseDailyCount[b].total.active))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'active',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'active',
+                      perMillion: perMillion)))
               ..add('TT');
       } else {
         return widget.stateWiseDailyCount.keys
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[b].total.active
-                  .compareTo(widget.stateWiseDailyCount[a].total.active))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'active',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'active',
+                      perMillion: perMillion)))
               ..add('TT');
       }
     } else if (columnIndex == 3) {
@@ -417,16 +452,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[a].total.recovered
-                  .compareTo(widget.stateWiseDailyCount[b].total.recovered))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'recovered',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'recovered',
+                      perMillion: perMillion)))
               ..add('TT');
       } else {
         return widget.stateWiseDailyCount.keys
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[b].total.recovered
-                  .compareTo(widget.stateWiseDailyCount[a].total.recovered))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'recovered',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'recovered',
+                      perMillion: perMillion)))
               ..add('TT');
       }
     } else if (columnIndex == 4) {
@@ -435,16 +478,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[a].total.recovered
-                  .compareTo(widget.stateWiseDailyCount[b].total.recovered))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'deceased',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'deceased',
+                      perMillion: perMillion)))
               ..add('TT');
       } else {
         return widget.stateWiseDailyCount.keys
             .toList()
             .where((stateCode) => stateCode != 'TT')
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[b].total.deceased
-                  .compareTo(widget.stateWiseDailyCount[a].total.deceased))
+              ..sort((a, b) => _getStatistics(
+                      widget.stateWiseDailyCount[b], 'total', 'deceased',
+                      perMillion: perMillion)
+                  .compareTo(_getStatistics(
+                      widget.stateWiseDailyCount[a], 'total', 'deceased',
+                      perMillion: perMillion)))
               ..add('TT');
       }
     }
@@ -466,42 +517,74 @@ class _DailyCountTableState extends State<DailyCountTable> {
     } else if (columnIndex == 1) {
       if (ascending) {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[a].total.confirmed
-              .compareTo(widget.districtWiseDailyCount[b].total.confirmed));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'confirmed',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'confirmed',
+                  perMillion: perMillion)));
       } else {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[b].total.confirmed
-              .compareTo(widget.districtWiseDailyCount[a].total.confirmed));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'confirmed',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'confirmed',
+                  perMillion: perMillion)));
       }
     } else if (columnIndex == 2) {
       if (ascending) {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[a].total.active
-              .compareTo(widget.districtWiseDailyCount[b].total.active));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'active',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'active',
+                  perMillion: perMillion)));
       } else {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[b].total.active
-              .compareTo(widget.districtWiseDailyCount[a].total.active));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'active',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'active',
+                  perMillion: perMillion)));
       }
     } else if (columnIndex == 3) {
       if (ascending) {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[a].total.recovered
-              .compareTo(widget.districtWiseDailyCount[b].total.recovered));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'recovered',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'recovered',
+                  perMillion: perMillion)));
       } else {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[b].total.recovered
-              .compareTo(widget.districtWiseDailyCount[a].total.recovered));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'recovered',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'recovered',
+                  perMillion: perMillion)));
       }
     } else if (columnIndex == 4) {
       if (ascending) {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[a].total.recovered
-              .compareTo(widget.districtWiseDailyCount[b].total.recovered));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'deceased',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'deceased',
+                  perMillion: perMillion)));
       } else {
         return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[b].total.deceased
-              .compareTo(widget.districtWiseDailyCount[a].total.deceased));
+          ..sort((a, b) => _getStatistics(
+                  widget.districtWiseDailyCount[b], 'total', 'deceased',
+                  perMillion: perMillion)
+              .compareTo(_getStatistics(
+                  widget.districtWiseDailyCount[a], 'total', 'deceased',
+                  perMillion: perMillion)));
       }
     }
 

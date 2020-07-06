@@ -3,18 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DailyCountTableTop extends StatefulWidget {
-  final Null Function(bool isSelected) setDistrict;
-  final Null Function(bool isSelected) setPerMillion;
+  final bool district;
+  final bool perMillion;
 
-  DailyCountTableTop({this.setDistrict, this.setPerMillion});
+  final Null Function() setDistrict;
+  final Null Function() setPerMillion;
+
+  DailyCountTableTop(
+      {this.district, this.perMillion, this.setDistrict, this.setPerMillion});
 
   @override
   _DailyCountTableTopState createState() => _DailyCountTableTopState();
 }
 
 class _DailyCountTableTopState extends State<DailyCountTableTop> {
-  bool district = false;
-  bool perMillion = false;
   bool help = false;
 
   @override
@@ -28,24 +30,18 @@ class _DailyCountTableTopState extends State<DailyCountTableTop> {
             SizedBox(width: 8.0),
             IconButton(
               onPressed: () {
-                setState(() {
-                  district = !district;
-                  widget.setDistrict(district);
-                });
+                widget.setDistrict();
               },
               icon: FaIcon(FontAwesomeIcons.building),
-              color: district ? Colors.red : Colors.grey,
+              color: widget.district ? Colors.red : Colors.grey,
             ),
             SizedBox(width: 8.0),
             IconButton(
               onPressed: () {
-                setState(() {
-                  perMillion = !perMillion;
-                  widget.setPerMillion(perMillion);
-                });
+                widget.setPerMillion();
               },
               icon: FaIcon(FontAwesomeIcons.users),
-              color: perMillion ? Colors.green : Colors.grey,
+              color: widget.perMillion ? Colors.green : Colors.grey,
             ),
             SizedBox(width: 8.0),
             IconButton(

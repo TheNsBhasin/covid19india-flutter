@@ -24,8 +24,15 @@ class DailyCountLocalDataSourceImpl implements DailyCountLocalDataSource {
 
   @override
   Future<void> cacheDailyCount(List<StateWiseDailyCount> dailyCounts) {
-    Map<String, dynamic> jsonMap = ResponseParser.dailyCountsToJson(
-        dailyCounts.cast<StateWiseDailyCountModel>());
+    Map<String, dynamic> jsonMap = {};
+
+    try {
+      jsonMap = ResponseParser.dailyCountsToJson(
+          dailyCounts.cast<StateWiseDailyCountModel>());
+    } catch (e) {
+      debugPrint("cacheDailyCount: ${e.toString()}");
+      return null;
+    }
 
     jsonMap['time_stamp'] = new DateTime.now().toString();
 
@@ -40,10 +47,15 @@ class DailyCountLocalDataSourceImpl implements DailyCountLocalDataSource {
     final jsonString = sharedPreferences.getString(CACHED_DAILY_COUNTS);
     if (jsonString != null) {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      return Future.value(jsonMap["results"]
-          .map((result) => StateWiseDailyCountModel.fromJson(result))
-          .toList()
-          .cast<StateWiseDailyCountModel>());
+      try {
+        return Future.value(jsonMap["results"]
+            .map((result) => StateWiseDailyCountModel.fromJson(result))
+            .toList()
+            .cast<StateWiseDailyCountModel>());
+      } catch (e) {
+        debugPrint("getLastDailyCount: ${e.toString()}");
+        throw CacheException();
+      }
     } else {
       throw CacheException();
     }

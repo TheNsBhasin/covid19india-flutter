@@ -1,5 +1,4 @@
 import 'package:covid19india/core/error/failures.dart';
-import 'package:covid19india/core/usecases/usecase.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/metadata.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
@@ -44,26 +43,30 @@ void main() {
               tested: {
                 'last_updated': "2020-06-19",
                 'source': "https://dhs.andaman.gov.in/NewEvents/300.pdf"
-              }),
+              },
+              population: null),
           districts: [
             DistrictWiseDailyCount(
                 name: "North and Middle Andaman",
                 total:
                     Stats(confirmed: 1, recovered: 1, deceased: 0, tested: 0),
                 delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0)),
+                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                metadata: null),
             DistrictWiseDailyCount(
                 name: "South Andaman",
                 total:
                     Stats(confirmed: 35, recovered: 32, deceased: 0, tested: 0),
                 delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0)),
+                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                metadata: null),
             DistrictWiseDailyCount(
                 name: "Unknown",
                 total:
                     Stats(confirmed: 12, recovered: 4, deceased: 0, tested: 0),
                 delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0)),
+                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                metadata: null),
           ]),
     ];
 
