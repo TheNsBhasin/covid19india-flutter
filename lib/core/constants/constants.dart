@@ -10,11 +10,17 @@ class Constants {
     'deceased',
   ];
 
-  static const List<String> TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const List<String> TABLE_STATISTICS = [
+    ...PRIMARY_STATISTICS,
+    'tested'
+  ];
 
   static const List<String> MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
 
-  static const List<String> TIME_SERIES_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+  static const List<String> TIME_SERIES_STATISTICS = [
+    ...PRIMARY_STATISTICS,
+    'tested'
+  ];
 
   static const int MINIGRAPH_LOOKBACK_DAYS = 20;
 
@@ -910,19 +916,19 @@ class Constants {
     ]
   };
 
-  static const ESSENTIAL_SUGGESTIONS = [
-    'Testing Pune',
-    'Delhi Shelter',
-    'Community Kitchen in Kerala',
-    'Groceries Chennai',
-    'Senior citizen support bangalore',
+  static const List<String> DISTRICT_SUGGESTIONS = [
+    'Madurai',
+    'Ganjam',
+    'Alappuzha',
+    'Mumbai',
+    'Chennai',
   ];
 
-  static const LOCATION_SUGGESTIONS = [
-    'Mumbai',
+  static const List<String> STATE_SUGGESTIONS = [
+    'Andhra Pradesh',
     'Karnataka',
-    'Chennai',
-    'Alappuzha',
-    'Ganjam',
+    'Gujarat',
+    'West Bengal',
+    'Ladakh',
   ];
 }

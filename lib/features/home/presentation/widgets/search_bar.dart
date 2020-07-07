@@ -89,7 +89,7 @@ class _SearchBarState extends State<SearchBar> {
               controller: _textController,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                hintText: 'Search your city, resources, etc',
+                hintText: 'Search your district or state',
                 prefixIcon: Icon(Icons.search),
                 suffixIcon: _getClearButton(),
                 filled: true,
@@ -217,14 +217,14 @@ class _SearchBarState extends State<SearchBar> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Essentials",
+                    "District",
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue),
                   ),
                   SizedBox(height: 8),
-                  ...Constants.ESSENTIAL_SUGGESTIONS
+                  ...Constants.DISTRICT_SUGGESTIONS
                       .map((e) => _buildSuggestion(e))
                       .toList()
                 ],
@@ -239,14 +239,14 @@ class _SearchBarState extends State<SearchBar> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Locations",
+                    "State",
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue),
                   ),
                   SizedBox(height: 8),
-                  ...Constants.LOCATION_SUGGESTIONS
+                  ...Constants.STATE_SUGGESTIONS
                       .map((e) => _buildSuggestion(e))
                       .toList()
                 ],
