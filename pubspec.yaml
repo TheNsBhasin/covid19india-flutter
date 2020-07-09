@@ -57,6 +57,9 @@ dependencies:
   cupertino_icons: ^0.1.3
 
   font_awesome_flutter: ^8.8.1
+  
+  # flutter_awesome_alert_box 1.0.1 (Used in ActionBar to make alerts for missing features.)
+  flutter_awesome_alert_box: ^1.0.1
 
 dependency_overrides:
   dartx: ^0.4.0
