@@ -4,6 +4,8 @@ import 'package:covid19india/features/update_log/presentation/widgets/action_bar
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+/* Added Alert for Missing Feature */
+import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 
 class ActionBar extends StatefulWidget {
   final List<UpdateLog> updateLogs;
@@ -83,7 +85,15 @@ class _ActionBarState extends State<ActionBar> {
               SizedBox(width: 16),
               IconButton(
                 icon: Icon(Icons.settings_backup_restore),
-                onPressed: () {},
+                onPressed: () {
+                  // Please Check
+                  InfoAlertBox(
+                      title: "Feature Coming Soon",
+                      infoMessage: "",
+                      context: context,
+                  );
+                  //
+                },
                 color: Colors.grey,
               ),
             ],
