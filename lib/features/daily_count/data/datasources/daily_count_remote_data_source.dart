@@ -26,7 +26,11 @@ class DailyCountRemoteDataSourceImpl implements DailyCountRemoteDataSource {
       url = Endpoints.dailyCount(date: date);
     }
 
-    return _getDailyCountFromUrl(url);
+    try {
+      return _getDailyCountFromUrl(url);
+    } on ServerException {
+      return _getDailyCountFromUrl(Endpoints.DAILY_COUNTS);
+    }
   }
 
   Future<List<StateWiseDailyCount>> _getDailyCountFromUrl(String url) async {
