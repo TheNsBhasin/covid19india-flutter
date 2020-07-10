@@ -22,10 +22,12 @@ class DailyCountBloc extends Bloc<DailyCountEvent, DailyCountState> {
 
   @override
   Stream<DailyCountState> mapEventToState(DailyCountEvent event) async* {
+    print(event);
+
     if (event is GetDailyCountData) {
       yield Loading();
-      final failureOrDailyCounts =
-          await getDailyCount(Params(forced: event.forced));
+      final failureOrDailyCounts = await getDailyCount(
+          Params(forced: event.forced, cache: event.cache, date: event.date));
       yield* _eitherLoadedOrErrorState(failureOrDailyCounts);
     }
   }

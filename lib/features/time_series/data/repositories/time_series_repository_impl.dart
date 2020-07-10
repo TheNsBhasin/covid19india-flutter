@@ -18,11 +18,12 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
 
   @override
   Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries(
-      {forced: false}) async {
+      {bool forced}) async {
     return await _getTimeSeries(forced: forced);
   }
 
-  Future<Either<Failure, List<StateWiseTimeSeries>>> _getTimeSeries({forced}) async {
+  Future<Either<Failure, List<StateWiseTimeSeries>>> _getTimeSeries(
+      {bool forced}) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {

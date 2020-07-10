@@ -3,5 +3,6 @@ import 'package:covid19india/features/daily_count/domain/entities/state_wise_dai
 import 'package:dartz/dartz.dart';
 
 abstract class DailyCountRepository {
-  Future<Either<Failure, List<StateWiseDailyCount>>> getDailyCount({forced});
+  Future<Either<Failure, List<StateWiseDailyCount>>> getDailyCount(
+      {bool forced, bool cache, DateTime date});
 }

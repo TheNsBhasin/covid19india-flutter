@@ -12,8 +12,7 @@ class GetTimeSeries implements UseCase<List<StateWiseTimeSeries>, Params> {
   GetTimeSeries(this.repository);
 
   @override
-  Future<Either<Failure, List<StateWiseTimeSeries>>> call(
-      Params params) async {
+  Future<Either<Failure, List<StateWiseTimeSeries>>> call(Params params) async {
     return await repository.getTimeSeries(forced: params.forced);
   }
 }

@@ -18,12 +18,12 @@ class DailyCountRepositoryImpl implements DailyCountRepository {
 
   @override
   Future<Either<Failure, List<StateWiseDailyCount>>> getDailyCount(
-      {forced: false}) async {
-    return await _getDailyCount(forced: forced);
+      {bool forced, bool cache, DateTime date}) async {
+    return await _getDailyCount(forced: forced, cache: cache, date: date);
   }
 
   Future<Either<Failure, List<StateWiseDailyCount>>> _getDailyCount(
-      {forced}) async {
+      {bool forced, bool cache, DateTime date}) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
@@ -38,8 +38,12 @@ class DailyCountRepositoryImpl implements DailyCountRepository {
             }
           } on CacheException {}
         }
-        final remoteDailyCounts = await remoteDataSource.getDailyCount();
-        localDataSource.cacheDailyCount(remoteDailyCounts);
+
+        final remoteDailyCounts = await remoteDataSource.getDailyCount(date);
+        if (cache) {
+          localDataSource.cacheDailyCount(remoteDailyCounts);
+        }
+
         return Right(remoteDailyCounts);
       } on ServerException {
         return Left(ServerFailure());

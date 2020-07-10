@@ -1,3 +1,4 @@
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/data/models/state_wise_daily_count_model.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
 import 'package:covid19india/features/update_log/data/models/update_log_model.dart';
@@ -38,6 +39,12 @@ class ResponseParser {
 
 List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
   try {
+    Constants.STATE_CODES.forEach((stateCode) {
+      if (!json.containsKey(stateCode)) {
+        json[stateCode] = {};
+      }
+    });
+
     return json.entries
         .map((e) => {
               'name': e.key,
@@ -118,7 +125,7 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
     return json.entries
         .map((stateData) => {
               'name': stateData.key,
-              'time_series': stateData.value.entries
+              'time_series': stateData.value['dates'].entries
                   .map((timeSeries) => {
                         'date': timeSeries.key,
                         'total': {

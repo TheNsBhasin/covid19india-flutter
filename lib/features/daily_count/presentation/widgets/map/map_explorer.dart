@@ -33,6 +33,9 @@ class _MapExplorerState extends State<MapExplorer> {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, StateWiseDailyCount> dailyCountMap =
+        _getDailyCountMap(widget.dailyCounts);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -78,13 +81,15 @@ class _MapExplorerState extends State<MapExplorer> {
               : SizedBox(height: 0),
           MapVisualizer(
               mapView: mapView,
-              stateMap: _getDailyCountMap(widget.dailyCounts),
+              stateMap: dailyCountMap,
               stateCode: selectedState,
               districtName: selectedDistrict,
               statistics: selectedStatistics,
               onRegionSelected: (String stateCode, String districtName) {
                 setState(() {
-                  if (mapView == MapView.STATES) {
+                  if (mapView == MapView.STATES &&
+                      dailyCountMap.containsKey(stateCode) &&
+                      dailyCountMap[stateCode].districts.length > 0) {
                     mapView = MapView.DISTRICTS;
                   }
                   selectedState = stateCode;

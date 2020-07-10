@@ -51,24 +51,25 @@ class MapMetadata extends StatelessWidget {
                         color: Constants.STATS_COLOR[statistics])),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text('Last updated',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Constants.STATS_COLOR[statistics])),
-                Text(
-                    Formatter.formatDuration(new DateTime.now()
-                            .difference(DateTime.parse(lastUpdated))) +
-                        " ago",
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Constants.STATS_COLOR[statistics])),
-              ],
-            )
+            if (lastUpdated != null && lastUpdated != '')
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Text('Last updated',
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Constants.STATS_COLOR[statistics])),
+                  Text(
+                      Formatter.formatDuration(new DateTime.now()
+                              .difference(DateTime.parse(lastUpdated))) +
+                          " ago",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Constants.STATS_COLOR[statistics])),
+                ],
+              )
           ],
         ),
       ),
@@ -76,9 +77,13 @@ class MapMetadata extends StatelessWidget {
   }
 
   Widget _buildDistrictsMapMetadata(context) {
+    print('_buildDistrictsMapMetadata: $stateCode');
+
     DistrictWiseDailyCount selectedDistrict = districtName != null
         ? _getDistrictByName(districtName)
         : _getMaxCaseDistrict(stateCode);
+
+    print('_buildDistrictsMapMetadata: $selectedDistrict');
 
     return Center(
       child: Padding(
@@ -175,6 +180,8 @@ class MapMetadata extends StatelessWidget {
         maxCaseDistrict = district;
       }
     });
+
+    print('_getMaxCaseDistrict: ${stateMap[stateCode].districts.length}');
 
     return maxCaseDistrict;
   }

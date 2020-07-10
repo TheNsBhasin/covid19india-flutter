@@ -39,11 +39,16 @@ class TimeSeriesLocalDataSourceImpl implements TimeSeriesLocalDataSource {
   Future<List<StateWiseTimeSeries>> getLastTimeSeries() {
     final jsonString = sharedPreferences.getString(CACHED_TIME_SERIES);
     if (jsonString != null) {
-      final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      return Future.value(jsonMap["results"]
-          .map((result) => StateWiseTimeSeriesModel.fromJson(result))
-          .toList()
-          .cast<StateWiseTimeSeriesModel>());
+      try {
+        final Map<String, dynamic> jsonMap = json.decode(jsonString);
+        return Future.value(jsonMap["results"]
+            .map((result) => StateWiseTimeSeriesModel.fromJson(result))
+            .toList()
+            .cast<StateWiseTimeSeriesModel>());
+      } catch (e) {
+        debugPrint("getLastTimeSeries: ${e.toString()}");
+        throw CacheException();
+      }
     } else {
       throw CacheException();
     }

@@ -88,11 +88,7 @@ class MapStatsItem extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: Text(
-                    "As of " +
-                        (new DateFormat('d MMMM').format(
-                            DateTime.parse(metadata.tested['last_updated'])
-                                .toLocal())),
+                child: Text(_formatLastUpdateText(),
                     style: TextStyle(
                         fontSize: 12,
                         color: Constants.STATS_COLOR[statistics])),
@@ -112,6 +108,16 @@ class MapStatsItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatLastUpdateText() {
+    if (metadata.tested['last_updated'] == null) {
+      return "";
+    }
+
+    return "As of " +
+        (new DateFormat('d MMMM')
+            .format(DateTime.parse(metadata.tested['last_updated']).toLocal()));
   }
 
   int _getStatistics(Stats data, statistics) {

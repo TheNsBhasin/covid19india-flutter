@@ -22,10 +22,12 @@ class TimeSeriesBloc extends Bloc<TimeSeriesEvent, TimeSeriesState> {
 
   @override
   Stream<TimeSeriesState> mapEventToState(TimeSeriesEvent event) async* {
+    print(event);
+
     if (event is GetTimeSeriesData) {
       yield Loading();
-      final failureOrTimeSeries =
-          await getTimeSeries(Params(forced: event.forced));
+      final failureOrTimeSeries = await getTimeSeries(
+          Params(forced: event.forced));
       yield* _eitherLoadedOrErrorState(failureOrTimeSeries);
     }
   }

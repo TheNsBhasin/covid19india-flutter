@@ -12,17 +12,19 @@ class GetDailyCount implements UseCase<List<StateWiseDailyCount>, Params> {
   GetDailyCount(this.repository);
 
   @override
-  Future<Either<Failure, List<StateWiseDailyCount>>> call(
-      Params params) async {
-    return await repository.getDailyCount(forced: params.forced);
+  Future<Either<Failure, List<StateWiseDailyCount>>> call(Params params) async {
+    return await repository.getDailyCount(
+        forced: params.forced, cache: params.cache, date: params.date);
   }
 }
 
 class Params extends Equatable {
   final bool forced;
+  final bool cache;
+  final DateTime date;
 
-  Params({@required this.forced});
+  Params({@required this.forced, this.cache, this.date});
 
   @override
-  List<Object> get props => [forced];
+  List<Object> get props => [forced, cache, date];
 }

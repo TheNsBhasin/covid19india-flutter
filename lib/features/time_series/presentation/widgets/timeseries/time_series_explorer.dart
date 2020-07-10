@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 
 class TimeSeriesExplorer extends StatefulWidget {
   final Map<String, List<TimeSeries>> timeSeriesMap;
+  final DateTime date;
 
-  TimeSeriesExplorer({this.timeSeriesMap});
+  TimeSeriesExplorer({this.timeSeriesMap, this.date});
 
   @override
   _TimeSeriesExplorerState createState() => _TimeSeriesExplorerState();
@@ -68,9 +69,8 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
               },
             ),
             TimeSeriesVisualizer(
-                timeSeries: widget.timeSeriesMap[stateCode]
-                    .sublist(0, widget.timeSeriesMap[stateCode].length - 1)
-                    .toList(),
+                timeSeries: widget.timeSeriesMap[stateCode],
+                date: widget.date,
                 stateCode: stateCode,
                 statisticsType: statisticsType,
                 chartOption: chartOption,

@@ -74,6 +74,10 @@ class _MapVisualizerState extends State<MapVisualizer> {
   }
 
   Size _getMapSize(String stateCode) {
+    if (widget.mapView == MapView.STATES) {
+      return MapPaths.MAP_SIZE['TT'];
+    }
+
     return MapPaths.MAP_SIZE[stateCode];
   }
 

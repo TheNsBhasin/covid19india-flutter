@@ -9,6 +9,11 @@ class GetUpdateLogData extends UpdateLogEvent {
 
   @override
   List<Object> get props => [forced];
+
+  @override
+  String toString() {
+    return 'GetUpdateLogData {forced: $forced}';
+  }
 }
 
 class StoreLastViewedTimestampData extends UpdateLogEvent {
@@ -17,5 +22,10 @@ class StoreLastViewedTimestampData extends UpdateLogEvent {
   StoreLastViewedTimestampData({this.timestamp});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [timestamp];
+
+  @override
+  String toString() {
+    return 'StoreLastViewedTimestampData {timestamp: $timestamp}';
+  }
 }

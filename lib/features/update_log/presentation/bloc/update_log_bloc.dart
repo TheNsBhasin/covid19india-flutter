@@ -34,6 +34,8 @@ class UpdateLogBloc extends Bloc<UpdateLogEvent, UpdateLogState> {
 
   @override
   Stream<UpdateLogState> mapEventToState(UpdateLogEvent event) async* {
+    print(event);
+
     if (event is GetUpdateLogData) {
       yield Loading();
       final failureOrUpdateLogs =

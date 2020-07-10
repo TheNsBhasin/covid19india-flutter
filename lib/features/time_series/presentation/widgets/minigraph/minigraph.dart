@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 
 class MiniGraph extends StatelessWidget {
   final List<TimeSeries> timeSeries;
+  final DateTime date;
 
-  MiniGraph({this.timeSeries});
+  MiniGraph({this.timeSeries, this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class MiniGraph extends StatelessWidget {
         children: <Widget>[
           ...Constants.PRIMARY_STATISTICS
               .map((statistics) => TimeSeriesLineChart(
-                  timeSeries: timeSeries, statistics: statistics))
+                  timeSeries: timeSeries, statistics: statistics, date: date))
               .toList()
         ],
       ),

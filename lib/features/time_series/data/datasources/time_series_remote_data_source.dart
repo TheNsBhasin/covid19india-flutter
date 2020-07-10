@@ -5,6 +5,7 @@ import 'package:covid19india/core/error/exceptions.dart';
 import 'package:covid19india/core/util/response_parser.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
+import 'package:covid19india/core/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,14 +28,18 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
     }).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> jsonMap = ResponseParser.jsonToTimeSeries(
-          json.decode(response.body.toString()));
-      return jsonMap["results"]
-          .map((result) => StateWiseTimeSeriesModel.fromJson(result))
-          .toList()
-          .cast<StateWiseTimeSeries>();
+      try {
+        Map<String, dynamic> jsonMap = ResponseParser.jsonToTimeSeries(
+            json.decode(response.body.toString()));
+        return jsonMap["results"]
+            .map((result) => StateWiseTimeSeriesModel.fromJson(result))
+            .toList()
+            .cast<StateWiseTimeSeries>();
+      } catch (e) {
+        debugPrint("_getTimeSeriesFromUrl: ${e.toString()}");
+        throw ServerException();
+      }
     } else {
-      print('ServerException');
       throw ServerException();
     }
   }

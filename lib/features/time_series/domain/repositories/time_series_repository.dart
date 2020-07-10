@@ -3,5 +3,6 @@ import 'package:covid19india/features/time_series/domain/entities/state_wise_tim
 import 'package:dartz/dartz.dart';
 
 abstract class TimeSeriesRepository {
-  Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries({forced});
+  Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries(
+      {bool forced});
 }

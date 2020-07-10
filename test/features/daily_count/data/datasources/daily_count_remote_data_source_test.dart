@@ -76,7 +76,7 @@ void main() {
         // arrange
         setUpMockHttpClientSuccess200();
         // act
-        dataSource.getDailyCount();
+        dataSource.getDailyCount(DateTime.now());
         // assert
         verify(mockHttpClient.get(
           Endpoints.DAILY_COUNTS,
@@ -93,7 +93,7 @@ void main() {
         // arrange
         setUpMockHttpClientSuccess200();
         // act
-        final result = await dataSource.getDailyCount();
+        final result = await dataSource.getDailyCount(DateTime.now());
         // assert
         expect(result, equals(tDailyCountModel));
       },
@@ -107,7 +107,7 @@ void main() {
         // act
         final call = dataSource.getDailyCount;
         // assert
-        expect(() => call(), throwsA(TypeMatcher<ServerException>()));
+        expect(() => call(DateTime.now()), throwsA(TypeMatcher<ServerException>()));
       },
     );
   });

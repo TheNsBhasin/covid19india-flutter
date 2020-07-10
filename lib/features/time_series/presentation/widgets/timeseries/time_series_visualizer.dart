@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/util/extensions.dart';
+import 'package:covid19india/features/time_series/data/models/stats_model.dart';
+import 'package:covid19india/features/time_series/data/models/time_series_model.dart';
 import 'package:covid19india/features/time_series/domain/entities/stats.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -11,6 +13,7 @@ import 'package:intl/intl.dart';
 
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
+  final DateTime date;
   final String statistics;
   final String statisticsType;
   final String chartOption;
@@ -24,6 +27,7 @@ class TimeSeriesItem extends StatelessWidget {
 
   TimeSeriesItem(
       {this.timeSeries,
+      this.date,
       this.statistics,
       this.statisticsType,
       this.chartOption,
@@ -32,6 +36,8 @@ class TimeSeriesItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<TimeSeries> filteredTimeSeries = _getTimeSeries();
+
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
       child: Container(
@@ -54,7 +60,7 @@ class TimeSeriesItem extends StatelessWidget {
                 ),
                 Text(
                   new DateFormat('d MMMM')
-                      .format(timeSeries.last.date.toLocal()),
+                      .format(filteredTimeSeries.last.date.toLocal()),
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -67,7 +73,7 @@ class TimeSeriesItem extends StatelessWidget {
                     Text(
                       NumberFormat.decimalPattern('en_IN').format(
                           _getStatistics(
-                              timeSeries.last.total, statistics)),
+                              filteredTimeSeries.last.total, statistics)),
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -78,12 +84,12 @@ class TimeSeriesItem extends StatelessWidget {
                     ),
                     Text(
                         _getStatistics(
-                                    timeSeries.last.delta, statistics) >
+                                    filteredTimeSeries.last.delta, statistics) >
                                 0
                             ? "+" +
-                                NumberFormat.decimalPattern('en_IN')
-                                    .format(_getStatistics(
-                                        timeSeries.last.delta,
+                                NumberFormat.decimalPattern('en_IN').format(
+                                    _getStatistics(
+                                        filteredTimeSeries.last.delta,
                                         statistics))
                             : "",
                         style: TextStyle(
@@ -138,7 +144,7 @@ class TimeSeriesItem extends StatelessWidget {
           interval: _getIntervalX(),
           getTitles: (value) {
             try {
-              return new DateFormat('d MMMM').format(startTime
+              return new DateFormat('d MMM').format(startTime
                   .add(Duration(days: xScale.invert(value).toInt()))
                   .toLocal());
             } catch (e) {}
@@ -195,23 +201,27 @@ class TimeSeriesItem extends StatelessWidget {
   List<List<double>> _getData() {
     List<TimeSeries> data = _getTimeSeries();
 
-    DateTime startTime = data.first.date;
-
     Scale xScale = _getXScale();
     Scale yScale = _getYScale();
 
     return data
+        .asMap()
+        .entries
         .map((e) => <double>[
-              xScale.scale(e.date.difference(startTime).inDays).toDouble(),
+              xScale.scale(e.key).toDouble(),
               yScale.scale(isLogarithmic
                   ? max(
                       1.0,
                       _getStatistics(
-                              statisticsType == 'total' ? e.total : e.delta,
+                              statisticsType == 'total'
+                                  ? e.value.total
+                                  : e.value.delta,
                               statistics)
                           .toDouble())
                   : _getStatistics(
-                          statisticsType == 'total' ? e.total : e.delta,
+                          statisticsType == 'total'
+                              ? e.value.total
+                              : e.value.delta,
                           statistics)
                       .toDouble())
             ])
@@ -219,17 +229,15 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   List<TimeSeries> _getTimeSeries() {
-    timeSeries.sort((a, b) {
-      return a.date.compareTo(b.date);
-    });
-
     if (chartOption == 'MONTH') {
       return _getLastNDaysData(30);
     } else if (chartOption == 'TWO_WEEKS') {
       return _getLastNDaysData(14);
     }
 
-    return timeSeries.toList();
+    return timeSeries
+        .where((e) => date.difference(e.date).inDays >= 1)
+        .toList();
   }
 
   double _getMinX() {
@@ -237,10 +245,7 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   double _getMaxX() {
-    DateTime startTime = _getTimeSeries().first.date;
-    DateTime endTime = _getTimeSeries().last.date;
-
-    return endTime.difference(startTime).inDays.toDouble();
+    return _getTimeSeries().length.toDouble();
   }
 
   double _getMinY() {
@@ -260,13 +265,16 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   List<TimeSeries> _getLastNDaysData(int cutoff) {
-    DateTime now = new DateTime.now();
+    timeSeries.sort((a, b) {
+      return a.date.compareTo(b.date);
+    });
 
-    return timeSeries
+    List<TimeSeries> filteredTimeSeries = timeSeries
         .where((e) =>
-            now.difference(e.date).inDays <= cutoff &&
-            now.difference(e.date).inDays > 1)
+            !e.date.isAfter(date) && date.difference(e.date).inDays <= cutoff)
         .toList();
+
+    return filteredTimeSeries;
   }
 
   Scale _getXScale() {
@@ -372,6 +380,7 @@ class TimeSeriesItem extends StatelessWidget {
 
 class TimeSeriesVisualizer extends StatefulWidget {
   final List<TimeSeries> timeSeries;
+  final DateTime date;
   final String statisticsType;
   final String stateCode;
   final String chartOption;
@@ -380,6 +389,7 @@ class TimeSeriesVisualizer extends StatefulWidget {
 
   TimeSeriesVisualizer(
       {this.timeSeries,
+      this.date,
       this.statisticsType,
       this.stateCode,
       this.chartOption,
@@ -403,6 +413,7 @@ class _TimeSeriesVisualizerState extends State<TimeSeriesVisualizer> {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: TimeSeriesItem(
                       timeSeries: widget.timeSeries,
+                      date: widget.date,
                       statistics: statistics,
                       statisticsType: widget.statisticsType,
                       chartOption: widget.chartOption,

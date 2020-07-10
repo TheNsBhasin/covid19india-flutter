@@ -111,12 +111,12 @@ void main() {
         'should return remote data when the call to remote data source is successful',
         () async {
           // arrange
-          when(mockRemoteDataSource.getDailyCount())
+          when(mockRemoteDataSource.getDailyCount(DateTime.now()))
               .thenAnswer((_) async => tDailyCountModel);
           // act
           final result = await repository.getDailyCount(forced: true);
           // assert
-          verify(mockRemoteDataSource.getDailyCount());
+          verify(mockRemoteDataSource.getDailyCount(DateTime.now()));
           expect(result, equals(Right(tDailyCount)));
         },
       );
@@ -125,12 +125,12 @@ void main() {
         'should cache the data locally when the call to remote data source is successful',
         () async {
           // arrange
-          when(mockRemoteDataSource.getDailyCount())
+          when(mockRemoteDataSource.getDailyCount(DateTime.now()))
               .thenAnswer((_) async => tDailyCountModel);
           // act
           await repository.getDailyCount(forced: true);
           // assert
-          verify(mockRemoteDataSource.getDailyCount());
+          verify(mockRemoteDataSource.getDailyCount(DateTime.now()));
           verify(mockLocalDataSource.cacheDailyCount(tDailyCountModel));
         },
       );
@@ -139,12 +139,12 @@ void main() {
         'should return server failure when the call to remote data source is unsuccessful',
         () async {
           // arrange
-          when(mockRemoteDataSource.getDailyCount())
+          when(mockRemoteDataSource.getDailyCount(DateTime.now()))
               .thenThrow(ServerException());
           // act
           final result = await repository.getDailyCount(forced: true);
           // assert
-          verify(mockRemoteDataSource.getDailyCount());
+          verify(mockRemoteDataSource.getDailyCount(DateTime.now()));
           verifyZeroInteractions(mockLocalDataSource);
           expect(result, equals(Left(ServerFailure())));
         },
