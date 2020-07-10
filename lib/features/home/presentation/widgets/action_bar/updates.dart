@@ -3,6 +3,7 @@ import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class Updates extends StatefulWidget {
   final List<UpdateLog> updateLogs;
@@ -20,42 +21,57 @@ class _UpdatesState extends State<Updates> {
 
   @override
   Widget build(BuildContext context) {
+    Map<DateTime, List<UpdateLog>> dayWiseUpdateLog = _getDayWiseUpdateLog(
+        updateLogs.reversed.toList().sublist(0, min(5, updateLogs.length)));
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Container(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                new DateFormat('d MMM').format(DateTime.now().toLocal()),
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
-              ),
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...updateLogs.reversed
-                    .toList()
-                    .sublist(0, 5)
-                    .map((updateLog) => _buildUpdateTile(updateLog))
-                    .toList()
-              ],
-            ),
-          ),
+          ...dayWiseUpdateLog.entries
+              .map((e) => _buildDayUpdates(e.key, e.value))
+              .toList()
         ],
       ),
+    );
+  }
+
+  Widget _buildDayUpdates(DateTime day, List<UpdateLog> updateLogs) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 16.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              new DateFormat('d MMM').format(day.toLocal()),
+              style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
+            ),
+          ),
+        ),
+        SizedBox(height: 16.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...updateLogs.reversed
+                  .toList()
+                  .map((updateLog) => _buildUpdateTile(updateLog))
+                  .toList()
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -95,5 +111,27 @@ class _UpdatesState extends State<Updates> {
         ),
       ),
     );
+  }
+
+  Map<DateTime, List<UpdateLog>> _getDayWiseUpdateLog(
+      List<UpdateLog> updateLogs) {
+    Map<DateTime, List<UpdateLog>> dayWiseUpdateLog = {};
+
+    updateLogs.forEach((updateLog) {
+      DateTime day = new DateTime(updateLog.timestamp.year,
+          updateLog.timestamp.month, updateLog.timestamp.day);
+
+      if (!dayWiseUpdateLog.containsKey(day)) {
+        dayWiseUpdateLog[day] = [];
+      }
+
+      dayWiseUpdateLog[day].add(updateLog);
+    });
+
+    dayWiseUpdateLog.forEach((key, value) {
+      value.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    });
+
+    return dayWiseUpdateLog;
   }
 }

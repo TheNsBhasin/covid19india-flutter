@@ -52,13 +52,15 @@ List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
                 'confirmed': (e.value['total'] ?? {})['confirmed'] ?? 0,
                 'recovered': (e.value['total'] ?? {})['recovered'] ?? 0,
                 'deceased': (e.value['total'] ?? {})['deceased'] ?? 0,
-                'tested': (e.value['total'] ?? {})['tested'] ?? 0
+                'tested': (e.value['total'] ?? {})['tested'] ?? 0,
+                'migrated': (e.value['total'] ?? {})['migrated'] ?? 0,
               },
               'delta': {
                 'confirmed': (e.value['delta'] ?? {})['confirmed'] ?? 0,
                 'recovered': (e.value['delta'] ?? {})['recovered'] ?? 0,
                 'deceased': (e.value['delta'] ?? {})['deceased'] ?? 0,
-                'tested': (e.value['delta'] ?? {})['tested'] ?? 0
+                'tested': (e.value['delta'] ?? {})['tested'] ?? 0,
+                'migrated': (e.value['total'] ?? {})['migrated'] ?? 0,
               },
               'metadata': {
                 'last_updated': (e.value['meta'] ?? {})['last_updated'] ?? "",
@@ -77,7 +79,8 @@ List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
                           'recovered':
                               (e.value['total'] ?? {})['recovered'] ?? 0,
                           'deceased': (e.value['total'] ?? {})['deceased'] ?? 0,
-                          'tested': (e.value['total'] ?? {})['tested'] ?? 0
+                          'tested': (e.value['total'] ?? {})['tested'] ?? 0,
+                          'migrated': (e.value['total'] ?? {})['migrated'] ?? 0,
                         },
                         'delta': {
                           'confirmed':
@@ -85,7 +88,8 @@ List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
                           'recovered':
                               (e.value['delta'] ?? {})['recovered'] ?? 0,
                           'deceased': (e.value['delta'] ?? {})['deceased'] ?? 0,
-                          'tested': (e.value['delta'] ?? {})['tested'] ?? 0
+                          'tested': (e.value['delta'] ?? {})['tested'] ?? 0,
+                          'migrated': (e.value['total'] ?? {})['migrated'] ?? 0,
                         },
                         'metadata': {
                           'last_updated':
@@ -139,7 +143,10 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
                               (timeSeries.value['total'] ?? {})['deceased'] ??
                                   0,
                           'tested':
-                              (timeSeries.value['total'] ?? {})['tested'] ?? 0
+                              (timeSeries.value['total'] ?? {})['tested'] ?? 0,
+                          'migrated':
+                              (timeSeries.value['total'] ?? {})['migrated'] ??
+                                  0,
                         },
                         'delta': {
                           'confirmed':
@@ -152,7 +159,10 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
                               (timeSeries.value['delta'] ?? {})['deceased'] ??
                                   0,
                           'tested':
-                              (timeSeries.value['delta'] ?? {})['tested'] ?? 0
+                              (timeSeries.value['delta'] ?? {})['tested'] ?? 0,
+                          'migrated':
+                              (timeSeries.value['delta'] ?? {})['migrated'] ??
+                                  0,
                         }
                       })
                   .toList()

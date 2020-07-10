@@ -37,13 +37,15 @@ class StateWiseDailyCountModel extends StateWiseDailyCount {
               confirmed: total.confirmed,
               recovered: total.recovered,
               deceased: total.deceased,
-              tested: total.tested)
+              tested: total.tested,
+              migrated: total.migrated)
           .toJson(),
       'delta': StatsModel(
               confirmed: delta.confirmed,
               recovered: delta.recovered,
               deceased: delta.deceased,
-              tested: delta.tested)
+              tested: delta.tested,
+              migrated: total.migrated)
           .toJson(),
       'metadata': MetadataModel(
               lastUpdated: metadata.lastUpdated,
@@ -55,17 +57,17 @@ class StateWiseDailyCountModel extends StateWiseDailyCount {
           .map((district) => DistrictWiseDailyCountModel(
               name: district.name,
               total: StatsModel(
-                confirmed: district.total.confirmed,
-                recovered: district.total.recovered,
-                deceased: district.total.deceased,
-                tested: district.total.tested,
-              ),
+                  confirmed: district.total.confirmed,
+                  recovered: district.total.recovered,
+                  deceased: district.total.deceased,
+                  tested: district.total.tested,
+                  migrated: district.total.migrated),
               delta: StatsModel(
-                confirmed: district.delta.confirmed,
-                recovered: district.delta.recovered,
-                deceased: district.delta.deceased,
-                tested: district.total.tested,
-              ),
+                  confirmed: district.delta.confirmed,
+                  recovered: district.delta.recovered,
+                  deceased: district.delta.deceased,
+                  tested: district.delta.tested,
+                  migrated: district.delta.migrated),
               metadata: MetadataModel(
                 lastUpdated: district.metadata.lastUpdated,
                 population: district.metadata.population,

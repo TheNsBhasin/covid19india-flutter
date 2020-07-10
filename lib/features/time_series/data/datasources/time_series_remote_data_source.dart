@@ -5,7 +5,6 @@ import 'package:covid19india/core/error/exceptions.dart';
 import 'package:covid19india/core/util/response_parser.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/core/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 

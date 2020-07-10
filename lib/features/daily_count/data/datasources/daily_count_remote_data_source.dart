@@ -26,14 +26,11 @@ class DailyCountRemoteDataSourceImpl implements DailyCountRemoteDataSource {
       url = Endpoints.dailyCount(date: date);
     }
 
-    try {
-      return _getDailyCountFromUrl(url);
-    } on ServerException {
-      return _getDailyCountFromUrl(Endpoints.DAILY_COUNTS);
-    }
+    return _getDailyCountFromUrl(url, fallback: Endpoints.DAILY_COUNTS);
   }
 
-  Future<List<StateWiseDailyCount>> _getDailyCountFromUrl(String url) async {
+  Future<List<StateWiseDailyCount>> _getDailyCountFromUrl(String url,
+      {String fallback}) async {
     final response = await client.get(url, headers: {
       'Content-Type': 'application/json',
     }).timeout(const Duration(seconds: 30));
@@ -51,8 +48,11 @@ class DailyCountRemoteDataSourceImpl implements DailyCountRemoteDataSource {
         debugPrint("_getDailyCountFromUrl: ${e.toString()}");
         throw ServerException();
       }
+    } else if (response.statusCode == 404 &&
+        fallback != null &&
+        url != fallback) {
+      return _getDailyCountFromUrl(fallback);
     } else {
-      print('ServerException');
       throw ServerException();
     }
   }

@@ -2,19 +2,25 @@ import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 
 class StatsModel extends Stats {
   StatsModel(
-      {int confirmed = 0, int recovered = 0, int deceased = 0, int tested = 0})
+      {int confirmed = 0,
+      int recovered = 0,
+      int deceased = 0,
+      int tested = 0,
+      int migrated = 0})
       : super(
             confirmed: confirmed,
             recovered: recovered,
             deceased: deceased,
-            tested: tested);
+            tested: tested,
+            migrated: migrated);
 
   factory StatsModel.fromJson(Map<String, dynamic> json) {
     return StatsModel(
         confirmed: json['confirmed'],
         recovered: json['recovered'],
         deceased: json['deceased'],
-        tested: json['tested']);
+        tested: json['tested'],
+        migrated: json['migrated']);
   }
 
   Map<String, dynamic> toJson() {
@@ -22,7 +28,8 @@ class StatsModel extends Stats {
       'confirmed': confirmed,
       'recovered': recovered,
       'deceased': deceased,
-      'tested': tested
+      'tested': tested,
+      'migrated': migrated
     };
   }
 }

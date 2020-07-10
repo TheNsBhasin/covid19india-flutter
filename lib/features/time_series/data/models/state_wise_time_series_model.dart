@@ -25,12 +25,14 @@ class StateWiseTimeSeriesModel extends StateWiseTimeSeries {
                       confirmed: series.total.confirmed,
                       recovered: series.total.recovered,
                       deceased: series.total.deceased,
-                      tested: series.total.tested),
+                      tested: series.total.tested,
+                      migrated: series.total.migrated),
                   delta: StatsModel(
                       confirmed: series.delta.confirmed,
                       recovered: series.delta.recovered,
                       deceased: series.delta.deceased,
-                      tested: series.delta.tested))
+                      tested: series.delta.tested,
+                      migrated: series.delta.migrated))
               .toJson())
           .toList()
     };

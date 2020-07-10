@@ -34,9 +34,14 @@ void main() {
     final tDailyCount = [
       StateWiseDailyCount(
           name: "AN",
-          total:
-              Stats(confirmed: 48, recovered: 37, deceased: 0, tested: 12930),
-          delta: Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+          total: Stats(
+              confirmed: 48,
+              recovered: 37,
+              deceased: 0,
+              tested: 12930,
+              migrated: 0),
+          delta: Stats(
+              confirmed: 0, recovered: 0, deceased: 0, tested: 0, migrated: 0),
           metadata: Metadata(
               lastUpdated: "2020-06-21T19:36:22+05:30",
               notes: "",
@@ -48,24 +53,48 @@ void main() {
           districts: [
             DistrictWiseDailyCount(
                 name: "North and Middle Andaman",
-                total:
-                    Stats(confirmed: 1, recovered: 1, deceased: 0, tested: 0),
-                delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                total: Stats(
+                    confirmed: 1,
+                    recovered: 1,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
+                delta: Stats(
+                    confirmed: 0,
+                    recovered: 0,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
                 metadata: null),
             DistrictWiseDailyCount(
                 name: "South Andaman",
-                total:
-                    Stats(confirmed: 35, recovered: 32, deceased: 0, tested: 0),
-                delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                total: Stats(
+                    confirmed: 35,
+                    recovered: 32,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
+                delta: Stats(
+                    confirmed: 0,
+                    recovered: 0,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
                 metadata: null),
             DistrictWiseDailyCount(
                 name: "Unknown",
-                total:
-                    Stats(confirmed: 12, recovered: 4, deceased: 0, tested: 0),
-                delta:
-                    Stats(confirmed: 0, recovered: 0, deceased: 0, tested: 0),
+                total: Stats(
+                    confirmed: 12,
+                    recovered: 4,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
+                delta: Stats(
+                    confirmed: 0,
+                    recovered: 0,
+                    deceased: 0,
+                    tested: 0,
+                    migrated: 0),
                 metadata: null),
           ]),
     ];

@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/util/extensions.dart';
-import 'package:covid19india/features/time_series/data/models/stats_model.dart';
-import 'package:covid19india/features/time_series/data/models/time_series_model.dart';
 import 'package:covid19india/features/time_series/domain/entities/stats.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';

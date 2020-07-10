@@ -77,13 +77,9 @@ class MapMetadata extends StatelessWidget {
   }
 
   Widget _buildDistrictsMapMetadata(context) {
-    print('_buildDistrictsMapMetadata: $stateCode');
-
     DistrictWiseDailyCount selectedDistrict = districtName != null
         ? _getDistrictByName(districtName)
         : _getMaxCaseDistrict(stateCode);
-
-    print('_buildDistrictsMapMetadata: $selectedDistrict');
 
     return Center(
       child: Padding(
@@ -180,8 +176,6 @@ class MapMetadata extends StatelessWidget {
         maxCaseDistrict = district;
       }
     });
-
-    print('_getMaxCaseDistrict: ${stateMap[stateCode].districts.length}');
 
     return maxCaseDistrict;
   }
