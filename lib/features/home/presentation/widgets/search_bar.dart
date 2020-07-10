@@ -1,5 +1,7 @@
 import 'package:autotrie/autotrie.dart';
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/features/states/domain/entity/StatePageArgument.dart';
+import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -146,7 +148,14 @@ class _SearchBarState extends State<SearchBar> {
                             color: Colors.orange.withAlpha(50),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0)),
-                            onPressed: () => () {},
+                            onPressed: () {
+                              print('Navigator ${e.value['route']}');
+                              Navigator.pushNamed(
+                                context,
+                                StatePage.routeName,
+                                arguments: StatePageArguments(e.value['route']),
+                              );
+                            },
                             child: Text(e.value['route'],
                                 style: TextStyle(
                                     fontSize: 12,
@@ -184,7 +193,15 @@ class _SearchBarState extends State<SearchBar> {
                                 color: Colors.orange.withAlpha(50),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0)),
-                                onPressed: () => () {},
+                                onPressed: () {
+                                  print('Navigator ${e.value['route']}');
+                                  Navigator.pushNamed(
+                                    context,
+                                    StatePage.routeName,
+                                    arguments:
+                                        StatePageArguments(e.value['route']),
+                                  );
+                                },
                                 child: Text(e.value['route'],
                                     style: TextStyle(
                                         fontSize: 12,

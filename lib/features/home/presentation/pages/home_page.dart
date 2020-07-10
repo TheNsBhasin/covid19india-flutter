@@ -1,3 +1,4 @@
+import 'package:covid19india/core/common/widgets/covid_19_india_app_bar.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
@@ -14,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
+  static const routeName = '/';
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -40,36 +43,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: RichText(
-            text: TextSpan(
-                text: 'COVID19',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[200]),
-                children: [
-              TextSpan(
-                  text: 'IN',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orangeAccent)),
-              TextSpan(
-                  text: 'D',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              TextSpan(
-                  text: 'IA',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.greenAccent)),
-            ])),
-      ),
+      appBar: covid19IndiaAppBar(),
       body: MultiBlocProvider(
         providers: [
           BlocProvider(

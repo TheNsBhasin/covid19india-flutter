@@ -3,6 +3,8 @@ import 'package:covid19india/core/util/formatter.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
+import 'package:covid19india/features/states/domain/entity/StatePageArgument.dart';
+import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -135,7 +137,14 @@ class MapMetadata extends StatelessWidget {
                     color: Colors.orange.withAlpha(50),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0)),
-                    onPressed: () {},
+                    onPressed: () {
+                      print('Navigator $stateCode');
+                      Navigator.pushNamed(
+                        context,
+                        StatePage.routeName,
+                        arguments: StatePageArguments(stateCode),
+                      );
+                    },
                     child: Text('Visit state page',
                         style: TextStyle(
                             fontSize: 12,

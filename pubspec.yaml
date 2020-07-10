@@ -30,9 +30,9 @@ dependencies:
 
   autotrie: ^0.4.1
 
-  hive: ^1.4.1+1
+  hive: ^1.4.1
 
-  hive_flutter: ^0.3.0
+  path_provider: ^1.6.11
 
   path_drawing: ^0.4.1
 
@@ -58,17 +58,13 @@ dependencies:
 
   font_awesome_flutter: ^8.8.1
 
-dependency_overrides:
-  dartx: ^0.4.0
-  path: ^1.7.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   mockito: ^4.1.1
 
-  hive_generator: ^0.7.0+2
+  hive_generator: ^0.5.2
 
   build_runner: ^1.10.0
 
