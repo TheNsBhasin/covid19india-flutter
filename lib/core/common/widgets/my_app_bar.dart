@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-PreferredSizeWidget covid19IndiaAppBar() {
+PreferredSizeWidget myAppBar() {
   return AppBar(
     centerTitle: true,
     title: RichText(

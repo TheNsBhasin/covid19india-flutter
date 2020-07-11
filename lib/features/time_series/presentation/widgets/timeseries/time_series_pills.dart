@@ -15,7 +15,7 @@ class TimeSeriesPills extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ...Constants.TIME_SERIES_OPTIONS.entries
+          ...TIME_SERIES_OPTIONS.entries
               .map((e) => FlatButton(
                     color: (e.key == chartOption)
                         ? Colors.orange.withAlpha(100)

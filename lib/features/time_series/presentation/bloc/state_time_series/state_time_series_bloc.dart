@@ -1,8 +1,8 @@
 import 'package:covid19india/core/error/failures.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/domain/usecases/get_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/time_series_event.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/time_series_state.dart';
+import 'package:covid19india/features/time_series/domain/usecases/get_state_time_series.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/state_time_series_event.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/state_time_series_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,30 +10,35 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
 const String CACHE_FAILURE_MESSAGE = 'Cache Failure';
 
-class TimeSeriesBloc extends Bloc<TimeSeriesEvent, TimeSeriesState> {
-  final GetTimeSeries getTimeSeries;
+class StateTimeSeriesBloc
+    extends Bloc<StateTimeSeriesEvent, StateTimeSeriesState> {
+  final GetStateTimeSeries getStateTimeSeries;
 
-  TimeSeriesBloc({@required GetTimeSeries timeSeries})
+  StateTimeSeriesBloc({@required GetStateTimeSeries timeSeries})
       : assert(timeSeries != null),
-        getTimeSeries = timeSeries;
+        getStateTimeSeries = timeSeries;
 
   @override
-  TimeSeriesState get initialState => Empty();
+  StateTimeSeriesState get initialState => Empty();
 
   @override
-  Stream<TimeSeriesState> mapEventToState(TimeSeriesEvent event) async* {
+  Stream<StateTimeSeriesState> mapEventToState(
+      StateTimeSeriesEvent event) async* {
     print(event);
 
     if (event is GetTimeSeriesData) {
       yield Loading();
-      final failureOrTimeSeries = await getTimeSeries(
-          Params(forced: event.forced));
+      final failureOrTimeSeries = await getStateTimeSeries(
+          GetStateTimeSeriesParams(
+              forced: event.forced,
+              cache: event.cache,
+              stateCode: event.stateCode));
       yield* _eitherLoadedOrErrorState(failureOrTimeSeries);
     }
   }
 
-  Stream<TimeSeriesState> _eitherLoadedOrErrorState(
-    Either<Failure, List<StateWiseTimeSeries>> failureOrTimeSeries,
+  Stream<StateTimeSeriesState> _eitherLoadedOrErrorState(
+    Either<Failure, StateWiseTimeSeries> failureOrTimeSeries,
   ) async* {
     yield failureOrTimeSeries.fold(
       (failure) => Error(message: _mapFailureToMessage(failure)),

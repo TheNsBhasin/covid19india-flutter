@@ -18,12 +18,12 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
 
   @override
   Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries(
-      {bool forced}) async {
-    return await _getTimeSeries(forced: forced);
+      {bool forced, bool cache}) async {
+    return await _getTimeSeries(forced: forced, cache: cache);
   }
 
   Future<Either<Failure, List<StateWiseTimeSeries>>> _getTimeSeries(
-      {bool forced}) async {
+      {bool forced, bool cache}) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
@@ -31,16 +31,18 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
             final DateTime lastCached =
                 await localDataSource.getCachedTimeStamp();
             if (new DateTime.now().difference(lastCached).inMinutes <=
-                Constants.CACHE_TIMEOUT_IN_MINUTES) {
+                CACHE_TIMEOUT_IN_MINUTES) {
               final localTimeSeries = await localDataSource.getLastTimeSeries();
               return Right(localTimeSeries);
             }
           } on CacheException {
-            print('CacheException');
+            print('TimeSeriesRepositoryImpl: _getTimeSeries: CacheException');
           }
         }
         final remoteTimeSeries = await remoteDataSource.getTimeSeries();
-        localDataSource.cacheTimeSeries(remoteTimeSeries);
+        if (cache) {
+          localDataSource.cacheTimeSeries(remoteTimeSeries);
+        }
         return Right(remoteTimeSeries);
       } on ServerException {
         return Left(ServerFailure());
@@ -49,6 +51,37 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
       try {
         final localTimeSeries = await localDataSource.getLastTimeSeries();
         return Right(localTimeSeries);
+      } on CacheException {
+        return Left(CacheFailure());
+      }
+    }
+  }
+
+  @override
+  Future<Either<Failure, StateWiseTimeSeries>> getStateTimeSeries(
+      {bool forced, bool cache, String stateCode}) async {
+    // TODO: Implement cache
+    if (await networkInfo.isConnected) {
+      try {
+        if (!forced) {
+          try {
+            throw CacheException();
+          } on CacheException {
+            print('TimeSeriesRepositoryImpl: getStateTimeSeries: CacheException');
+          }
+        }
+        final remoteTimeSeries =
+            await remoteDataSource.getStateTimeSeries(stateCode);
+        if (cache) {
+          throw CacheException();
+        }
+        return Right(remoteTimeSeries);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      try {
+        throw CacheException();
       } on CacheException {
         return Left(CacheFailure());
       }

@@ -25,6 +25,10 @@ class ResponseParser {
     };
   }
 
+  static Map<String, dynamic> jsonToStateTimeSeries(Map<String, dynamic> json) {
+    return {'result': parseJsonToTimeSeries(json).first};
+  }
+
   static Map<String, dynamic> jsonToUpdateLogs(List<dynamic> json) {
     return {'results': parseJsonToUpdateLogs(json)};
   }
@@ -39,7 +43,7 @@ class ResponseParser {
 
 List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
   try {
-    Constants.STATE_CODES.forEach((stateCode) {
+    STATE_CODES.forEach((stateCode) {
       if (!json.containsKey(stateCode)) {
         json[stateCode] = {};
       }
@@ -129,7 +133,8 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
     return json.entries
         .map((stateData) => {
               'name': stateData.key,
-              'time_series': stateData.value['dates'].entries
+              'time_series': (stateData.value['dates'] ?? {})
+                  .entries
                   .map((timeSeries) => {
                         'date': timeSeries.key,
                         'total': {
@@ -164,6 +169,52 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
                               (timeSeries.value['delta'] ?? {})['migrated'] ??
                                   0,
                         }
+                      })
+                  .toList(),
+              'districts': (stateData.value['districts'] ?? {})
+                  .entries
+                  .map((districtData) => {
+                        'name': districtData.key,
+                        'time_series': (districtData.value['dates'] ?? {})
+                            .entries
+                            .map((timeSeries) => {
+                                  'date': timeSeries.key,
+                                  'total': {
+                                    'confirmed': (timeSeries.value['total'] ??
+                                            {})['confirmed'] ??
+                                        0,
+                                    'recovered': (timeSeries.value['total'] ??
+                                            {})['recovered'] ??
+                                        0,
+                                    'deceased': (timeSeries.value['total'] ??
+                                            {})['deceased'] ??
+                                        0,
+                                    'tested': (timeSeries.value['total'] ??
+                                            {})['tested'] ??
+                                        0,
+                                    'migrated': (timeSeries.value['total'] ??
+                                            {})['migrated'] ??
+                                        0,
+                                  },
+                                  'delta': {
+                                    'confirmed': (timeSeries.value['delta'] ??
+                                            {})['confirmed'] ??
+                                        0,
+                                    'recovered': (timeSeries.value['delta'] ??
+                                            {})['recovered'] ??
+                                        0,
+                                    'deceased': (timeSeries.value['delta'] ??
+                                            {})['deceased'] ??
+                                        0,
+                                    'tested': (timeSeries.value['delta'] ??
+                                            {})['tested'] ??
+                                        0,
+                                    'migrated': (timeSeries.value['delta'] ??
+                                            {})['migrated'] ??
+                                        0,
+                                  }
+                                })
+                            .toList()
                       })
                   .toList()
             })

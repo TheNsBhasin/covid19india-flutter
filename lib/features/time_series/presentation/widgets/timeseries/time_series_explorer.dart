@@ -1,4 +1,4 @@
-import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_alerts.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_header.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_pills.dart';
@@ -6,7 +6,7 @@ import 'package:covid19india/features/time_series/presentation/widgets/timeserie
 import 'package:flutter/material.dart';
 
 class TimeSeriesExplorer extends StatefulWidget {
-  final Map<String, List<TimeSeries>> timeSeriesMap;
+  final Map<String, StateWiseTimeSeries> timeSeriesMap;
   final DateTime date;
 
   TimeSeriesExplorer({this.timeSeriesMap, this.date});
@@ -26,10 +26,10 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
   void initState() {
     super.initState();
 
-    statisticsType = 'delta';
+    statisticsType = 'total';
     stateCode = 'TT';
     chartOption = 'MONTH';
-    isUniform = true;
+    isUniform = false;
     isLogarithmic = false;
   }
 
@@ -69,7 +69,7 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
               },
             ),
             TimeSeriesVisualizer(
-                timeSeries: widget.timeSeriesMap[stateCode],
+                timeSeries: widget.timeSeriesMap[stateCode].timeSeries,
                 date: widget.date,
                 stateCode: stateCode,
                 statisticsType: statisticsType,

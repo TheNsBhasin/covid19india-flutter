@@ -1,108 +1,83 @@
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_header.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map/map_metadata.dart';
-import 'package:covid19india/features/daily_count/presentation/widgets/map/map_stats.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_visualizer.dart';
 import 'package:flutter/material.dart';
 
 class MapExplorer extends StatefulWidget {
-  final List<StateWiseDailyCount> dailyCounts;
+  final Map<String, StateWiseDailyCount> dailyCounts;
 
-  MapExplorer({this.dailyCounts});
+  final String mapCode;
+  final String statistic;
+  final Map<String, String> regionHighlighted;
+
+  final Function(String statistic) setStatistic;
+  final Function(Map<String, String> regionHighlighted) setRegionHighlighted;
+
+  MapExplorer(
+      {this.dailyCounts,
+      this.mapCode,
+      this.statistic,
+      this.setStatistic,
+      this.regionHighlighted,
+      this.setRegionHighlighted});
 
   @override
   _MapExplorerState createState() => _MapExplorerState();
 }
 
 class _MapExplorerState extends State<MapExplorer> {
-  MapView mapView;
-  String selectedStatistics;
-  String selectedState;
-  String selectedDistrict;
+  MAP_VIEWS mapView;
+  MAP_VIZS mapViz;
 
   @override
   void initState() {
     super.initState();
 
-    mapView = MapView.STATES;
-    selectedState = 'TT';
-    selectedDistrict = null;
-    selectedStatistics = 'active';
+    mapView = (MAP_META[widget.mapCode]['map_type'] == MAP_TYPES.COUNTRY)
+        ? MAP_VIEWS.STATES
+        : MAP_VIEWS.DISTRICTS;
+    mapViz = MAP_VIZS.CHOROPLETH;
   }
 
   @override
   Widget build(BuildContext context) {
-    Map<String, StateWiseDailyCount> dailyCountMap =
-        _getDailyCountMap(widget.dailyCounts);
-
-    return Center(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          MapHeader(mapView: mapView, stateCode: selectedState),
-          MapStats(
-              dailyCount: widget.dailyCounts
-                  .where((stateData) => stateData.name == selectedState)
-                  .toList()
-                  .first,
-              onSelectStats: (String selected) {
-                setState(() {
-                  selectedStatistics = selected;
-                });
-              }),
-          mapView == MapView.STATES
-              ? SizedBox(height: 32)
-              : SizedBox(height: 0),
-          MapMetadata(
-              mapView: mapView,
-              stateCode: selectedState,
-              districtName: selectedDistrict,
-              statistics: selectedStatistics,
-              stateMap: _getDailyCountMap(widget.dailyCounts),
-              lastUpdated: widget.dailyCounts
-                  .where((stateData) => stateData.name == selectedState)
-                  .toList()
-                  .first
-                  .metadata
-                  .lastUpdated,
-              onBackPress: () {
-                setState(() {
-                  if (mapView == MapView.DISTRICTS) {
-                    mapView = MapView.STATES;
-                    selectedState = 'TT';
-                    selectedDistrict = null;
-                  }
-                });
-              }),
-          mapView == MapView.STATES
-              ? SizedBox(height: 32)
-              : SizedBox(height: 0),
+        children: [
+          MapHeader(
+            dailyCounts: widget.dailyCounts,
+            mapCode: widget.mapCode,
+            statistic: widget.statistic,
+            regionHighlighted: widget.regionHighlighted,
+            mapView: mapView,
+            mapViz: mapViz,
+            setMapView: (MAP_VIEWS newMapView) {
+              setState(() {
+                mapView = newMapView;
+              });
+            },
+            setMapViz: (MAP_VIZS newMapViz) {
+              setState(() {
+                mapViz = newMapViz;
+              });
+            },
+            setStatistic: widget.setStatistic,
+          ),
           MapVisualizer(
-              mapView: mapView,
-              stateMap: dailyCountMap,
-              stateCode: selectedState,
-              districtName: selectedDistrict,
-              statistics: selectedStatistics,
-              onRegionSelected: (String stateCode, String districtName) {
-                setState(() {
-                  if (mapView == MapView.STATES &&
-                      dailyCountMap.containsKey(stateCode) &&
-                      dailyCountMap[stateCode].districts.length > 0) {
-                    mapView = MapView.DISTRICTS;
-                  }
-                  selectedState = stateCode;
-                  selectedDistrict = districtName;
-                });
-              })
+            dailyCounts: widget.dailyCounts,
+            mapCode: widget.mapCode,
+            statistic: widget.statistic,
+            regionHighlighted: widget.regionHighlighted,
+            setRegionHighlighted: widget.setRegionHighlighted,
+            mapView: mapView,
+            mapViz: mapViz,
+          )
         ],
       ),
     );
-  }
-
-  Map<String, StateWiseDailyCount> _getDailyCountMap(
-      List<StateWiseDailyCount> dailyCounts) {
-    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
   }
 }

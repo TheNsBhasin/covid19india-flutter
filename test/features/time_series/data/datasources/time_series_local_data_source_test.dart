@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:covid19india/core/error/exceptions.dart';
+import 'package:covid19india/core/model/stats_model.dart';
 import 'package:covid19india/core/util/response_parser.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_local_data_source.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
-import 'package:covid19india/features/time_series/data/models/stats_model.dart';
 import 'package:covid19india/features/time_series/data/models/time_series_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:matcher/matcher.dart';

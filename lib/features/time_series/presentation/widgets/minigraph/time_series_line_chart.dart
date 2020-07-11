@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/util/extensions.dart';
-import 'package:covid19india/features/time_series/domain/entities/stats.dart';
+import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,7 @@ class TimeSeriesLineChart extends StatelessWidget {
         LineChartBarData(
           spots: _getData().map((e) => FlSpot(e[0], e[1])).toList(),
           isCurved: true,
-          colors: [Constants.STATS_COLOR[this.statistics]],
+          colors: [STATS_COLOR[this.statistics]],
           barWidth: 3,
           isStrokeCapRound: true,
           dotData: FlDotData(
@@ -74,29 +74,15 @@ class TimeSeriesLineChart extends StatelessWidget {
         .entries
         .map((e) => <double>[
               xScale.scale(e.key).toDouble(),
-              yScale.scale(_getStatistics(e.value.delta, statistics).toDouble())
+              yScale.scale(
+                  getStatisticValue(e.value.delta, statistics)
+                      .toDouble())
             ])
         .toList();
   }
 
-  int _getStatistics(Stats data, statistics) {
-    if (statistics == 'confirmed') {
-      return data.confirmed;
-    } else if (statistics == 'active') {
-      return data.active;
-    } else if (statistics == 'recovered') {
-      return data.recovered;
-    } else if (statistics == 'deceased') {
-      return data.deceased;
-    } else if (statistics == 'tested') {
-      return data.tested;
-    }
-
-    return data.confirmed;
-  }
-
   List<TimeSeries> _getTimeSeries() {
-    return _getLastNDaysData(Constants.MINIGRAPH_LOOKBACK_DAYS);
+    return _getLastNDaysData(MINIGRAPH_LOOKBACK_DAYS);
   }
 
   List<TimeSeries> _getLastNDaysData(int cutoff) {
@@ -142,7 +128,8 @@ class TimeSeriesLineChart extends StatelessWidget {
   int _getMinStatistics(String statistics) {
     int minCases = 1000000009;
     _getTimeSeries().forEach((e) {
-      minCases = min(minCases, _getStatistics(e.delta, statistics));
+      minCases =
+          min(minCases, getStatisticValue(e.delta, statistics));
     });
 
     return minCases;
@@ -151,7 +138,8 @@ class TimeSeriesLineChart extends StatelessWidget {
   int _getMaxStatistics(String statistics) {
     int maxCases = 1;
     _getTimeSeries().forEach((e) {
-      maxCases = max(maxCases, _getStatistics(e.delta, statistics));
+      maxCases =
+          max(maxCases, getStatisticValue(e.delta, statistics));
     });
 
     return maxCases;

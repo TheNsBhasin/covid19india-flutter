@@ -1,8 +1,8 @@
 import 'package:covid19india/core/constants/endpoints.dart';
 import 'package:covid19india/core/error/exceptions.dart';
+import 'package:covid19india/core/model/stats_model.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_remote_data_source.dart';
 import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
-import 'package:covid19india/features/time_series/data/models/stats_model.dart';
 import 'package:covid19india/features/time_series/data/models/time_series_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;

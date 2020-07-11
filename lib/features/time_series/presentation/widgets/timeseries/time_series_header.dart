@@ -60,7 +60,7 @@ class TimeSeriesHeader extends StatelessWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: Constants.TIME_SERIES_CHART_TYPES.entries
+        children: TIME_SERIES_CHART_TYPES.entries
             .map((e) => FlatButton(
                   color: (e.key == statisticsType)
                       ? Colors.orange.withAlpha(100)
@@ -154,7 +154,7 @@ class TimeSeriesHeader extends StatelessWidget {
                 setStateCode(stateCode);
               },
               isExpanded: true,
-              items: Constants.STATE_CODE_MAP.entries
+              items: STATE_CODE_MAP.entries
                   .map((e) => new DropdownMenuItem<String>(
                         value: e.key,
                         child: Text(e.value,

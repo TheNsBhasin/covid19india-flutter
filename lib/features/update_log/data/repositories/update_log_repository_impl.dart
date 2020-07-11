@@ -30,7 +30,7 @@ class UpdateLogRepositoryImpl implements UpdateLogRepository {
             final DateTime lastCached =
                 await localDataSource.getCachedTimeStamp();
             if (new DateTime.now().difference(lastCached).inMinutes <=
-                Constants.CACHE_TIMEOUT_IN_MINUTES) {
+                CACHE_TIMEOUT_IN_MINUTES) {
               final localUpdateLogs = await localDataSource.getLastUpdateLogs();
               return Right(localUpdateLogs);
             }

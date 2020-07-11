@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 
 abstract class TimeSeriesRemoteDataSource {
   Future<List<StateWiseTimeSeries>> getTimeSeries();
+
+  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode);
 }
 
 class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
@@ -34,6 +36,29 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
             .map((result) => StateWiseTimeSeriesModel.fromJson(result))
             .toList()
             .cast<StateWiseTimeSeries>();
+      } catch (e) {
+        debugPrint("_getTimeSeriesFromUrl: ${e.toString()}");
+        throw ServerException();
+      }
+    } else {
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode) =>
+      _getStateTimeSeriesFromUrl(Endpoints.timeSeries(stateCode: stateCode));
+
+  Future<StateWiseTimeSeries> _getStateTimeSeriesFromUrl(String url) async {
+    final response = await client.get(url, headers: {
+      'Content-Type': 'application/json',
+    }).timeout(const Duration(seconds: 30));
+
+    if (response.statusCode == 200) {
+      try {
+        Map<String, dynamic> jsonMap = ResponseParser.jsonToStateTimeSeries(
+            json.decode(response.body.toString()));
+        return StateWiseTimeSeriesModel.fromJson(jsonMap["result"]);
       } catch (e) {
         debugPrint("_getTimeSeriesFromUrl: ${e.toString()}");
         throw ServerException();

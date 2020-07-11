@@ -1,8 +1,8 @@
+import 'package:covid19india/core/entity/stats.dart';
 import 'package:covid19india/core/error/failures.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/metadata.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 import 'package:covid19india/features/daily_count/domain/usecases/get_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/daily_count_event.dart';

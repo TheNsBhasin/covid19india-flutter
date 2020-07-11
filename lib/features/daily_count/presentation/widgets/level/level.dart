@@ -1,7 +1,8 @@
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/stats.dart';
 import 'package:covid19india/core/util/extensions.dart';
+import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -21,48 +22,33 @@ class LevelItem extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(statistics.capitalize(),
                 style: TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.bold, color: Constants.STATS_COLOR[statistics])),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: STATS_COLOR[statistics])),
           ),
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Text(
-                _getStatistics(delta, statistics) > 0
+                getStatisticValue(delta, statistics) > 0
                     ? "+" +
-                        NumberFormat.decimalPattern('en_IN')
-                            .format(_getStatistics(delta, statistics))
-                    : "",
-                style: TextStyle(
-                    fontSize: 12, color: Constants.STATS_COLOR[statistics])),
+                        NumberFormat.decimalPattern('en_IN').format(
+                            getStatisticValue(delta, statistics))
+                    : "♥",
+                style: TextStyle(fontSize: 12, color: STATS_COLOR[statistics])),
           ),
           Padding(
             padding: const EdgeInsets.all(2.0),
             child: Text(
                 NumberFormat.decimalPattern('en_IN')
-                    .format(_getStatistics(total, statistics)),
+                    .format(getStatisticValue(total, statistics)),
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Constants.STATS_COLOR[statistics])),
+                    color: STATS_COLOR[statistics])),
           ),
         ],
       ),
     );
-  }
-
-  int _getStatistics(Stats data, statistics) {
-    if (statistics == 'confirmed') {
-      return data.confirmed;
-    } else if (statistics == 'active') {
-      return data.active;
-    } else if (statistics == 'recovered') {
-      return data.recovered;
-    } else if (statistics == 'deceased') {
-      return data.deceased;
-    } else if (statistics == 'tested') {
-      return data.tested;
-    }
-
-    return data.confirmed;
   }
 }
 
@@ -78,22 +64,12 @@ class Level extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          LevelItem(
-              statistics: 'confirmed',
-              total: dailyCount.total,
-              delta: dailyCount.delta),
-          LevelItem(
-              statistics: 'active',
-              total: dailyCount.total,
-              delta: dailyCount.delta),
-          LevelItem(
-              statistics: 'recovered',
-              total: dailyCount.total,
-              delta: dailyCount.delta),
-          LevelItem(
-              statistics: 'deceased',
-              total: dailyCount.total,
-              delta: dailyCount.delta)
+          ...PRIMARY_STATISTICS.map((statistic) => Expanded(
+                child: LevelItem(
+                    statistics: statistic,
+                    total: dailyCount.total,
+                    delta: dailyCount.delta),
+              ))
         ],
       ),
     );

@@ -7,38 +7,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MapExplorerWidget extends StatelessWidget {
+  final String stateCode;
+  final String statistic;
+  final Map<String, String> regionHighlighted;
+
+  final Function(String statistic) setStatistic;
+  final Function(Map<String, String> regionHighlighted) setRegionHighlighted;
+
+  MapExplorerWidget(
+      {this.statistic,
+      this.stateCode: 'TT',
+      this.setStatistic,
+      this.regionHighlighted,
+      this.setRegionHighlighted});
+
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: BlocBuilder<DailyCountBloc, DailyCountState>(
-          builder: (context, state) {
-            if (state is Empty) {
-              return MessageDisplay(
-                message: 'Empty',
-              );
-            } else if (state is Loading) {
-              return LoadingWidget();
-            } else if (state is Loaded) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: buildMapExplorer(state.dailyCounts),
-              );
-            } else if (state is Error) {
-              return MessageDisplay(
-                message: state.message,
-              );
-            }
+      child: BlocBuilder<DailyCountBloc, DailyCountState>(
+        builder: (context, state) {
+          if (state is Empty) {
+            return MessageDisplay(
+              message: 'Empty',
+            );
+          } else if (state is Loading) {
+            return LoadingWidget();
+          } else if (state is Loaded) {
+            Map<String, StateWiseDailyCount> stateDailyCountMap =
+                _getDailyCountMap(state.dailyCounts);
 
-            return Container();
-          },
-        ),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: buildMapExplorer(stateDailyCountMap),
+            );
+          } else if (state is Error) {
+            return MessageDisplay(
+              message: state.message,
+            );
+          }
+
+          return Container();
+        },
       ),
     );
   }
 
-  Widget buildMapExplorer(List<StateWiseDailyCount> dailyCounts) {
-    return MapExplorer(dailyCounts: dailyCounts);
+  Widget buildMapExplorer(Map<String, StateWiseDailyCount> stateDailyCountMap) {
+    return MapExplorer(
+      dailyCounts: stateDailyCountMap,
+      statistic: statistic,
+      setStatistic: setStatistic,
+      mapCode: stateCode,
+      regionHighlighted: regionHighlighted,
+      setRegionHighlighted: setRegionHighlighted,
+    );
+  }
+
+  Map<String, StateWiseDailyCount> _getDailyCountMap(
+      List<StateWiseDailyCount> dailyCounts) {
+    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
   }
 }

@@ -2,9 +2,9 @@ import 'package:covid19india/core/common/widgets/sort_arrow.dart';
 import 'package:covid19india/core/common/widgets/sticky_headers_table.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/util/extensions.dart';
+import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_top.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -115,7 +115,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
                     child: _buildTitle(
                         text: (titleRow[rowIndex] == "TT"
                             ? "Total"
-                            : Constants.STATE_CODE_MAP[titleRow[rowIndex]])));
+                            : STATE_CODE_MAP[titleRow[rowIndex]])));
               } else {
                 return _buildRowTitle(
                     child: _buildTitle(text: (titleRow[rowIndex])));
@@ -336,8 +336,8 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   _getDeltaText(dynamic data, statistics) {
-    int value =
-        _getStatistics(data, 'delta', statistics, perMillion: perMillion);
+    int value = getStatistics(data, 'delta', statistics,
+        perMillion: perMillion);
 
     return Text(
       (value < 0 ? "↓" : "↑") +
@@ -345,14 +345,14 @@ class _DailyCountTableState extends State<DailyCountTable> {
       style: TextStyle(
           fontSize: 12,
           color: value > 0
-              ? Constants.STATS_COLOR[statistics]
+              ? STATS_COLOR[statistics]
               : Colors.transparent),
     );
   }
 
   _getTotalText(dynamic data, statistics) {
-    int value =
-        _getStatistics(data, 'total', statistics, perMillion: perMillion);
+    int value = getStatistics(data, 'total', statistics,
+        perMillion: perMillion);
 
     return Text(
       NumberFormat.decimalPattern('en_IN').format(value),
@@ -367,7 +367,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   Color _arrowColor({String statistic, bool delta}) {
     if (delta) {
-      return Constants.STATS_COLOR[statistic];
+      return STATS_COLOR[statistic];
     }
 
     return (Theme.of(context).brightness == Brightness.light)
@@ -376,46 +376,11 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   List<String> _getTitleColumn() {
-    return Constants.TABLE_STATISTICS;
+    return TABLE_STATISTICS;
   }
 
   List<String> _getTitleRow() {
     return sortColumn(sortData);
-  }
-
-  int _getStatistics(dynamic data, String type, String statistic,
-      {perMillion: false}) {
-    int count = _getStatisticValue(_getStatisticType(data, type), statistic);
-
-    if (perMillion && data.metadata.population == null) {
-      return 0;
-    }
-
-    return perMillion ? (1000000 * count) ~/ data.metadata.population : count;
-  }
-
-  int _getStatisticValue(Stats data, String statistics) {
-    if (statistics == 'confirmed') {
-      return data.confirmed;
-    } else if (statistics == 'active') {
-      return data.active;
-    } else if (statistics == 'recovered') {
-      return data.recovered;
-    } else if (statistics == 'deceased') {
-      return data.deceased;
-    } else if (statistics == 'tested') {
-      return data.tested;
-    }
-
-    return data.confirmed;
-  }
-
-  Stats _getStatisticType(dynamic data, String type) {
-    if (type == 'delta') {
-      return data.delta;
-    } else {
-      return data.total;
-    }
   }
 
   List<String> sortColumn(SortData sortData) {
@@ -423,7 +388,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
       return _sortStateColumn(sortData);
     } else {
       return _sortDistrictColumn(sortData)
-          .sublist(0, Constants.DISTRICT_TABLE_COUNT);
+          .sublist(0, DISTRICT_TABLE_COUNT);
     }
   }
 
@@ -433,18 +398,18 @@ class _DailyCountTableState extends State<DailyCountTable> {
       statistic: 'confirmed',
       perMillion: false}) {
     if (ascending) {
-      return _getStatistics(a, type, statistic, perMillion: perMillion)
-          .compareTo(
-              _getStatistics(a, type, statistic, perMillion: perMillion));
+      return getStatistics(a, type, statistic, perMillion: perMillion)
+          .compareTo(getStatistics(a, type, statistic,
+              perMillion: perMillion));
     } else {
-      return _getStatistics(b, type, statistic, perMillion: perMillion)
-          .compareTo(
-              _getStatistics(a, type, statistic, perMillion: perMillion));
+      return getStatistics(b, type, statistic, perMillion: perMillion)
+          .compareTo(getStatistics(a, type, statistic,
+              perMillion: perMillion));
     }
   }
 
   String _mapColumnIndexToStats(int columnIndex) {
-    return Constants.TABLE_STATISTICS[columnIndex - 1];
+    return TABLE_STATISTICS[columnIndex - 1];
   }
 
   List<String> _sortStateColumn(SortData sortData) {

@@ -1,4 +1,4 @@
-import 'package:covid19india/features/time_series/data/models/stats_model.dart';
+import 'package:covid19india/core/model/stats_model.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:intl/intl.dart';
 
@@ -17,17 +17,19 @@ class TimeSeriesModel extends TimeSeries {
     return {
       'date': DateFormat('yyyy-MM-dd').format(date),
       'total': StatsModel(
-        confirmed: total.confirmed,
-        recovered: total.recovered,
-        deceased: total.deceased,
-        tested: total.tested
-      ).toJson(),
+              confirmed: total.confirmed,
+              recovered: total.recovered,
+              deceased: total.deceased,
+              tested: total.tested,
+              migrated: total.migrated)
+          .toJson(),
       'delta': StatsModel(
-        confirmed: delta.confirmed,
-        recovered: delta.recovered,
-        deceased: delta.deceased,
-        tested: delta.tested
-      ).toJson()
+              confirmed: delta.confirmed,
+              recovered: delta.recovered,
+              deceased: delta.deceased,
+              tested: delta.tested,
+              migrated: delta.migrated)
+          .toJson()
     };
   }
 }

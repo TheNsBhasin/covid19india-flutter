@@ -4,5 +4,8 @@ import 'package:dartz/dartz.dart';
 
 abstract class TimeSeriesRepository {
   Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries(
-      {bool forced});
+      {bool forced, bool cache});
+
+  Future<Either<Failure, StateWiseTimeSeries>> getStateTimeSeries(
+      {bool forced, bool cache, String stateCode});
 }

@@ -14,4 +14,8 @@ class Endpoints {
     String dateString = new DateFormat("yyyy-MM-dd").format(date);
     return "https://api.covid19india.org/v4/min/data-$dateString.min.json";
   }
+
+  static String timeSeries({String stateCode}) {
+    return "https://api.covid19india.org/v4/min/timeseries-$stateCode.min.json";
+  }
 }

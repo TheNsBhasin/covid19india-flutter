@@ -1,4 +1,4 @@
-import 'package:covid19india/features/time_series/domain/entities/stats.dart';
+import 'package:covid19india/core/entity/stats.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 

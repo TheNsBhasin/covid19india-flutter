@@ -1,6 +1,6 @@
+import 'package:covid19india/core/entity/stats.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/metadata.dart';
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 

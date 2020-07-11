@@ -31,12 +31,12 @@ class _SearchBarState extends State<SearchBar> {
     _focus.addListener(_onFocusChange);
     _textController.addListener(_onTextChange);
 
-    Constants.STATE_CODE_MAP.entries.forEach((e) {
+    STATE_CODE_MAP.entries.forEach((e) {
       _statesBox
           .put(e.value, {'name': e.value, 'type': 'state', 'route': e.key});
     });
 
-    Constants.STATE_DISTRICT_MAP.entries.forEach((e) {
+    STATE_DISTRICT_MAP.entries.forEach((e) {
       e.value.forEach((districtName) {
         _districtsBox.put(districtName,
             {'name': districtName, 'type': 'district', 'route': e.key});
@@ -148,11 +148,11 @@ class _SearchBarState extends State<SearchBar> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0)),
                             onPressed: () {
-                              print('Navigator ${e.value['route']}');
                               Navigator.pushNamed(
                                 context,
                                 StatePage.routeName,
-                                arguments: StatePageArguments(e.value['route']),
+                                arguments: StatePageArguments(
+                                    stateCode: e.value['route']),
                               );
                             },
                             child: Text(e.value['route'],
@@ -176,7 +176,7 @@ class _SearchBarState extends State<SearchBar> {
                             child: Text(
                               e.value['name'] +
                                   ", " +
-                                  Constants.STATE_CODE_MAP[e.value['route']],
+                                  STATE_CODE_MAP[e.value['route']],
                               softWrap: true,
                               style:
                                   TextStyle(fontSize: 14, color: Colors.grey),
@@ -193,12 +193,12 @@ class _SearchBarState extends State<SearchBar> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0)),
                                 onPressed: () {
-                                  print('Navigator ${e.value['route']}');
                                   Navigator.pushNamed(
                                     context,
                                     StatePage.routeName,
-                                    arguments:
-                                        StatePageArguments(e.value['route']),
+                                    arguments: StatePageArguments(
+                                        stateCode: e.value['route'],
+                                        districtName: e.value['name']),
                                   );
                                 },
                                 child: Text(e.value['route'],
@@ -240,7 +240,7 @@ class _SearchBarState extends State<SearchBar> {
                         color: Colors.blue),
                   ),
                   SizedBox(height: 8),
-                  ...Constants.DISTRICT_SUGGESTIONS
+                  ...DISTRICT_SUGGESTIONS
                       .map((e) => _buildSuggestion(e))
                       .toList()
                 ],
@@ -262,9 +262,7 @@ class _SearchBarState extends State<SearchBar> {
                         color: Colors.blue),
                   ),
                   SizedBox(height: 8),
-                  ...Constants.STATE_SUGGESTIONS
-                      .map((e) => _buildSuggestion(e))
-                      .toList()
+                  ...STATE_SUGGESTIONS.map((e) => _buildSuggestion(e)).toList()
                 ],
               ),
             )

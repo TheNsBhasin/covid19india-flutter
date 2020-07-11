@@ -6,22 +6,27 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class GetTimeSeries implements UseCase<List<StateWiseTimeSeries>, Params> {
+class GetTimeSeries implements UseCase<List<StateWiseTimeSeries>, GetTimeSeriesParams> {
   final TimeSeriesRepository repository;
 
   GetTimeSeries(this.repository);
 
   @override
-  Future<Either<Failure, List<StateWiseTimeSeries>>> call(Params params) async {
-    return await repository.getTimeSeries(forced: params.forced);
+  Future<Either<Failure, List<StateWiseTimeSeries>>> call(GetTimeSeriesParams params) async {
+    return await repository.getTimeSeries(
+        forced: params.forced, cache: params.cache);
   }
 }
 
-class Params extends Equatable {
+class GetTimeSeriesParams extends Equatable {
   final bool forced;
+  final bool cache;
 
-  Params({@required this.forced});
+  GetTimeSeriesParams({@required this.forced, this.cache});
 
   @override
-  List<Object> get props => [forced];
+  List<Object> get props => [forced, cache];
+
+  @override
+  bool get stringify => true;
 }

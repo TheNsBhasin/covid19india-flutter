@@ -1,8 +1,7 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_explorer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,9 +47,8 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
         timeSeriesMap: _getTimeSeriesMap(timeSeries), date: date);
   }
 
-  Map<String, List<TimeSeries>> _getTimeSeriesMap(
+  Map<String, StateWiseTimeSeries> _getTimeSeriesMap(
       List<StateWiseTimeSeries> timeSeries) {
-    return Map.fromIterable(timeSeries,
-        key: (e) => e.name, value: (e) => e.timeSeries);
+    return Map.fromIterable(timeSeries, key: (e) => e.name, value: (e) => e);
   }
 }

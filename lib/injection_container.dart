@@ -8,8 +8,9 @@ import 'package:covid19india/features/time_series/data/datasources/time_series_l
 import 'package:covid19india/features/time_series/data/datasources/time_series_remote_data_source.dart';
 import 'package:covid19india/features/time_series/data/repositories/time_series_repository_impl.dart';
 import 'package:covid19india/features/time_series/domain/repositories/time_series_repository.dart';
+import 'package:covid19india/features/time_series/domain/usecases/get_state_time_series.dart';
 import 'package:covid19india/features/time_series/domain/usecases/get_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart';
 import 'package:covid19india/features/update_log/data/datasources/update_log_local_data_source.dart';
 import 'package:covid19india/features/update_log/data/datasources/update_log_remote_datasource.dart';
 import 'package:covid19india/features/update_log/data/repositories/update_log_repository_impl.dart';
@@ -24,6 +25,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/network/network_info.dart';
+import 'features/time_series/presentation/bloc/state_time_series/bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -41,6 +43,12 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerFactory<StateTimeSeriesBloc>(
+    () => StateTimeSeriesBloc(
+      timeSeries: sl(),
+    ),
+  );
+
   sl.registerFactory<UpdateLogBloc>(
     () => UpdateLogBloc(
         updateLogs: sl(),
@@ -51,6 +59,7 @@ Future<void> init() async {
   // Use cases
   sl.registerLazySingleton<GetDailyCount>(() => GetDailyCount(sl()));
   sl.registerLazySingleton<GetTimeSeries>(() => GetTimeSeries(sl()));
+  sl.registerLazySingleton<GetStateTimeSeries>(() => GetStateTimeSeries(sl()));
   sl.registerLazySingleton<GetUpdateLogs>(() => GetUpdateLogs(sl()));
   sl.registerLazySingleton<GetLastViewedTimestamp>(
       () => GetLastViewedTimestamp(sl()));

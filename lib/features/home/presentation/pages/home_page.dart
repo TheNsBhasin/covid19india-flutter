@@ -1,12 +1,13 @@
-import 'package:covid19india/core/common/widgets/covid_19_india_app_bar.dart';
+import 'package:covid19india/core/common/widgets/footer.dart';
+import 'package:covid19india/core/common/widgets/my_app_bar.dart';
+import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_widget.dart';
 import 'package:covid19india/features/home/presentation/widgets/action_bar/action_bar_widget.dart';
-import 'package:covid19india/features/home/presentation/widgets/footer.dart';
 import 'package:covid19india/features/home/presentation/widgets/search_bar.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/time_series_minigraph_widget.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_explorer_widget.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
@@ -31,6 +32,10 @@ class _HomePageState extends State<HomePage> {
   DateTime date = new DateTime(
       DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
+  String statistic;
+
+  Map<String, String> regionHighlighted;
+
   @override
   void initState() {
     super.initState();
@@ -38,12 +43,28 @@ class _HomePageState extends State<HomePage> {
     _dailyCountBloc = sl<DailyCountBloc>();
     _timeSeriesBloc = sl<TimeSeriesBloc>();
     _updateLogBloc = sl<UpdateLogBloc>();
+
+    statistic = 'confirmed';
+
+    regionHighlighted = {
+      'stateCode': 'TT',
+      'districtName': null,
+    };
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _dailyCountBloc.close();
+    _timeSeriesBloc.close();
+    _updateLogBloc.close();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: covid19IndiaAppBar(),
+      appBar: myAppBar(),
       body: MultiBlocProvider(
         providers: [
           BlocProvider(
@@ -57,8 +78,12 @@ class _HomePageState extends State<HomePage> {
           child: RefreshIndicator(
             key: refreshKey,
             onRefresh: _refreshAll,
-            child: SingleChildScrollView(
-              child: buildBody(context),
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: buildBody(context),
+              ),
             ),
           ),
         ),
@@ -68,7 +93,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildBody(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 32.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,7 +105,8 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 date = newDate;
                 _dailyCountBloc
-                  ..add(GetDailyCountData(forced: true, date: date));
+                  ..add(GetDailyCountData(
+                      forced: true, date: date, cache: date.isToday()));
               });
             },
           ),
@@ -89,7 +115,20 @@ class _HomePageState extends State<HomePage> {
             date: date,
           ),
           DailyCountTableWidget(),
-          MapExplorerWidget(),
+          MapExplorerWidget(
+            statistic: statistic,
+            setStatistic: (String newStatistic) {
+              setState(() {
+                statistic = newStatistic;
+              });
+            },
+            regionHighlighted: regionHighlighted,
+            setRegionHighlighted: (Map<String, String> newRegionHighlighted) {
+              setState(() {
+                regionHighlighted = newRegionHighlighted;
+              });
+            },
+          ),
           TimeSeriesExplorerWidget(
             date: date,
           ),
@@ -101,7 +140,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<Null> _refreshAll() async {
     refreshKey.currentState?.show(atTop: false);
-    _dailyCountBloc..add(GetDailyCountData(forced: true, date: date));
+    _dailyCountBloc
+      ..add(GetDailyCountData(forced: true, date: date, cache: date.isToday()));
     _timeSeriesBloc..add(GetTimeSeriesData(forced: true));
     _updateLogBloc..add(GetUpdateLogData(forced: true));
 

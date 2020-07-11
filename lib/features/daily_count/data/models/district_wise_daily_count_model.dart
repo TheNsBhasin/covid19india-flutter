@@ -1,5 +1,5 @@
+import 'package:covid19india/core/model/stats_model.dart';
 import 'package:covid19india/features/daily_count/data/models/metadata_model.dart';
-import 'package:covid19india/features/daily_count/data/models/stats_model.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 
 class DistrictWiseDailyCountModel extends DistrictWiseDailyCount {

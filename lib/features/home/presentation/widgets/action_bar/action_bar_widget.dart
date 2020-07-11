@@ -2,7 +2,7 @@ import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
 import 'package:covid19india/features/home/presentation/widgets/action_bar/action_bar.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart'
+import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart'
     as TimeSeriesBloc;
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart'

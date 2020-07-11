@@ -1,3 +1,4 @@
+import 'package:covid19india/core/scale/pow.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:grizzly_range/grizzly_range.dart' as ranger;
 
@@ -24,7 +25,7 @@ extension DateTimeExtension on DateTime {
 
 extension LinearScaleExtension on LinearScale {
   LinearScale nice({count: 10}) {
-    List d = this.domain.toList();
+    List<double> d = this.domain.toList();
     int i0 = 0;
     int i1 = d.length - 1;
     num start = d[i0];
@@ -63,5 +64,49 @@ extension LinearScaleExtension on LinearScale {
     }
 
     return new LinearScale(d, this.range);
+  }
+}
+
+extension SqrtScaleExtension on SqrtScale {
+  SqrtScale nice({count: 10}) {
+    List d = this.domain.toList();
+    int i0 = 0;
+    int i1 = d.length - 1;
+    num start = d[i0];
+    num stop = d[i1];
+    num step;
+
+    if (stop < start) {
+      step = start;
+      start = stop;
+      stop = step;
+      step = i0;
+      i0 = i1;
+      i1 = step;
+    }
+
+    step = ranger.tickIncrement(start, stop, count);
+
+    step = ranger.tickIncrement(start, stop, count);
+
+    if (step > 0) {
+      start = (start / step).floor() * step;
+      stop = (stop / step).ceil() * step;
+      step = ranger.tickIncrement(start, stop, count);
+    } else if (step < 0) {
+      start = (start * step).ceil() / step;
+      stop = (stop * step).floor() / step;
+      step = ranger.tickIncrement(start, stop, count);
+    }
+
+    if (step > 0) {
+      d[i0] = ((start / step).floor() * step).toDouble();
+      d[i1] = ((stop / step).ceil() * step).toDouble();
+    } else if (step < 0) {
+      d[i0] = ((start * step).ceil() / step).toDouble();
+      d[i1] = ((stop * step).floor() / step).toDouble();
+    }
+
+    return new SqrtScale(d, this.range);
   }
 }

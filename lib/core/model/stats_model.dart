@@ -1,4 +1,4 @@
-import 'package:covid19india/features/daily_count/domain/entities/stats.dart';
+import 'package:covid19india/core/entity/stats.dart';
 
 class StatsModel extends Stats {
   StatsModel(

@@ -16,7 +16,7 @@ class MiniGraph extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          ...Constants.PRIMARY_STATISTICS
+          ...PRIMARY_STATISTICS
               .map((statistics) => TimeSeriesLineChart(
                   timeSeries: timeSeries, statistics: statistics, date: date))
               .toList()

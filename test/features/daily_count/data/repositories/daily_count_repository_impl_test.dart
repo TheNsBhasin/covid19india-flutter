@@ -1,12 +1,12 @@
 import 'package:covid19india/core/error/exceptions.dart';
 import 'package:covid19india/core/error/failures.dart';
+import 'package:covid19india/core/model/stats_model.dart';
 import 'package:covid19india/core/network/network_info.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_local_data_source.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_remote_data_source.dart';
 import 'package:covid19india/features/daily_count/data/models/district_wise_daily_count_model.dart';
 import 'package:covid19india/features/daily_count/data/models/metadata_model.dart';
 import 'package:covid19india/features/daily_count/data/models/state_wise_daily_count_model.dart';
-import 'package:covid19india/features/daily_count/data/models/stats_model.dart';
 import 'package:covid19india/features/daily_count/data/repositories/daily_count_repository_impl.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:dartz/dartz.dart';

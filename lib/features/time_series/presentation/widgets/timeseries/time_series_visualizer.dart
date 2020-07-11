@@ -2,13 +2,12 @@ import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/util/extensions.dart';
-import 'package:covid19india/features/time_series/domain/entities/stats.dart';
+import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
-import 'dart:math' as math;
 
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
@@ -22,7 +21,8 @@ class TimeSeriesItem extends StatelessWidget {
   final double yBufferTop = 1.2;
   final double yBufferBottom = 1.1;
 
-  final numTicksX = 4;
+  final numTicksX = 5;
+  final numTicksY = 6;
 
   TimeSeriesItem(
       {this.timeSeries,
@@ -41,7 +41,7 @@ class TimeSeriesItem extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
       child: Container(
         decoration: BoxDecoration(
-            color: Constants.STATS_COLOR[statistics].withAlpha(50),
+            color: STATS_COLOR[statistics].withAlpha(50),
             borderRadius: BorderRadius.all(new Radius.circular(5.0))),
         child: Stack(children: [
           Padding(
@@ -55,7 +55,7 @@ class TimeSeriesItem extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Constants.STATS_COLOR[statistics]),
+                      color: STATS_COLOR[statistics]),
                 ),
                 Text(
                   new DateFormat('d MMMM')
@@ -63,7 +63,7 @@ class TimeSeriesItem extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Constants.STATS_COLOR[statistics]),
+                      color: STATS_COLOR[statistics]),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -71,29 +71,28 @@ class TimeSeriesItem extends StatelessWidget {
                   children: [
                     Text(
                       NumberFormat.decimalPattern('en_IN').format(
-                          _getStatistics(
+                          getStatisticValue(
                               filteredTimeSeries.last.total, statistics)),
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Constants.STATS_COLOR[statistics]),
+                          color: STATS_COLOR[statistics]),
                     ),
                     SizedBox(
                       width: 4.0,
                     ),
                     Text(
-                        _getStatistics(
+                        getStatisticValue(
                                     filteredTimeSeries.last.delta, statistics) >
                                 0
                             ? "+" +
                                 NumberFormat.decimalPattern('en_IN').format(
-                                    _getStatistics(
+                                    getStatisticValue(
                                         filteredTimeSeries.last.delta,
                                         statistics))
                             : "",
                         style: TextStyle(
-                            fontSize: 12,
-                            color: Constants.STATS_COLOR[statistics])),
+                            fontSize: 12, color: STATS_COLOR[statistics])),
                   ],
                 ),
               ],
@@ -136,12 +135,12 @@ class TimeSeriesItem extends StatelessWidget {
             showTitles: true,
             reservedSize: 4,
             textStyle: TextStyle(
-              color: Constants.STATS_COLOR[statistics],
+              color: STATS_COLOR[statistics],
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
             margin: 12,
-            interval: 1,
+            interval: _getIntervalX(),
             getTitles: (value) {
               try {
                 return new DateFormat('d MMM').format(
@@ -157,11 +156,11 @@ class TimeSeriesItem extends StatelessWidget {
         rightTitles: SideTitles(
           showTitles: true,
           textStyle: TextStyle(
-            color: Constants.STATS_COLOR[statistics],
+            color: STATS_COLOR[statistics],
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
-          interval: 1,
+          interval: _getIntervalY(),
           getTitles: (value) {
             try {
               return new NumberFormat.compact().format(yScale.invert(value));
@@ -177,10 +176,8 @@ class TimeSeriesItem extends StatelessWidget {
       borderData: FlBorderData(
           show: true,
           border: Border(
-              bottom: BorderSide(
-                  color: Constants.STATS_COLOR[statistics], width: 2),
-              right: BorderSide(
-                  color: Constants.STATS_COLOR[statistics], width: 2))),
+              bottom: BorderSide(color: STATS_COLOR[statistics], width: 2),
+              right: BorderSide(color: STATS_COLOR[statistics], width: 2))),
       lineTouchData: LineTouchData(enabled: false),
       minX: _getMinX(),
       maxX: _getMaxX(),
@@ -190,7 +187,7 @@ class TimeSeriesItem extends StatelessWidget {
         LineChartBarData(
           spots: _getData().map((e) => FlSpot(e[0], e[1])).toList(),
           isCurved: true,
-          colors: [Constants.STATS_COLOR[this.statistics]],
+          colors: [STATS_COLOR[this.statistics]],
           barWidth: 3,
           isStrokeCapRound: true,
           dotData: FlDotData(show: chartOption != 'BEGINNING'),
@@ -202,14 +199,14 @@ class TimeSeriesItem extends StatelessWidget {
 
   bool _checkToShowXTitle(double minValue, double maxValue,
       SideTitles sideTitles, double appliedInterval, double value) {
-    int step = (maxValue - minValue) ~/ 4;
+    int step = (maxValue - minValue) ~/ (numTicksX - 1);
 
     return (value % step == 0);
   }
 
   bool _checkToShowYTitle(double minValue, double maxValue,
       SideTitles sideTitles, double appliedInterval, double value) {
-    int step = (maxValue - minValue) ~/ 5;
+    int step = (maxValue - minValue) ~/ (numTicksY - 1);
 
     return (value % step == 0);
   }
@@ -228,13 +225,13 @@ class TimeSeriesItem extends StatelessWidget {
               yScale.scale(isLogarithmic
                   ? max(
                       1.0,
-                      _getStatistics(
+                      getStatisticValue(
                               statisticsType == 'total'
                                   ? e.value.total
                                   : e.value.delta,
                               statistics)
                           .toDouble())
-                  : _getStatistics(
+                  : getStatisticValue(
                           statisticsType == 'total'
                               ? e.value.total
                               : e.value.delta,
@@ -271,11 +268,11 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   double _getIntervalX() {
-    return (_getMaxX() - _getMinX()) / 4;
+    return 1;
   }
 
   double _getIntervalY() {
-    return (_getMaxY() - _getMinY()) / 5;
+    return 1;
   }
 
   List<TimeSeries> _getLastNDaysData(int cutoff) {
@@ -360,7 +357,7 @@ class TimeSeriesItem extends StatelessWidget {
     _getTimeSeries().forEach((e) {
       minCases = min(
           minCases,
-          _getStatistics(
+          getStatisticValue(
               statisticsType == 'total' ? e.total : e.delta, statistics));
     });
 
@@ -372,27 +369,11 @@ class TimeSeriesItem extends StatelessWidget {
     _getTimeSeries().forEach((e) {
       maxCases = max(
           maxCases,
-          _getStatistics(
+          getStatisticValue(
               statisticsType == 'total' ? e.total : e.delta, statistics));
     });
 
     return maxCases;
-  }
-
-  int _getStatistics(Stats data, statistics) {
-    if (statistics == 'confirmed') {
-      return data.confirmed;
-    } else if (statistics == 'active') {
-      return data.active;
-    } else if (statistics == 'recovered') {
-      return data.recovered;
-    } else if (statistics == 'deceased') {
-      return data.deceased;
-    } else if (statistics == 'tested') {
-      return data.tested;
-    }
-
-    return data.confirmed;
   }
 }
 
@@ -426,7 +407,7 @@ class _TimeSeriesVisualizerState extends State<TimeSeriesVisualizer> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ...Constants.TIME_SERIES_STATISTICS
+          ...TIME_SERIES_STATISTICS
               .map((statistics) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: TimeSeriesItem(

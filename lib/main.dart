@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.white),
         themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
-        initialRoute: '/',
+        home: HomePage(),
         onGenerateRoute: (settings) {
           if (settings.name == StatePage.routeName) {
             final StatePageArguments args = settings.arguments;
@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
               builder: (context) {
                 return StatePage(
                   stateCode: args.stateCode,
+                  districtName: args.districtName,
                 );
               },
             );
@@ -60,10 +61,6 @@ class MyApp extends StatelessWidget {
 
           assert(false, 'Need to implement ${settings.name}');
           return null;
-        },
-        routes: {
-          HomePage.routeName: (context) => HomePage(),
-          StatePage.routeName: (context) => StatePage(),
         },
       ),
     );
