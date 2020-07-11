@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/time_series/domain/entities/stats.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -105,7 +106,9 @@ class TimeSeriesLineChart extends StatelessWidget {
 
     List<TimeSeries> filteredTimeSeries = timeSeries
         .where((e) =>
-            !e.date.isAfter(date) && date.difference(e.date).inDays <= cutoff)
+            !e.date.isAfter(date) &&
+            date.difference(e.date).inDays <= cutoff &&
+            !e.date.isToday())
         .toList();
 
     return filteredTimeSeries;

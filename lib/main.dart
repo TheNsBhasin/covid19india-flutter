@@ -1,5 +1,4 @@
 import 'package:covid19india/features/home/presentation/pages/home_page.dart';
-import 'package:covid19india/features/states/domain/entity/StatePageArgument.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';

@@ -8,6 +8,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as math;
 
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
@@ -110,7 +111,8 @@ class TimeSeriesItem extends StatelessWidget {
       child: Container(
         width: double.infinity,
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding:
+              const EdgeInsets.only(top: 32, bottom: 32, left: 32, right: 16),
           child: LineChart(
             _getChartData(),
             swapAnimationDuration: const Duration(milliseconds: 250),
@@ -121,7 +123,7 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   LineChartData _getChartData() {
-    DateTime startTime = _getTimeSeries().first.date;
+    List<TimeSeries> filteredTimeSeries = _getTimeSeries();
 
     Scale xScale = _getXScale();
     Scale yScale = _getYScale();
@@ -131,25 +133,26 @@ class TimeSeriesItem extends StatelessWidget {
       titlesData: FlTitlesData(
         show: true,
         bottomTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 4,
-          textStyle: TextStyle(
-            color: Constants.STATS_COLOR[statistics],
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-          margin: 12,
-          interval: _getIntervalX(),
-          getTitles: (value) {
-            try {
-              return new DateFormat('d MMM').format(startTime
-                  .add(Duration(days: xScale.invert(value).toInt()))
-                  .toLocal());
-            } catch (e) {}
+            showTitles: true,
+            reservedSize: 4,
+            textStyle: TextStyle(
+              color: Constants.STATS_COLOR[statistics],
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            margin: 12,
+            interval: 1,
+            getTitles: (value) {
+              try {
+                return new DateFormat('d MMM').format(
+                    filteredTimeSeries[xScale.invert(value).toInt()]
+                        .date
+                        .toLocal());
+              } catch (e) {}
 
-            return '';
-          },
-        ),
+              return '';
+            },
+            checkToShowTitle: _checkToShowXTitle),
         leftTitles: SideTitles(showTitles: false),
         rightTitles: SideTitles(
           showTitles: true,
@@ -158,7 +161,7 @@ class TimeSeriesItem extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
-          interval: _getIntervalY(),
+          interval: 1,
           getTitles: (value) {
             try {
               return new NumberFormat.compact().format(yScale.invert(value));
@@ -166,7 +169,8 @@ class TimeSeriesItem extends StatelessWidget {
 
             return '';
           },
-          margin: 8,
+          checkToShowTitle: _checkToShowYTitle,
+          margin: 12,
           reservedSize: 30,
         ),
       ),
@@ -194,6 +198,20 @@ class TimeSeriesItem extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  bool _checkToShowXTitle(double minValue, double maxValue,
+      SideTitles sideTitles, double appliedInterval, double value) {
+    int step = (maxValue - minValue) ~/ 4;
+
+    return (value % step == 0);
+  }
+
+  bool _checkToShowYTitle(double minValue, double maxValue,
+      SideTitles sideTitles, double appliedInterval, double value) {
+    int step = (maxValue - minValue) ~/ 5;
+
+    return (value % step == 0);
   }
 
   List<List<double>> _getData() {
@@ -233,9 +251,7 @@ class TimeSeriesItem extends StatelessWidget {
       return _getLastNDaysData(14);
     }
 
-    return timeSeries
-        .where((e) => date.difference(e.date).inDays >= 1)
-        .toList();
+    return timeSeries.where((e) => !e.date.isAfter(date) && !e.date.isToday());
   }
 
   double _getMinX() {
@@ -269,7 +285,9 @@ class TimeSeriesItem extends StatelessWidget {
 
     List<TimeSeries> filteredTimeSeries = timeSeries
         .where((e) =>
-            !e.date.isAfter(date) && date.difference(e.date).inDays <= cutoff)
+            !e.date.isAfter(date) &&
+            date.difference(e.date).inDays <= cutoff &&
+            !e.date.isToday())
         .toList();
 
     return filteredTimeSeries;
@@ -297,7 +315,8 @@ class TimeSeriesItem extends StatelessWidget {
     double scaleMin = _uniformScaleMin().toDouble();
     double scaleMax = max(1, yBufferTop * _uniformScaleMax()).toDouble();
 
-    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()]);
+    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()])
+        .nice(count: 4);
   }
 
   Scale _yScaleUniformLog() {
@@ -332,7 +351,8 @@ class TimeSeriesItem extends StatelessWidget {
     double scaleMax =
         max(1, yBufferTop * _getMaxStatistics(statistics)).toDouble();
 
-    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()]);
+    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()])
+        .nice(count: 4);
   }
 
   int _getMinStatistics(String statistics) {
