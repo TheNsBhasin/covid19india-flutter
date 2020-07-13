@@ -7,20 +7,31 @@ import 'package:covid19india/features/time_series/domain/entities/time_series.da
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
 
-class DeltaBarGraph extends StatelessWidget {
+class DeltaBarGraph extends StatefulWidget {
   final StateWiseTimeSeries timeSeries;
 
   final String stateCode;
   final String statistic;
-  final int lookback;
 
-  static const double barWidth = 32;
+  DeltaBarGraph({this.timeSeries, this.stateCode, this.statistic});
 
-  DeltaBarGraph(
-      {this.timeSeries, this.stateCode, this.statistic, this.lookback});
+  @override
+  _DeltaBarGraphState createState() => _DeltaBarGraphState();
+}
+
+class _DeltaBarGraphState extends State<DeltaBarGraph> {
+  int lookback;
+
+  @override
+  void initState() {
+    super.initState();
+
+    lookback = 6;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +42,10 @@ class DeltaBarGraph extends StatelessWidget {
     int maxDeltaStats = 1;
 
     filteredTimeSeries.forEach((e) {
-      minDeltaStats = min(minDeltaStats, getStatisticValue(e.delta, statistic));
-      maxDeltaStats = max(maxDeltaStats, getStatisticValue(e.delta, statistic));
+      minDeltaStats =
+          min(minDeltaStats, getStatisticValue(e.delta, widget.statistic));
+      maxDeltaStats =
+          max(maxDeltaStats, getStatisticValue(e.delta, widget.statistic));
     });
 
     final double minY = (minDeltaStats < 0 ? -50 : 0).toDouble();
@@ -43,123 +56,162 @@ class DeltaBarGraph extends StatelessWidget {
     final Scale yScale =
         LinearScale([minDeltaStats, maxDeltaStats], [minY, maxY]);
 
-    return AspectRatio(
-      aspectRatio: 1.7,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.center,
-            maxY: maxY + 8,
-            minY: minY < 0 ? minY - 28 : minY,
-            groupsSpace: 32,
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchTooltipData: BarTouchTooltipData(
-                tooltipBgColor: Colors.transparent,
-                tooltipPadding: const EdgeInsets.all(0),
-                tooltipBottomMargin: 8,
-                getTooltipItem: (
-                  BarChartGroupData group,
-                  int groupIndex,
-                  BarChartRodData rod,
-                  int rodIndex,
-                ) {
-                  final int delta = getStatisticValue(
-                      filteredTimeSeries[groupIndex].delta, statistic);
+    final double spacing = lookback < 7 ? 32 : 24;
 
-                  String text1 =
-                      NumberFormat.decimalPattern('en_IN').format(delta);
+    final double barWidth =
+        (MediaQuery.of(context).size.width - lookback * spacing - 32) / (lookback);
 
-                  String text2 = "";
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        AspectRatio(
+          aspectRatio: 1.7,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.center,
+                maxY: maxY + 8,
+                minY: minY < 0 ? minY - 28 : minY,
+                groupsSpace: spacing,
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    tooltipBgColor: Colors.transparent,
+                    tooltipPadding: const EdgeInsets.all(0),
+                    tooltipBottomMargin: 8,
+                    getTooltipItem: (
+                      BarChartGroupData group,
+                      int groupIndex,
+                      BarChartRodData rod,
+                      int rodIndex,
+                    ) {
+                      final int delta = getStatisticValue(
+                          filteredTimeSeries[groupIndex].delta,
+                          widget.statistic);
 
-                  if (groupIndex > 0) {
-                    final int prevValue = getStatisticValue(
-                        filteredTimeSeries[groupIndex - 1].delta, statistic);
+                      String text1 =
+                          NumberFormat.decimalPattern('en_IN').format(delta);
 
-                    final int increase = delta - prevValue;
+                      String text2 = "";
 
-                    text2 =
-                        "${increase > 0 ? "+" : ""}${NumberFormat.decimalPattern('en_IN').format(double.parse(((100 * increase) / prevValue.abs()).toStringAsFixed(2)))}%";
-                  }
+                      if (groupIndex > 0) {
+                        final int prevValue = getStatisticValue(
+                            filteredTimeSeries[groupIndex - 1].delta,
+                            widget.statistic);
 
-                  String text = (groupIndex == 0)
-                      ? text1
-                      : (delta > 0
-                          ? text2 + "\n" + text1
-                          : text1 + "\n" + text2);
+                        final int increase = delta - prevValue;
 
-                  return BarTooltipItem(
-                    text,
-                    TextStyle(
-                      fontSize: 10,
-                      color: STATS_COLOR[statistic],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                },
-              ),
-            ),
-            titlesData: FlTitlesData(
-              show: true,
-              bottomTitles: SideTitles(
-                showTitles: true,
-                textStyle: TextStyle(
-                    color: STATS_COLOR[statistic],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10),
-                margin: 10,
-                rotateAngle: 0,
-                getTitles: (double value) {
-                  return DateFormat("dd MMM").format(
-                      filteredTimeSeries[xScale.invert(value.toInt()).toInt()]
+                        text2 =
+                            "${increase > 0 ? "+" : ""}${NumberFormat.decimalPattern('en_IN').format(double.parse(((100 * increase) / prevValue.abs()).toStringAsFixed(2)))}%";
+                      }
+
+                      String text = (groupIndex == 0)
+                          ? text1
+                          : (delta > 0
+                              ? text2 + "\n" + text1
+                              : text1 + "\n" + text2);
+
+                      return BarTooltipItem(
+                        text,
+                        TextStyle(
+                          fontSize: 10,
+                          color: STATS_COLOR[widget.statistic],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    textStyle: TextStyle(
+                        color: STATS_COLOR[widget.statistic],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10),
+                    margin: 10,
+                    rotateAngle: 0,
+                    getTitles: (double value) {
+                      return DateFormat("dd MMM").format(filteredTimeSeries[
+                              xScale.invert(value.toInt()).toInt()]
                           .date);
-                },
-              ),
-              leftTitles: SideTitles(showTitles: false),
-              rightTitles: SideTitles(showTitles: false),
-            ),
-            gridData: FlGridData(show: false),
-            borderData: FlBorderData(show: false),
-            barGroups: [
-              ...filteredTimeSeries.asMap().entries.map((e) {
-                final int x = e.key;
-                final double y =
-                    yScale.scale(getStatisticValue(e.value.delta, statistic));
+                    },
+                  ),
+                  leftTitles: SideTitles(showTitles: false),
+                  rightTitles: SideTitles(showTitles: false),
+                ),
+                gridData: FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                barGroups: [
+                  ...filteredTimeSeries.asMap().entries.map((e) {
+                    final int x = e.key;
+                    final double y = yScale.scale(
+                        getStatisticValue(e.value.delta, widget.statistic));
 
-                return BarChartGroupData(
-                  x: x,
-                  barRods: [
-                    BarChartRodData(
-                      y: y,
-                      color: x == filteredTimeSeries.length - 1
-                          ? STATS_COLOR[statistic]
-                          : STATS_COLOR[statistic].withOpacity(0.75),
-                      width: barWidth,
-                      borderRadius: BorderRadius.only(
-                        topLeft:
-                            y > 0 ? Radius.circular(6) : Radius.circular(0),
-                        topRight:
-                            y > 0 ? Radius.circular(6) : Radius.circular(0),
-                        bottomLeft:
-                            y < 0 ? Radius.circular(6) : Radius.circular(0),
-                        bottomRight:
-                            y < 0 ? Radius.circular(6) : Radius.circular(0),
-                      ),
-                    ),
-                  ],
-                  showingTooltipIndicators: [0],
-                );
-              }),
-            ],
+                    return BarChartGroupData(
+                      x: x,
+                      barRods: [
+                        BarChartRodData(
+                          y: y,
+                          color: x == filteredTimeSeries.length - 1
+                              ? STATS_COLOR[widget.statistic]
+                              : STATS_COLOR[widget.statistic].withOpacity(0.50),
+                          width: barWidth,
+                          borderRadius: BorderRadius.only(
+                            topLeft:
+                                y > 0 ? Radius.circular(6) : Radius.circular(0),
+                            topRight:
+                                y > 0 ? Radius.circular(6) : Radius.circular(0),
+                            bottomLeft:
+                                y < 0 ? Radius.circular(6) : Radius.circular(0),
+                            bottomRight:
+                                y < 0 ? Radius.circular(6) : Radius.circular(0),
+                          ),
+                        ),
+                      ],
+                      showingTooltipIndicators: [0],
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FlatButton.icon(
+                onPressed: () => {
+                      setState(() {
+                        lookback = (lookback == 6) ? 10 : 6;
+                      })
+                    },
+                icon: FaIcon(
+                  lookback == 10
+                      ? FontAwesomeIcons.arrowRight
+                      : FontAwesomeIcons.arrowLeft,
+                  color: Colors.grey,
+                  size: 14,
+                ),
+                label: Text(
+                  lookback == 10 ? "View less" : "View more",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey),
+                )),
+          ],
+        ),
+      ],
     );
   }
 
   List<TimeSeries> _getLastTimeSeres(int lookback) {
-    final List<TimeSeries> sortedTimeSeries = timeSeries.timeSeries
+    final List<TimeSeries> sortedTimeSeries = widget.timeSeries.timeSeries
       ..sort((a, b) => b.date.compareTo(a.date));
 
     return sortedTimeSeries

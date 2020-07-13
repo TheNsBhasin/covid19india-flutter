@@ -9,9 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class DeltaBarGraphWidget extends StatelessWidget {
   final String stateCode;
   final String statistic;
-  final int lookback;
 
-  DeltaBarGraphWidget({this.stateCode, this.statistic, this.lookback});
+  DeltaBarGraphWidget({this.stateCode, this.statistic});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +46,6 @@ class DeltaBarGraphWidget extends StatelessWidget {
       timeSeries: timeSeries,
       stateCode: stateCode,
       statistic: statistic,
-      lookback: lookback,
     );
   }
 }

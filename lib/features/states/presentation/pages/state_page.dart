@@ -168,7 +168,6 @@ class _StatePageState extends State<StatePage> {
           DeltaBarGraphWidget(
             stateCode: widget.stateCode,
             statistic: statistic,
-            lookback: 6,
           ),
           Footer(),
         ],
