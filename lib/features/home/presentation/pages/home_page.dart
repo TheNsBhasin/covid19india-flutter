@@ -106,8 +106,8 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 date = newDate;
                 _dailyCountBloc
-                  ..add(GetDailyCountData(
-                      forced: true, date: date, cache: date.isToday()));
+                  ..add(
+                      GetDailyCountData(forced: true, date: date, cache: true));
               });
             },
           ),
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
   Future<Null> _refreshAll() async {
     refreshKey.currentState?.show(atTop: false);
     _dailyCountBloc
-      ..add(GetDailyCountData(forced: true, date: date, cache: date.isToday()));
+      ..add(GetDailyCountData(forced: true, date: date, cache: true));
     _timeSeriesBloc..add(GetTimeSeriesData(forced: true));
     _updateLogBloc..add(GetUpdateLogData(forced: true));
 

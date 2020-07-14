@@ -29,6 +29,11 @@ class ResponseParser {
     return {'result': parseJsonToTimeSeries(json).first};
   }
 
+  static Map<String, dynamic> stateTimeSeriesToJson(
+      StateWiseTimeSeriesModel timeSeries) {
+    return {'result': timeSeries.toJson()};
+  }
+
   static Map<String, dynamic> jsonToUpdateLogs(List<dynamic> json) {
     return {'results': parseJsonToUpdateLogs(json)};
   }

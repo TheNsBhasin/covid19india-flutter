@@ -13,6 +13,11 @@ abstract class TimeSeriesLocalDataSource {
   Future<DateTime> getCachedTimeStamp();
 
   Future<void> cacheTimeSeries(List<StateWiseTimeSeries> timeSeries);
+
+  Future<void> cacheStateTimeSeries(
+      StateWiseTimeSeries timeSeries, String stateCode);
+
+  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode);
 }
 
 const CACHED_TIME_SERIES = 'CACHED_TIME_SERIES';
@@ -60,6 +65,38 @@ class TimeSeriesLocalDataSourceImpl implements TimeSeriesLocalDataSource {
     if (jsonString != null) {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       return Future.value(DateTime.parse(jsonMap['time_stamp']));
+    } else {
+      throw CacheException();
+    }
+  }
+
+  @override
+  Future<void> cacheStateTimeSeries(
+      StateWiseTimeSeries timeSeries, String stateCode) {
+    Map<String, dynamic> jsonMap =
+        ResponseParser.stateTimeSeriesToJson(timeSeries);
+
+    jsonMap['time_stamp'] = new DateTime.now().toString();
+
+    return sharedPreferences.setString(
+      CACHED_TIME_SERIES + "_$stateCode",
+      json.encode(jsonMap),
+    );
+  }
+
+  @override
+  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode) {
+    final jsonString =
+        sharedPreferences.getString("${CACHED_TIME_SERIES}_$stateCode");
+    if (jsonString != null) {
+      try {
+        final Map<String, dynamic> jsonMap = json.decode(jsonString);
+        return Future.value(
+            StateWiseTimeSeriesModel.fromJson(jsonMap["result"]));
+      } catch (e) {
+        debugPrint("getStateTimeSeries: ${e.toString()}");
+        throw CacheException();
+      }
     } else {
       throw CacheException();
     }

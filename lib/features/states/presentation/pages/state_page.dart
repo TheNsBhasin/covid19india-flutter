@@ -82,7 +82,7 @@ class _StatePageState extends State<StatePage> {
           BlocProvider(
               create: (_) => _timeSeriesBloc
                 ..add(GetTimeSeriesData(
-                    stateCode: widget.region.stateCode, cache: false))),
+                    stateCode: widget.region.stateCode, cache: true))),
         ],
         child: SafeArea(
           child: RefreshIndicator(
@@ -188,7 +188,7 @@ class _StatePageState extends State<StatePage> {
     _dailyCountBloc..add(GetDailyCountData(forced: true, date: date));
     _timeSeriesBloc
       ..add(GetTimeSeriesData(
-          forced: true, stateCode: widget.region.stateCode, cache: false));
+          forced: true, stateCode: widget.region.stateCode, cache: true));
 
     setState(() {});
   }

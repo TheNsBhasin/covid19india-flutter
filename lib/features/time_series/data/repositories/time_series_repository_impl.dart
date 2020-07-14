@@ -41,7 +41,11 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
         }
         final remoteTimeSeries = await remoteDataSource.getTimeSeries();
         if (cache) {
-          localDataSource.cacheTimeSeries(remoteTimeSeries);
+          try {
+            localDataSource.cacheTimeSeries(remoteTimeSeries);
+          } catch (e) {
+            print('TimeSeriesRepositoryImpl: _getTimeSeries: $e');
+          }
         }
         return Right(remoteTimeSeries);
       } on ServerException {
@@ -60,20 +64,26 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
   @override
   Future<Either<Failure, StateWiseTimeSeries>> getStateTimeSeries(
       {bool forced, bool cache, String stateCode}) async {
-    // TODO: Implement cache
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
           try {
-            throw CacheException();
+            final localTimeSeries =
+                await localDataSource.getStateTimeSeries(stateCode);
+            return Right(localTimeSeries);
           } on CacheException {
-            print('TimeSeriesRepositoryImpl: getStateTimeSeries: CacheException');
+            print(
+                'TimeSeriesRepositoryImpl: getStateTimeSeries: CacheException');
           }
         }
         final remoteTimeSeries =
             await remoteDataSource.getStateTimeSeries(stateCode);
         if (cache) {
-          throw CacheException();
+          try {
+            localDataSource.cacheStateTimeSeries(remoteTimeSeries, stateCode);
+          } catch (e) {
+            print('TimeSeriesRepositoryImpl: getStateTimeSeries: $e');
+          }
         }
         return Right(remoteTimeSeries);
       } on ServerException {
@@ -81,7 +91,9 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
       }
     } else {
       try {
-        throw CacheException();
+        final localTimeSeries =
+            await localDataSource.getStateTimeSeries(stateCode);
+        return Right(localTimeSeries);
       } on CacheException {
         return Left(CacheFailure());
       }

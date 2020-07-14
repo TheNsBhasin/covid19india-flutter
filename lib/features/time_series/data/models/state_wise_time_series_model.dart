@@ -60,7 +60,7 @@ class StateWiseTimeSeriesModel extends StateWiseTimeSeries {
                           recovered: series.delta.recovered,
                           deceased: series.delta.deceased,
                           tested: series.delta.tested,
-                          migrated: series.delta.migrated)))).toJson())
+                          migrated: series.delta.migrated))).toList()).toJson())
           .toList()
     };
   }
