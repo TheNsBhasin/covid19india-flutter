@@ -1,5 +1,6 @@
 import 'package:covid19india/core/common/widgets/footer.dart';
 import 'package:covid19india/core/common/widgets/my_app_bar.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
@@ -34,7 +35,7 @@ class _HomePageState extends State<HomePage> {
 
   String statistic;
 
-  Map<String, String> regionHighlighted;
+  Region regionHighlighted;
 
   @override
   void initState() {
@@ -46,10 +47,10 @@ class _HomePageState extends State<HomePage> {
 
     statistic = 'confirmed';
 
-    regionHighlighted = {
-      'stateCode': 'TT',
-      'districtName': null,
-    };
+    regionHighlighted = new Region(
+      stateCode: 'TT',
+      districtName: null,
+    );
   }
 
   @override
@@ -123,14 +124,22 @@ class _HomePageState extends State<HomePage> {
               });
             },
             regionHighlighted: regionHighlighted,
-            setRegionHighlighted: (Map<String, String> newRegionHighlighted) {
+            setRegionHighlighted: (Region newRegionHighlighted) {
               setState(() {
                 regionHighlighted = newRegionHighlighted;
               });
             },
           ),
           TimeSeriesExplorerWidget(
-            date: date,
+            stateCode: 'TT',
+            timelineDate: date,
+            regionHighlighted: regionHighlighted,
+            setRegionHighlighted: (Region newRegionHighlighted) {
+              print(newRegionHighlighted);
+              setState(() {
+                regionHighlighted = newRegionHighlighted;
+              });
+            },
           ),
           Footer()
         ],

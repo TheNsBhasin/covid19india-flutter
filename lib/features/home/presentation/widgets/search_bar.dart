@@ -1,5 +1,6 @@
 import 'package:autotrie/autotrie.dart';
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -152,7 +153,9 @@ class _SearchBarState extends State<SearchBar> {
                                 context,
                                 StatePage.routeName,
                                 arguments: StatePageArguments(
-                                    stateCode: e.value['route']),
+                                    region: new Region(
+                                        stateCode: e.value['route'],
+                                        districtName: null)),
                               );
                             },
                             child: Text(e.value['route'],
@@ -197,8 +200,9 @@ class _SearchBarState extends State<SearchBar> {
                                     context,
                                     StatePage.routeName,
                                     arguments: StatePageArguments(
-                                        stateCode: e.value['route'],
-                                        districtName: e.value['name']),
+                                        region: new Region(
+                                            stateCode: e.value['route'],
+                                            districtName: e.value['name'])),
                                   );
                                 },
                                 child: Text(e.value['route'],

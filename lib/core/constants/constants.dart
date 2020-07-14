@@ -15,6 +15,28 @@ enum MAP_TYPES {
   STATE,
 }
 
+enum TIME_SERIES_CHART_TYPES {
+  TOTAL,
+  DELTA,
+}
+
+enum TIME_SERIES_OPTIONS {
+  BEGINNING,
+  MONTH,
+  TWO_WEEKS,
+}
+
+const Map<TIME_SERIES_CHART_TYPES, String> TIME_SERIES_CHART_TYPES_MAP = {
+  TIME_SERIES_CHART_TYPES.TOTAL: "Cumulative",
+  TIME_SERIES_CHART_TYPES.DELTA: "Daily"
+};
+
+const Map<TIME_SERIES_OPTIONS, String> TIME_SERIES_OPTIONS_MAP = {
+  TIME_SERIES_OPTIONS.BEGINNING: "Beginning",
+  TIME_SERIES_OPTIONS.MONTH: "1 Month",
+  TIME_SERIES_OPTIONS.TWO_WEEKS: "2 Weeks"
+};
+
 const List<String> PRIMARY_STATISTICS = <String>[
   'confirmed',
   'active',
@@ -59,17 +81,6 @@ const Map<String, Color> STATS_HIGHLIGHT_COLOR = {
   'deceased': Colors.blueGrey,
   'tested': Colors.purpleAccent,
   'migrated': Colors.orangeAccent,
-};
-
-const Map<String, String> TIME_SERIES_CHART_TYPES = {
-  'total': 'Cumulative',
-  'delta': 'Daily',
-};
-
-const Map<String, String> TIME_SERIES_OPTIONS = {
-  'BEGINNING': 'Beginning',
-  'MONTH': '1 Month',
-  'TWO_WEEKS': '2 Weeks',
 };
 
 const UNASSIGNED_STATE_CODE = 'UN';

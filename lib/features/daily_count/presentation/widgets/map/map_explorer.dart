@@ -1,4 +1,5 @@
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_header.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_visualizer.dart';
@@ -9,10 +10,10 @@ class MapExplorer extends StatefulWidget {
 
   final String mapCode;
   final String statistic;
-  final Map<String, String> regionHighlighted;
+  final Region regionHighlighted;
 
   final Function(String statistic) setStatistic;
-  final Function(Map<String, String> regionHighlighted) setRegionHighlighted;
+  final Function(Region regionHighlighted) setRegionHighlighted;
 
   MapExplorer(
       {this.dailyCounts,

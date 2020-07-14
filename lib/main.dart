@@ -51,10 +51,7 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) {
-                return StatePage(
-                  stateCode: args.stateCode,
-                  districtName: args.districtName,
-                );
+                return StatePage(region: args.region);
               },
             );
           }

@@ -6,64 +6,58 @@ import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:grizzly_range/grizzly_range.dart' as ranger;
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
 
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
-  final DateTime date;
-  final String statistics;
-  final String statisticsType;
-  final String chartOption;
+
+  final String statistic;
+
+  final TIME_SERIES_OPTIONS timeSeriesOption;
+  final TIME_SERIES_CHART_TYPES chartType;
+
   final bool isUniform;
-  final bool isLogarithmic;
-
-  final double yBufferTop = 1.2;
-  final double yBufferBottom = 1.1;
-
-  final numTicksX = 5;
-  final numTicksY = 6;
+  final bool isLog;
 
   TimeSeriesItem(
       {this.timeSeries,
-      this.date,
-      this.statistics,
-      this.statisticsType,
-      this.chartOption,
+      this.statistic,
+      this.timeSeriesOption,
+      this.chartType,
       this.isUniform,
-      this.isLogarithmic});
+      this.isLog});
 
   @override
   Widget build(BuildContext context) {
-    List<TimeSeries> filteredTimeSeries = _getTimeSeries();
-
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
       child: Container(
         decoration: BoxDecoration(
-            color: STATS_COLOR[statistics].withAlpha(50),
+            color: STATS_COLOR[statistic].withAlpha(50),
             borderRadius: BorderRadius.all(new Radius.circular(5.0))),
         child: Stack(children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  statistics.capitalize(),
+                  statistic.capitalize(),
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: STATS_COLOR[statistics]),
+                      color: STATS_COLOR[statistic]),
                 ),
                 Text(
                   new DateFormat('d MMMM')
-                      .format(filteredTimeSeries.last.date.toLocal()),
+                      .format(timeSeries.last.date.toLocal()),
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: STATS_COLOR[statistics]),
+                      color: STATS_COLOR[statistic]),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -71,358 +65,479 @@ class TimeSeriesItem extends StatelessWidget {
                   children: [
                     Text(
                       NumberFormat.decimalPattern('en_IN').format(
-                          getStatisticValue(
-                              filteredTimeSeries.last.total, statistics)),
+                          getStatisticValue(timeSeries.last.total, statistic)),
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: STATS_COLOR[statistics]),
+                          color: STATS_COLOR[statistic]),
                     ),
                     SizedBox(
                       width: 4.0,
                     ),
                     Text(
-                        getStatisticValue(
-                                    filteredTimeSeries.last.delta, statistics) >
-                                0
+                        getStatisticValue(timeSeries.last.delta, statistic) > 0
                             ? "+" +
                                 NumberFormat.decimalPattern('en_IN').format(
                                     getStatisticValue(
-                                        filteredTimeSeries.last.delta,
-                                        statistics))
+                                        timeSeries.last.delta, statistic))
                             : "",
                         style: TextStyle(
-                            fontSize: 12, color: STATS_COLOR[statistics])),
+                            fontSize: 12, color: STATS_COLOR[statistic])),
                   ],
                 ),
               ],
             ),
           ),
-          _buildLineChart(),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 8.0, top: 32.0),
+            child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+              return _buildChart(context, constraints.maxWidth);
+            }),
+          ),
         ]),
       ),
     );
   }
 
-  Widget _buildLineChart() {
-    return AspectRatio(
-      aspectRatio: 1.7,
-      child: Container(
-        width: double.infinity,
-        child: Padding(
-          padding:
-              const EdgeInsets.only(top: 32, bottom: 32, left: 32, right: 16),
-          child: LineChart(
-            _getChartData(),
-            swapAnimationDuration: const Duration(milliseconds: 250),
-          ),
-        ),
-      ),
+  Widget _buildChart(BuildContext context, double maxWidth) {
+    final numDates = timeSeries.length;
+
+    final double barWidth =
+        timeSeriesOption == TIME_SERIES_OPTIONS.BEGINNING ? 2 : 6;
+
+    final double spacing = (maxWidth - 72 - numDates * barWidth) / numDates;
+
+    final double minX = 0;
+    final double maxX = timeSeries.length.toDouble();
+
+    final Scale xScale = LinearScale(
+      <double>[minX, maxX],
+      <double>[minX, maxX],
     );
-  }
 
-  LineChartData _getChartData() {
-    List<TimeSeries> filteredTimeSeries = _getTimeSeries();
+    final int xNumTicks = 5;
 
-    Scale xScale = _getXScale();
-    Scale yScale = _getYScale();
+    final List<num> xTicks = xScale.ticks(count: xNumTicks).toList();
 
-    return LineChartData(
-      gridData: FlGridData(show: false),
-      titlesData: FlTitlesData(
-        show: true,
-        bottomTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 4,
-            textStyle: TextStyle(
-              color: STATS_COLOR[statistics],
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
+    final double xInterval =
+        (xScale.scale(xTicks[1]) - xScale.scale(xTicks[0])).toDouble();
+
+    final Scale yScale =
+        _getYScale(timeSeries, statistic, chartType, isUniform, isLog);
+
+    final double minValue =
+        isLog ? min(1, yScale.domain.first) : min(0, yScale.domain.first);
+    final double maxValue = yScale.domain.last;
+
+    final int yNumTicks = maxValue - minValue > 6 ? 6 : 0;
+
+    final List<num> yTicks = yNumTicks > 0
+        ? ranger.ticks(minValue, maxValue, yNumTicks).toList()
+        : [0, 1];
+
+    final double yInterval = (yTicks[1] - yTicks[0]).toDouble();
+
+    final double minY = min(yTicks.first.toDouble(), minValue);
+    final double maxY = max(yTicks.last.toDouble(), maxValue);
+
+    if (chartType == TIME_SERIES_CHART_TYPES.TOTAL) {
+      return Container(
+        child: AspectRatio(
+          aspectRatio: 1.7,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: LineChart(
+              LineChartData(
+                minX: minX,
+                maxX: maxX,
+                minY: minY,
+                maxY: maxY,
+                lineTouchData: LineTouchData(enabled: false),
+                titlesData: FlTitlesData(
+                  show: true,
+                  topTitles: SideTitles(showTitles: false),
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    textStyle: TextStyle(
+                        color: STATS_COLOR[statistic],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10),
+                    margin: 10,
+                    rotateAngle: 0,
+                    getTitles: (double value) {
+                      try {
+                        if (value == 0 ||
+                            value % xInterval == 0 ||
+                            value == numDates - 1) {
+                          return DateFormat("dd MMM").format(timeSeries[xScale
+                                  .clamper()
+                                  (xScale.invert(xScale.clamper()(value)))
+                                  .toInt()]
+                              .date);
+                        }
+                      } catch (e) {}
+
+                      return "";
+                    },
+                  ),
+                  leftTitles: SideTitles(showTitles: false),
+                  rightTitles: SideTitles(
+                    showTitles: true,
+                    textStyle: TextStyle(
+                        color: STATS_COLOR[statistic],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10),
+                    margin: 10,
+                    rotateAngle: 0,
+                    interval: yInterval,
+                    getTitles: (double value) {
+                      try {
+                        return NumberFormat.compact().format(value.toInt());
+                      } catch (e) {}
+
+                      return "";
+                    },
+                  ),
+                ),
+                gridData: FlGridData(show: false),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border(
+                      bottom:
+                          BorderSide(color: STATS_COLOR[statistic], width: 2),
+                      right:
+                          BorderSide(color: STATS_COLOR[statistic], width: 2)),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: <FlSpot>[
+                      ...timeSeries.asMap().entries.map((e) {
+                        final double x = e.key.toDouble();
+                        final double y =
+                            chartType == TIME_SERIES_CHART_TYPES.TOTAL
+                                ? yScale.scale(yScale.clamper()(
+                                    getStatisticValue(e.value.total, statistic)
+                                        .toDouble()))
+                                : yScale.scale(yScale.clamper()(
+                                    getStatisticValue(e.value.delta, statistic)
+                                        .toDouble()));
+
+                        return FlSpot(x, y);
+                      }),
+                    ],
+                    isCurved: true,
+                    colors: [STATS_COLOR[this.statistic]],
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                        show:
+                            timeSeriesOption != TIME_SERIES_OPTIONS.BEGINNING),
+                    belowBarData: BarAreaData(show: false),
+                  ),
+                ],
+              ),
             ),
-            margin: 12,
-            interval: _getIntervalX(),
-            getTitles: (value) {
-              try {
-                return new DateFormat('d MMM').format(
-                    filteredTimeSeries[xScale.invert(value).toInt()]
-                        .date
-                        .toLocal());
-              } catch (e) {}
-
-              return '';
-            },
-            checkToShowTitle: _checkToShowXTitle),
-        leftTitles: SideTitles(showTitles: false),
-        rightTitles: SideTitles(
-          showTitles: true,
-          textStyle: TextStyle(
-            color: STATS_COLOR[statistics],
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
           ),
-          interval: _getIntervalY(),
-          getTitles: (value) {
-            try {
-              return new NumberFormat.compact().format(yScale.invert(value));
-            } catch (e) {}
+        ),
+      );
+    }
 
-            return '';
-          },
-          checkToShowTitle: _checkToShowYTitle,
-          margin: 12,
-          reservedSize: 30,
+    return Container(
+      child: AspectRatio(
+        aspectRatio: 1.7,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.center,
+              minY: minY,
+              maxY: maxY,
+              groupsSpace: spacing,
+              barTouchData: BarTouchData(
+                enabled: false,
+              ),
+              titlesData: FlTitlesData(
+                show: true,
+                bottomTitles: SideTitles(
+                  showTitles: true,
+                  textStyle: TextStyle(
+                      color: STATS_COLOR[statistic],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10),
+                  margin: 10,
+                  rotateAngle: 0,
+                  getTitles: (double value) {
+                    try {
+                      if (value == 0 ||
+                          value % xInterval == 0 ||
+                          value == numDates - 1) {
+                        return DateFormat("dd MMM").format(timeSeries[xScale
+                                .clamper()
+                                (xScale.invert(xScale.clamper()(value)))
+                                .toInt()]
+                            .date);
+                      }
+                    } catch (e) {}
+
+                    return "";
+                  },
+                ),
+                leftTitles: SideTitles(showTitles: false),
+                rightTitles: SideTitles(
+                  showTitles: true,
+                  textStyle: TextStyle(
+                      color: STATS_COLOR[statistic],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10),
+                  margin: 18,
+                  rotateAngle: 0,
+                  interval: yInterval,
+                  getTitles: (double value) {
+                    try {
+                      return NumberFormat.compact().format(value.toInt());
+                    } catch (e) {}
+
+                    return "";
+                  },
+                ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                checkToShowHorizontalLine: (value) => value == 0,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: STATS_COLOR[statistic],
+                    strokeWidth: 0.2,
+                  );
+                },
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border(
+                    bottom: BorderSide(color: STATS_COLOR[statistic], width: 2),
+                    right: BorderSide(color: STATS_COLOR[statistic], width: 2)),
+              ),
+              barGroups: [
+                ...timeSeries.asMap().entries.map((e) {
+                  final int x = e.key;
+
+                  final double y = chartType == TIME_SERIES_CHART_TYPES.TOTAL
+                      ? yScale.scale(yScale.clamper()(
+                          getStatisticValue(e.value.total, statistic)
+                              .toDouble()))
+                      : yScale.scale(yScale.clamper()(
+                          getStatisticValue(e.value.delta, statistic)
+                              .toDouble()));
+
+                  return BarChartGroupData(
+                    x: x,
+                    barRods: [
+                      BarChartRodData(
+                        y: y,
+                        color: x == timeSeries.length - 1
+                            ? STATS_COLOR[statistic]
+                            : STATS_COLOR[statistic].withOpacity(0.50),
+                        width: barWidth,
+                        borderRadius: BorderRadius.only(
+                          topLeft:
+                              y > 0 ? Radius.circular(6) : Radius.circular(0),
+                          topRight:
+                              y > 0 ? Radius.circular(6) : Radius.circular(0),
+                          bottomLeft:
+                              y < 0 ? Radius.circular(6) : Radius.circular(0),
+                          bottomRight:
+                              y < 0 ? Radius.circular(6) : Radius.circular(0),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
         ),
       ),
-      borderData: FlBorderData(
-          show: true,
-          border: Border(
-              bottom: BorderSide(color: STATS_COLOR[statistics], width: 2),
-              right: BorderSide(color: STATS_COLOR[statistics], width: 2))),
-      lineTouchData: LineTouchData(enabled: false),
-      minX: _getMinX(),
-      maxX: _getMaxX(),
-      minY: _getMinY(),
-      maxY: _getMaxY(),
-      lineBarsData: [
-        LineChartBarData(
-          spots: _getData().map((e) => FlSpot(e[0], e[1])).toList(),
-          isCurved: true,
-          colors: [STATS_COLOR[this.statistics]],
-          barWidth: 3,
-          isStrokeCapRound: true,
-          dotData: FlDotData(show: chartOption != 'BEGINNING'),
-          belowBarData: BarAreaData(show: false),
-        ),
-      ],
     );
   }
 
-  bool _checkToShowXTitle(double minValue, double maxValue,
-      SideTitles sideTitles, double appliedInterval, double value) {
-    int step = (maxValue - minValue) ~/ (numTicksX - 1);
-
-    return (value % step == 0);
-  }
-
-  bool _checkToShowYTitle(double minValue, double maxValue,
-      SideTitles sideTitles, double appliedInterval, double value) {
-    int step = (maxValue - minValue) ~/ (numTicksY - 1);
-
-    return (value % step == 0);
-  }
-
-  List<List<double>> _getData() {
-    List<TimeSeries> data = _getTimeSeries();
-
-    Scale xScale = _getXScale();
-    Scale yScale = _getYScale();
-
-    return data
-        .asMap()
-        .entries
-        .map((e) => <double>[
-              xScale.scale(e.key).toDouble(),
-              yScale.scale(isLogarithmic
-                  ? max(
-                      1.0,
-                      getStatisticValue(
-                              statisticsType == 'total'
-                                  ? e.value.total
-                                  : e.value.delta,
-                              statistics)
-                          .toDouble())
-                  : getStatisticValue(
-                          statisticsType == 'total'
-                              ? e.value.total
-                              : e.value.delta,
-                          statistics)
-                      .toDouble())
-            ])
-        .toList();
-  }
-
-  List<TimeSeries> _getTimeSeries() {
-    if (chartOption == 'MONTH') {
-      return _getLastNDaysData(30);
-    } else if (chartOption == 'TWO_WEEKS') {
-      return _getLastNDaysData(14);
-    }
-
-    return timeSeries.where((e) => !e.date.isAfter(date) && !e.date.isToday());
-  }
-
-  double _getMinX() {
-    return 0.0;
-  }
-
-  double _getMaxX() {
-    return _getTimeSeries().length.toDouble();
-  }
-
-  double _getMinY() {
-    return 0.0;
-  }
-
-  double _getMaxY() {
-    return 100.0;
-  }
-
-  double _getIntervalX() {
-    return 1;
-  }
-
-  double _getIntervalY() {
-    return 1;
-  }
-
-  List<TimeSeries> _getLastNDaysData(int cutoff) {
-    timeSeries.sort((a, b) {
-      return a.date.compareTo(b.date);
-    });
-
-    List<TimeSeries> filteredTimeSeries = timeSeries
-        .where((e) =>
-            !e.date.isAfter(date) &&
-            date.difference(e.date).inDays <= cutoff &&
-            !e.date.isToday())
-        .toList();
-
-    return filteredTimeSeries;
-  }
-
-  Scale _getXScale() {
-    return LinearScale([_getMinX(), _getMaxX()], [_getMinX(), _getMaxX()]);
-  }
-
-  int _uniformScaleMin() {
-    return min(
-      min(_getMinStatistics('confirmed'), _getMinStatistics('active')),
-      min(_getMinStatistics('recovered'), _getMinStatistics('deceased')),
-    );
-  }
-
-  int _uniformScaleMax() {
-    return max(
-      max(_getMaxStatistics('confirmed'), _getMaxStatistics('active')),
-      max(_getMaxStatistics('recovered'), _getMaxStatistics('deceased')),
-    );
-  }
-
-  Scale _yScaleUniformLinear() {
-    double scaleMin = _uniformScaleMin().toDouble();
-    double scaleMax = max(1, yBufferTop * _uniformScaleMax()).toDouble();
-
-    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()])
-        .nice(count: 4);
-  }
-
-  Scale _yScaleUniformLog() {
-    double scaleMin = max(1, _uniformScaleMin()).toDouble();
-    double scaleMax = max(10, yBufferTop * _uniformScaleMax()).toDouble();
-
-    return LogScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()]);
-  }
-
-  _getYScale() {
+  Scale _getYScale(List<TimeSeries> timeSeries, String statistic,
+      TIME_SERIES_CHART_TYPES chartType, bool isUniform, bool isLog) {
     if (isUniform &&
-        statisticsType == 'total' &&
-        isLogarithmic &&
-        statistics != 'tested') {
-      return _yScaleUniformLog();
+        chartType == TIME_SERIES_CHART_TYPES.TOTAL &&
+        isLog &&
+        statistic != 'tested') {
+      return yScaleUniformLog(timeSeries, chartType);
     }
 
-    if (isUniform && statistics != 'tested') {
-      return _yScaleUniformLinear();
+    if (isUniform && statistic != 'tested') {
+      return yScaleUniformLinear(timeSeries, chartType);
     }
 
-    if (statisticsType == 'total' && isLogarithmic) {
-      double scaleMin = max(1, _getMinStatistics(statistics)).toDouble();
-      double scaleMax =
-          max(10, yBufferTop * _getMaxStatistics(statistics)).toDouble();
+    int minStats = _getMinStatistics(timeSeries, chartType, statistic);
+    int maxStats = _getMaxStatistics(timeSeries, chartType, statistic);
 
-      return LogScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()]);
+    if (chartType == TIME_SERIES_CHART_TYPES.TOTAL && isLog) {
+      return LogScale(<double>[
+        max(1, minStats).toDouble(),
+        max(10, maxStats).toDouble()
+      ], <double>[
+        max(1, minStats).toDouble(),
+        max(10, maxStats).toDouble()
+      ]).nice();
     }
 
-    double scaleMin =
-        min(0, yBufferBottom * _getMinStatistics(statistics)).toDouble();
-    double scaleMax =
-        max(1, yBufferTop * _getMaxStatistics(statistics)).toDouble();
-
-    return LinearScale([scaleMin, scaleMax], [_getMinY(), _getMaxY()])
-        .nice(count: 4);
+    return LinearScale(<double>[
+      min(0, minStats).toDouble(),
+      max(1, maxStats).toDouble()
+    ], <double>[
+      min(0, minStats).toDouble(),
+      max(1, maxStats).toDouble()
+    ]).nice(count: 4);
   }
 
-  int _getMinStatistics(String statistics) {
-    int minCases = 1000000009;
-    _getTimeSeries().forEach((e) {
-      minCases = min(
-          minCases,
-          getStatisticValue(
-              statisticsType == 'total' ? e.total : e.delta, statistics));
-    });
+  Scale yScaleUniformLog(
+      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+    int minStats = _uniformScaleMin(timeSeries, chartType);
+    int maxStats = _uniformScaleMax(timeSeries, chartType);
 
-    return minCases;
+    return LogScale(<double>[
+      max(1, minStats).toDouble(),
+      max(10, maxStats).toDouble()
+    ], <double>[
+      max(1, minStats).toDouble(),
+      max(10, maxStats).toDouble()
+    ]).nice();
   }
 
-  int _getMaxStatistics(String statistics) {
-    int maxCases = 1;
-    _getTimeSeries().forEach((e) {
-      maxCases = max(
-          maxCases,
-          getStatisticValue(
-              statisticsType == 'total' ? e.total : e.delta, statistics));
-    });
+  Scale yScaleUniformLinear(
+      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+    int minStats = _uniformScaleMin(timeSeries, chartType);
+    int maxStats = _uniformScaleMax(timeSeries, chartType);
 
-    return maxCases;
+    return LinearScale(<double>[
+      minStats.toDouble(),
+      max(1, maxStats).toDouble()
+    ], <double>[
+      minStats.toDouble(),
+      max(1, maxStats).toDouble()
+    ]).nice(count: 4);
+  }
+
+  int _uniformScaleMin(
+      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+    return min(
+      min(_getMinStatistics(timeSeries, chartType, 'confirmed'),
+          _getMinStatistics(timeSeries, chartType, 'active')),
+      min(_getMinStatistics(timeSeries, chartType, 'recovered'),
+          _getMinStatistics(timeSeries, chartType, 'deceased')),
+    );
+  }
+
+  int _uniformScaleMax(
+      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+    return max(
+      max(_getMaxStatistics(timeSeries, chartType, 'confirmed'),
+          _getMaxStatistics(timeSeries, chartType, 'active')),
+      max(_getMaxStatistics(timeSeries, chartType, 'recovered'),
+          _getMaxStatistics(timeSeries, chartType, 'deceased')),
+    );
+  }
+
+  int _getMinStatistics(List<TimeSeries> timeSeries,
+      TIME_SERIES_CHART_TYPES chartType, String statistic) {
+    return timeSeries
+        .map((e) => getStatisticValue(
+            chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,
+            statistic))
+        .reduce(min);
+  }
+
+  int _getMaxStatistics(List<TimeSeries> timeSeries,
+      TIME_SERIES_CHART_TYPES chartType, String statistic) {
+    return timeSeries
+        .map((e) => getStatisticValue(
+            chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,
+            statistic))
+        .reduce(max);
   }
 }
 
-class TimeSeriesVisualizer extends StatefulWidget {
+class TimeSeriesVisualizer extends StatelessWidget {
   final List<TimeSeries> timeSeries;
-  final DateTime date;
-  final String statisticsType;
-  final String stateCode;
-  final String chartOption;
+
+  final DateTime timelineDate;
+
+  final TIME_SERIES_OPTIONS timeSeriesOption;
+  final TIME_SERIES_CHART_TYPES chartType;
+
   final bool isUniform;
-  final bool isLogarithmic;
+  final bool isLog;
 
   TimeSeriesVisualizer(
       {this.timeSeries,
-      this.date,
-      this.statisticsType,
-      this.stateCode,
-      this.chartOption,
+      this.timelineDate,
+      this.timeSeriesOption,
+      this.chartType,
       this.isUniform,
-      this.isLogarithmic});
+      this.isLog});
 
-  @override
-  _TimeSeriesVisualizerState createState() => _TimeSeriesVisualizerState();
-}
-
-class _TimeSeriesVisualizerState extends State<TimeSeriesVisualizer> {
   @override
   Widget build(BuildContext context) {
+    List<TimeSeries> filteredTimeSeries =
+        _getFilteredTimeSeries(timeSeries, timelineDate, timeSeriesOption);
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ...TIME_SERIES_STATISTICS
-              .map((statistics) => Padding(
+              .map((statistic) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: TimeSeriesItem(
-                      timeSeries: widget.timeSeries,
-                      date: widget.date,
-                      statistics: statistics,
-                      statisticsType: widget.statisticsType,
-                      chartOption: widget.chartOption,
-                      isUniform: widget.isUniform,
-                      isLogarithmic: widget.isLogarithmic,
+                      timeSeries: filteredTimeSeries,
+                      statistic: statistic,
+                      chartType: chartType,
+                      timeSeriesOption: timeSeriesOption,
+                      isUniform: isUniform,
+                      isLog: isLog,
                     ),
                   ))
               .toList()
         ],
       ),
     );
+  }
+
+  List<TimeSeries> _getFilteredTimeSeries(List<TimeSeries> timeSeries,
+      DateTime timelineDate, TIME_SERIES_OPTIONS timeSeriesOption) {
+    final List<TimeSeries> sortedTimeSeries = timeSeries
+      ..sort((a, b) => a.date.compareTo(b.date))
+      ..toList();
+
+    final DateTime today = timelineDate.isToday()
+        ? timelineDate.subtract(Duration(days: 1))
+        : timelineDate;
+
+    List<TimeSeries> filteredTimeSeries =
+        sortedTimeSeries.where((e) => !e.date.isAfter(today)).toList();
+
+    if (timeSeriesOption == TIME_SERIES_OPTIONS.MONTH) {
+      DateTime cuttOffDate = today.subtract(Duration(days: 30));
+
+      return filteredTimeSeries
+          .where((e) => !e.date.isBefore(cuttOffDate))
+          .toList();
+    } else if (timeSeriesOption == TIME_SERIES_OPTIONS.TWO_WEEKS) {
+      DateTime cuttOffDate = today.subtract(Duration(days: 14));
+
+      return filteredTimeSeries
+          .where((e) => !e.date.isBefore(cuttOffDate))
+          .toList();
+    }
+
+    return filteredTimeSeries;
   }
 }

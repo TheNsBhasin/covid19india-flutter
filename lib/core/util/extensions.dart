@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:covid19india/core/scale/pow.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:grizzly_range/grizzly_range.dart' as ranger;
@@ -23,9 +25,26 @@ extension DateTimeExtension on DateTime {
   }
 }
 
+extension ScaleExtension on Scale {
+  Function(num) clamper() {
+    num a = this.domain.first;
+    num b = this.domain.last;
+
+    num t;
+    if (a > b) {
+      t = a;
+      a = b;
+      b = t;
+    }
+    return (num x) {
+      return max(a, min(b, x));
+    };
+  }
+}
+
 extension LinearScaleExtension on LinearScale {
   LinearScale nice({count: 10}) {
-    List<double> d = this.domain.toList();
+    List<double> d = this.domain.toList().cast<double>();
     int i0 = 0;
     int i1 = d.length - 1;
     num start = d[i0];
@@ -108,5 +127,34 @@ extension SqrtScaleExtension on SqrtScale {
     }
 
     return new SqrtScale(d, this.range);
+  }
+}
+
+extension LogScaleExtension on LogScale {
+  LogScale nice() {
+    List d = this.domain.toList();
+    int i0 = 0;
+    int i1 = d.length - 1;
+    num start = d[i0];
+    num stop = d[i1];
+    num step;
+
+    if (stop < start) {
+      step = start;
+      start = stop;
+      stop = step;
+      step = i0;
+      i0 = i1;
+      i1 = step;
+    }
+
+    final _log = LogScale.makeLog(base);
+
+    final _pow = LogScale.makePow(base);
+
+    d[i0] = _pow(_log(start).floorToDouble());
+    d[i1] = _pow(_log(stop).ceilToDouble());
+
+    return new LogScale(d, this.range);
   }
 }

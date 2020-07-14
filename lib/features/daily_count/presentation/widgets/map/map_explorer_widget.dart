@@ -1,5 +1,6 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer.dart';
@@ -9,10 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MapExplorerWidget extends StatelessWidget {
   final String stateCode;
   final String statistic;
-  final Map<String, String> regionHighlighted;
+  final Region regionHighlighted;
 
   final Function(String statistic) setStatistic;
-  final Function(Map<String, String> regionHighlighted) setRegionHighlighted;
+  final Function(Region regionHighlighted) setRegionHighlighted;
 
   MapExplorerWidget(
       {this.statistic,

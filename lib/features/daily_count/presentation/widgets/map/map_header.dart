@@ -1,4 +1,5 @@
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
@@ -12,7 +13,7 @@ class MapHeader extends StatelessWidget {
 
   final String mapCode;
   final String statistic;
-  final Map<String, String> regionHighlighted;
+  final Region regionHighlighted;
 
   final MAP_VIEWS mapView;
   final MAP_VIZS mapViz;
@@ -54,7 +55,7 @@ class MapHeader extends StatelessWidget {
                         color: STATS_COLOR[statistic]),
                   ),
                 ),
-                if (regionHighlighted['stateCode'] != null)
+                if (regionHighlighted.stateCode != null)
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: RichText(
@@ -217,21 +218,21 @@ class MapHeader extends StatelessWidget {
   }
 
   String _getHighlightedRegionName() {
-    if (regionHighlighted['districtName'] != null) {
-      return regionHighlighted['districtName'];
+    if (regionHighlighted.districtName != null) {
+      return regionHighlighted.districtName;
     }
 
-    return STATE_CODE_MAP[regionHighlighted['stateCode']];
+    return STATE_CODE_MAP[regionHighlighted.stateCode];
   }
 
   int _getHighlightedRegionStats() {
-    String stateCode = regionHighlighted['stateCode'];
+    String stateCode = regionHighlighted.stateCode;
 
     StateWiseDailyCount stateDailyCount = dailyCounts[stateCode];
 
-    if (regionHighlighted['districtName'] != null) {
-      var items = stateDailyCount.districts.where(
-          (district) => district.name == regionHighlighted['districtName']);
+    if (regionHighlighted.districtName != null) {
+      var items = stateDailyCount.districts
+          .where((district) => district.name == regionHighlighted.districtName);
       if (items.length > 0) {
         DistrictWiseDailyCount districtDailyCount = items.first;
         return getStatisticValue(districtDailyCount.total, statistic);

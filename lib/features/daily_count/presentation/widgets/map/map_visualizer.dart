@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:covid19india/core/common/widgets/positioned_tap_detector.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/constants/maps.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/core/scale/pow.dart';
 import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
@@ -17,12 +18,12 @@ class MapVisualizer extends StatelessWidget {
 
   final String mapCode;
   final String statistic;
-  final Map<String, String> regionHighlighted;
+  final Region regionHighlighted;
 
   final MAP_VIEWS mapView;
   final MAP_VIZS mapViz;
 
-  final Function(Map<String, String> regionHighlighted) setRegionHighlighted;
+  final Function(Region regionHighlighted) setRegionHighlighted;
 
   MapVisualizer(
       {this.dailyCounts,
@@ -68,10 +69,10 @@ class MapVisualizer extends StatelessWidget {
           return;
         }
 
-        setRegionHighlighted({
-          'stateCode': mapCode,
-          'districtName': null,
-        });
+        setRegionHighlighted(new Region(
+          stateCode: mapCode,
+          districtName: null,
+        ));
       },
       onDoubleTap: (TapPosition pos) {
         RenderBox box = context.findRenderObject();
@@ -82,9 +83,7 @@ class MapVisualizer extends StatelessWidget {
           Navigator.pushNamed(
             context,
             StatePage.routeName,
-            arguments: StatePageArguments(
-                stateCode: mapShape[index].features['stateCode'],
-                districtName: mapShape[index].features['districtName']),
+            arguments: StatePageArguments(region: mapShape[index].region),
           );
           return;
         }
@@ -154,7 +153,7 @@ class MapVisualizer extends StatelessWidget {
       MAP_VIEWS mapView,
       String mapCode,
       String statistic,
-      Map<String, String> regionHighlighted) {
+      Region regionHighlighted) {
     if (MAP_META[mapCode]['map_type'] == MAP_TYPES.STATE) {
       return STATE_DATA[mapCode]
           .map((districtData) {
@@ -163,14 +162,14 @@ class MapVisualizer extends StatelessWidget {
 
             return Shape(
                 path: path,
-                features: {"districtName": null, "stateCode": mapCode},
+                region: new Region(stateCode: mapCode, districtName: null),
                 color: _getGradient(context, dailyCounts, mapScale, mapCode,
                     districtName, statistic),
                 highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-                highlighted: regionHighlighted['districtName'] == districtName,
+                highlighted: regionHighlighted.districtName == districtName,
                 onTap: () {
-                  setRegionHighlighted(
-                      {'stateCode': mapCode, 'districtName': districtName});
+                  setRegionHighlighted(new Region(
+                      stateCode: mapCode, districtName: districtName));
                 });
           })
           .toList()
@@ -185,14 +184,14 @@ class MapVisualizer extends StatelessWidget {
 
             return Shape(
                 path: path,
-                features: {"districtName": null, "stateCode": stateCode},
+                region: new Region(districtName: null, stateCode: stateCode),
                 color: _getGradient(
                     context, dailyCounts, mapScale, stateCode, null, statistic),
                 highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-                highlighted: regionHighlighted['stateCode'] == stateCode,
+                highlighted: regionHighlighted.stateCode == stateCode,
                 onTap: () {
                   setRegionHighlighted(
-                      {'stateCode': stateCode, 'districtName': null});
+                      new Region(stateCode: stateCode, districtName: null));
                 });
           })
           .toList()
@@ -211,14 +210,15 @@ class MapVisualizer extends StatelessWidget {
         if (path != null) {
           shapes.add(Shape(
               path: path,
-              features: {"districtName": districtName, "stateCode": stateCode},
+              region:
+                  new Region(districtName: districtName, stateCode: stateCode),
               color: _getGradient(context, dailyCounts, mapScale, stateCode,
                   districtName, statistic),
               highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-              highlighted: regionHighlighted['districtName'] == districtName,
+              highlighted: regionHighlighted.districtName == districtName,
               onTap: () {
-                setRegionHighlighted(
-                    {'stateCode': stateCode, 'districtName': districtName});
+                setRegionHighlighted(new Region(
+                    stateCode: stateCode, districtName: districtName));
               }));
         } else {
 //          print(districtName);
@@ -283,7 +283,7 @@ class Shape {
   Path _transformedPath;
 
   final Path _path;
-  final Map<String, dynamic> features;
+  final Region region;
   final Color color;
   final Color highlightColor;
   final bool highlighted;
@@ -291,7 +291,7 @@ class Shape {
 
   Shape(
       {String path,
-      this.features,
+      this.region,
       this.color,
       this.highlightColor,
       this.highlighted,

@@ -1,6 +1,7 @@
 import 'package:covid19india/core/common/widgets/footer.dart';
 import 'package:covid19india/core/common/widgets/measure_size.dart';
 import 'package:covid19india/core/common/widgets/my_app_bar.dart';
+import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/district/district_top_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
@@ -11,24 +12,23 @@ import 'package:covid19india/features/states/presentation/widgets/meta/state_met
 import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/bargraph/delta_bar_graph_widget.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/minigraph/state_time_series_minigraph_widget.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_explorer_widget.dart';
 import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StatePageArguments {
-  final String stateCode;
-  final String districtName;
+  final Region region;
 
-  StatePageArguments({this.stateCode, this.districtName});
+  StatePageArguments({this.region});
 }
 
 class StatePage extends StatefulWidget {
   static const routeName = '/state';
 
-  final String stateCode;
-  final String districtName;
+  final Region region;
 
-  StatePage({this.stateCode, this.districtName}) : assert(stateCode != null);
+  StatePage({this.region}) : assert(region != null);
 
   @override
   _StatePageState createState() => _StatePageState();
@@ -46,7 +46,7 @@ class _StatePageState extends State<StatePage> {
 
   String statistic;
 
-  Map<String, String> regionHighlighted;
+  Region regionHighlighted;
 
   Size mapSwitcherSize = Size(0, 0);
 
@@ -59,10 +59,7 @@ class _StatePageState extends State<StatePage> {
 
     statistic = 'confirmed';
 
-    regionHighlighted = {
-      'stateCode': widget.stateCode,
-      'districtName': widget.districtName,
-    };
+    regionHighlighted = widget.region;
   }
 
   @override
@@ -85,7 +82,7 @@ class _StatePageState extends State<StatePage> {
           BlocProvider(
               create: (_) => _timeSeriesBloc
                 ..add(GetTimeSeriesData(
-                    stateCode: widget.stateCode, cache: false))),
+                    stateCode: widget.region.stateCode, cache: false))),
         ],
         child: SafeArea(
           child: RefreshIndicator(
@@ -112,7 +109,7 @@ class _StatePageState extends State<StatePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           HeaderWidget(
-            stateCode: widget.stateCode,
+            stateCode: widget.region.stateCode,
             statistic: statistic,
           ),
           Stack(
@@ -127,7 +124,7 @@ class _StatePageState extends State<StatePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    DailyCountLevelWidget(stateCode: widget.stateCode),
+                    DailyCountLevelWidget(stateCode: widget.region.stateCode),
                     StateTimeSeriesMiniGraphWidget(date: date),
                   ],
                 ),
@@ -145,29 +142,40 @@ class _StatePageState extends State<StatePage> {
           ),
           MapExplorerWidget(
             statistic: statistic,
-            stateCode: widget.stateCode,
+            stateCode: widget.region.stateCode,
             setStatistic: (String newStatistic) {
               setState(() {
                 statistic = newStatistic;
               });
             },
             regionHighlighted: regionHighlighted,
-            setRegionHighlighted: (Map<String, String> newRegionHighlighted) {
+            setRegionHighlighted: (Region newRegionHighlighted) {
               setState(() {
                 regionHighlighted = newRegionHighlighted;
               });
             },
           ),
           StateMetaWidget(
-            stateCode: widget.stateCode,
+            stateCode: widget.region.stateCode,
           ),
           DistrictTopWidget(
-            stateCode: widget.stateCode,
+            stateCode: widget.region.stateCode,
             statistic: statistic,
           ),
           DeltaBarGraphWidget(
-            stateCode: widget.stateCode,
+            stateCode: widget.region.stateCode,
             statistic: statistic,
+          ),
+          TimeSeriesExplorerWidget(
+            stateCode: widget.region.stateCode,
+            timelineDate: date,
+            regionHighlighted: regionHighlighted,
+            setRegionHighlighted: (Region newRegionHighlighted) {
+              print(newRegionHighlighted);
+              setState(() {
+                regionHighlighted = newRegionHighlighted;
+              });
+            },
           ),
           Footer(),
         ],
@@ -180,7 +188,7 @@ class _StatePageState extends State<StatePage> {
     _dailyCountBloc..add(GetDailyCountData(forced: true, date: date));
     _timeSeriesBloc
       ..add(GetTimeSeriesData(
-          forced: true, stateCode: widget.stateCode, cache: false));
+          forced: true, stateCode: widget.region.stateCode, cache: false));
 
     setState(() {});
   }

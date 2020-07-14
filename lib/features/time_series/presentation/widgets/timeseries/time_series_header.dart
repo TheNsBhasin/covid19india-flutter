@@ -1,26 +1,32 @@
+import 'dart:convert';
+
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/region.dart';
+import 'package:covid19india/core/model/region_model.dart';
 import 'package:flutter/material.dart';
 
 class TimeSeriesHeader extends StatelessWidget {
-  final String statisticsType;
-  final String stateCode;
+  final TIME_SERIES_CHART_TYPES chartType;
   final bool isUniform;
-  final bool isLogarithmic;
-  final Null Function(String statisticsType) setStatisticsType;
-  final Null Function(String statisticsType) setStateCode;
-  final Null Function(bool isUniform) setUniform;
-  final Null Function(bool isLogarithmic) setLogarithmic;
+  final bool isLog;
+  final Region selectedRegion;
+  final List<Region> regions;
 
-  TimeSeriesHeader({
-    this.statisticsType,
-    this.stateCode,
-    this.isUniform,
-    this.isLogarithmic,
-    this.setStatisticsType,
-    this.setStateCode,
-    this.setUniform,
-    this.setLogarithmic,
-  });
+  final Null Function(TIME_SERIES_CHART_TYPES chartType) setChartType;
+  final Null Function(bool isUniform) setUniform;
+  final Null Function(bool isLogarithmic) setLog;
+  final Function(Region regionHighlighted) setRegionHighlighted;
+
+  TimeSeriesHeader(
+      {this.chartType,
+      this.isUniform,
+      this.isLog,
+      this.regions,
+      this.selectedRegion,
+      this.setChartType,
+      this.setUniform,
+      this.setLog,
+      this.setRegionHighlighted});
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +54,12 @@ class TimeSeriesHeader extends StatelessWidget {
   Widget _buildTitle() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        'Spread Trends',
-        style: TextStyle(
-            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
+      child: Container(
+        child: Text(
+          'Spread Trends',
+          style: TextStyle(
+              fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
+        ),
       ),
     );
   }
@@ -60,15 +68,15 @@ class TimeSeriesHeader extends StatelessWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: TIME_SERIES_CHART_TYPES.entries
+        children: TIME_SERIES_CHART_TYPES_MAP.entries
             .map((e) => FlatButton(
-                  color: (e.key == statisticsType)
+                  color: (e.key == chartType)
                       ? Colors.orange.withAlpha(100)
                       : Colors.orange.withAlpha(50),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0.0)),
                   onPressed: () {
-                    this.setStatisticsType(e.key);
+                    this.setChartType(e.key);
                   },
                   child: Text(e.value,
                       style: TextStyle(
@@ -114,7 +122,7 @@ class TimeSeriesHeader extends StatelessWidget {
                 ),
               ],
             ),
-            if (statisticsType == 'total')
+            if (chartType == TIME_SERIES_CHART_TYPES.TOTAL)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -125,10 +133,10 @@ class TimeSeriesHeader extends StatelessWidget {
                         style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ),
                   Switch(
-                    value: isLogarithmic,
+                    value: isLog,
                     activeColor: Colors.grey,
                     onChanged: (bool value) {
-                      setLogarithmic(value);
+                      setLog(value);
                     },
                   ),
                 ],
@@ -149,15 +157,24 @@ class TimeSeriesHeader extends StatelessWidget {
           flex: 2,
           child: DropdownButtonHideUnderline(
             child: DropdownButton(
-              value: stateCode,
-              onChanged: (stateCode) {
-                setStateCode(stateCode);
+              value: jsonEncode(RegionModel(
+                      stateCode: selectedRegion.stateCode,
+                      districtName: selectedRegion.districtName)
+                  .toJson()),
+              onChanged: (region) {
+                setRegionHighlighted(RegionModel.fromJson(jsonDecode(region)));
               },
               isExpanded: true,
-              items: STATE_CODE_MAP.entries
-                  .map((e) => new DropdownMenuItem<String>(
-                        value: e.key,
-                        child: Text(e.value,
+              items: regions
+                  .map((region) => new DropdownMenuItem<String>(
+                        value: jsonEncode(RegionModel(
+                                stateCode: region.stateCode,
+                                districtName: region.districtName)
+                            .toJson()),
+                        child: Text(
+                            region.districtName != null
+                                ? region.districtName
+                                : STATE_CODE_MAP[region.stateCode],
                             softWrap: true,
                             maxLines: 2,
                             style: TextStyle(

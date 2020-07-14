@@ -2,10 +2,10 @@ import 'package:covid19india/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 
 class TimeSeriesPills extends StatelessWidget {
-  final String chartOption;
-  final Null Function(String option) setChartOption;
+  final TIME_SERIES_OPTIONS timeSeriesOption;
+  final Null Function(TIME_SERIES_OPTIONS option) setTimeSeriesOption;
 
-  TimeSeriesPills({this.chartOption, this.setChartOption});
+  TimeSeriesPills({this.timeSeriesOption, this.setTimeSeriesOption});
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +15,15 @@ class TimeSeriesPills extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ...TIME_SERIES_OPTIONS.entries
+          ...TIME_SERIES_OPTIONS_MAP.entries
               .map((e) => FlatButton(
-                    color: (e.key == chartOption)
+                    color: (e.key == timeSeriesOption)
                         ? Colors.orange.withAlpha(100)
                         : Colors.orange.withAlpha(50),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0.0)),
                     onPressed: () {
-                      this.setChartOption(e.key);
+                      this.setTimeSeriesOption(e.key);
                     },
                     child: Text(e.value,
                         style: TextStyle(
