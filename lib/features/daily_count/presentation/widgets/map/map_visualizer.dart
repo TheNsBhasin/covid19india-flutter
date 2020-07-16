@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:covid19india/core/common/widgets/positioned_tap_detector.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/constants/maps.dart';
 import 'package:covid19india/core/entity/region.dart';
@@ -50,58 +49,67 @@ class MapVisualizer extends StatelessWidget {
 
     return Center(
         child: Container(
-      width: width,
-      height: height,
-      child: _buildMap(context, mapShape, mapSize, mapView, statistic),
+      constraints: BoxConstraints(maxWidth: width, maxHeight: height),
+      child: Stack(children: [
+        _buildMap(context, mapShape, mapSize, mapView, statistic),
+        GestureDetector(
+          onTap: () {
+            print('onTap');
+          },
+          child: SizedBox.expand(),
+        )
+      ]),
     ));
   }
 
   Widget _buildMap(BuildContext context, List<Shape> mapShape, Size mapSize,
       MAP_VIEWS mapView, String statistic) {
-    return PositionedTapDetector(
-      onTap: (TapPosition pos) {
-        RenderBox box = context.findRenderObject();
-        final offset = box.globalToLocal(pos.global);
-        final index = mapShape
-            .lastIndexWhere((shape) => shape._transformedPath.contains(offset));
-        if (index != -1) {
-          mapShape[index].onTap();
-          return;
-        }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        Size size = Size(constraints.maxWidth, constraints.maxHeight);
+        final fs = applyBoxFit(BoxFit.contain, mapSize, size);
+        final r = Alignment.center.inscribe(fs.destination, Offset.zero & size);
+        final matrix = Matrix4.translationValues(r.left, r.top, 0)
+          ..scale(fs.destination.width / fs.source.width);
 
-        setRegionHighlighted(new Region(
-          stateCode: mapCode,
-          districtName: null,
-        ));
+        return Stack(
+          children: [
+            ...mapShape.map((shape) => _buildRegion(
+                context, shape..transform(matrix), mapSize, statistic))
+          ],
+        );
       },
-      onDoubleTap: (TapPosition pos) {
-        if (mapCode != 'TT') {
-          return;
-        }
-
-        RenderBox box = context.findRenderObject();
-        final offset = box.globalToLocal(pos.global);
-        final index = mapShape
-            .lastIndexWhere((shape) => shape._transformedPath.contains(offset));
-        if (index != -1) {
-          Navigator.pushNamed(
-            context,
-            StatePage.routeName,
-            arguments: StatePageArguments(region: mapShape[index].region),
-          );
-          return;
-        }
-      },
-      child: CustomPaint(
-        painter: MapPainter(
-          mapView: mapView,
-          mapSize: mapSize,
-          shapes: mapShape,
-          strokeColor: STATS_COLOR[statistic],
-        ),
-        child: SizedBox.expand(),
-      ),
     );
+  }
+
+  Widget _buildRegion(
+      BuildContext context, Shape shape, Size mapSize, String statistic) {
+    return ClipPath(
+        clipBehavior: Clip.antiAlias,
+        child: GestureDetector(
+          onTap: () {
+            shape.onTap();
+          },
+          onDoubleTap: () {
+            if (mapCode != 'TT') {
+              return;
+            }
+
+            Navigator.pushNamed(
+              context,
+              StatePage.routeName,
+              arguments: StatePageArguments(region: shape.region),
+            );
+          },
+          child: CustomPaint(
+            child: SizedBox.expand(),
+            painter: RegionPainter(
+                shape: shape,
+                mapSize: mapSize,
+                strokeColor: STATS_COLOR[statistic]),
+          ),
+        ),
+        clipper: RegionClipper(shape));
   }
 
   int _getStatisticMax(Map<String, StateWiseDailyCount> dailyCounts,
@@ -306,53 +314,44 @@ class Shape {
       _transformedPath = _path.transform(matrix.storage);
 }
 
-class MapPainter extends CustomPainter {
-  final MAP_VIEWS mapView;
-  final List<Shape> shapes;
+class RegionPainter extends CustomPainter {
+  final Shape shape;
   final Color strokeColor;
   final Paint _paint = Paint();
   final Size mapSize;
-  Size _size = Size.zero;
 
-  MapPainter(
-      {this.mapView,
-      this.mapSize,
-      this.shapes,
-      this.strokeColor: Colors.black});
+  RegionPainter({this.shape, this.mapSize, this.strokeColor});
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (size != _size) {
-      _size = size;
-      final fs = applyBoxFit(BoxFit.contain, mapSize, size);
-      final r = Alignment.center.inscribe(fs.destination, Offset.zero & size);
-      final matrix = Matrix4.translationValues(r.left, r.top, 0)
-        ..scale(fs.destination.width / fs.source.width);
-      shapes.forEach((shape) {
-        shape.transform(matrix);
-      });
-    }
+    final path = shape._transformedPath;
 
-    canvas..clipRect(Offset.zero & size);
+    _paint
+      ..color = shape.color
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, _paint);
 
-    shapes.forEach((shape) {
-      final path = shape._transformedPath;
-
-      _paint
-        ..color = shape.color
-        ..style = PaintingStyle.fill;
-      canvas.drawPath(path, _paint);
-
-      _paint
-        ..color = shape.highlighted
-            ? shape.highlightColor ?? strokeColor
-            : strokeColor.withAlpha(50)
-        ..strokeWidth = 2.5
-        ..style = PaintingStyle.stroke;
-      canvas.drawPath(path, _paint);
-    });
+    _paint
+      ..color = shape.highlighted
+          ? shape.highlightColor ?? strokeColor
+          : strokeColor.withAlpha(50)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(path, _paint);
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+class RegionClipper extends CustomClipper<Path> {
+  final Shape shape;
+
+  RegionClipper(this.shape);
+
+  @override
+  Path getClip(Size size) => shape._transformedPath;
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
