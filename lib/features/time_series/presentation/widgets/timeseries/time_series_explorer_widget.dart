@@ -25,13 +25,32 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stateCode == 'TT') {
-      return _buildCountryTimeSeries();
+      return CountryTimeSeries(
+        timelineDate: timelineDate,
+        regionHighlighted: regionHighlighted,
+        setRegionHighlighted: setRegionHighlighted,
+      );
     }
 
-    return _buildStateTimeSeries();
+    return StateTimeSeries(
+      stateCode: stateCode,
+      timelineDate: timelineDate,
+      regionHighlighted: regionHighlighted,
+      setRegionHighlighted: setRegionHighlighted,
+    );
   }
+}
 
-  Widget _buildCountryTimeSeries() {
+class CountryTimeSeries extends StatelessWidget {
+  final DateTime timelineDate;
+  final Region regionHighlighted;
+  final Function(Region regionHighlighted) setRegionHighlighted;
+
+  CountryTimeSeries(
+      {this.timelineDate, this.regionHighlighted, this.setRegionHighlighted});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: BlocBuilder<CountryTimeSeriesBloc.TimeSeriesBloc,
           CountryTimeSeriesBloc.TimeSeriesState>(
@@ -48,7 +67,13 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: _buildTimeSeries(timeSeriesMap),
+              child: TimeSeriesExplorer(
+                timeSeries: timeSeriesMap,
+                stateCode: 'TT',
+                timelineDate: timelineDate,
+                regionHighlighted: regionHighlighted,
+                setRegionHighlighted: setRegionHighlighted,
+              ),
             );
           } else if (state is CountryTimeSeriesBloc.Error) {
             return MessageDisplay(
@@ -62,7 +87,26 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStateTimeSeries() {
+  Map<String, StateWiseTimeSeries> _getTimeSeriesMap(
+      List<StateWiseTimeSeries> timeSeries) {
+    return Map.fromIterable(timeSeries, key: (e) => e.name, value: (e) => e);
+  }
+}
+
+class StateTimeSeries extends StatelessWidget {
+  final String stateCode;
+  final DateTime timelineDate;
+  final Region regionHighlighted;
+  final Function(Region regionHighlighted) setRegionHighlighted;
+
+  StateTimeSeries(
+      {this.stateCode,
+      this.timelineDate,
+      this.regionHighlighted,
+      this.setRegionHighlighted});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: BlocBuilder<StateTimeSeriesBloc.StateTimeSeriesBloc,
           StateTimeSeriesBloc.StateTimeSeriesState>(
@@ -74,10 +118,19 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
           } else if (state is StateTimeSeriesBloc.Loading) {
             return LoadingWidget(height: 72);
           } else if (state is StateTimeSeriesBloc.Loaded) {
+            final Map<String, StateWiseTimeSeries> timeSeriesMap = {
+              state.timeSeries.name: state.timeSeries
+            };
+
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child:
-                  _buildTimeSeries({state.timeSeries.name: state.timeSeries}),
+              child: TimeSeriesExplorer(
+                timeSeries: timeSeriesMap,
+                stateCode: stateCode,
+                timelineDate: timelineDate,
+                regionHighlighted: regionHighlighted,
+                setRegionHighlighted: setRegionHighlighted,
+              ),
             );
           } else if (state is StateTimeSeriesBloc.Error) {
             return MessageDisplay(
@@ -89,20 +142,5 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
         },
       ),
     );
-  }
-
-  Widget _buildTimeSeries(Map<String, StateWiseTimeSeries> timeSeries) {
-    return TimeSeriesExplorer(
-      timeSeries: timeSeries,
-      stateCode: stateCode,
-      timelineDate: timelineDate,
-      regionHighlighted: regionHighlighted,
-      setRegionHighlighted: setRegionHighlighted,
-    );
-  }
-
-  Map<String, StateWiseTimeSeries> _getTimeSeriesMap(
-      List<StateWiseTimeSeries> timeSeries) {
-    return Map.fromIterable(timeSeries, key: (e) => e.name, value: (e) => e);
   }
 }

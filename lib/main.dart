@@ -1,6 +1,10 @@
+import 'package:covid19india/features/home/presentation/bloc/page_bloc.dart';
 import 'package:covid19india/features/home/presentation/pages/home_page.dart';
+import 'package:covid19india/features/states/presentation/bloc/page_bloc.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
+import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -44,14 +48,20 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.white),
         themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
-        home: HomePage(),
+        home: BlocProvider<HomePageBloc>(
+          create: (_) => HomePageBloc(),
+          child: HomePage(),
+        ),
         onGenerateRoute: (settings) {
           if (settings.name == StatePage.routeName) {
             final StatePageArguments args = settings.arguments;
 
             return MaterialPageRoute(
               builder: (context) {
-                return StatePage(region: args.region);
+                return BlocProvider<StatePageBloc>(
+                  create: (_) => StatePageBloc(region: args.region),
+                  child: StatePage(),
+                );
               },
             );
           }

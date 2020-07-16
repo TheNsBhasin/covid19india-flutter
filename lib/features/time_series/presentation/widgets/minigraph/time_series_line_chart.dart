@@ -75,8 +75,7 @@ class TimeSeriesLineChart extends StatelessWidget {
         .map((e) => <double>[
               xScale.scale(e.key).toDouble(),
               yScale.scale(
-                  getStatisticValue(e.value.delta, statistics)
-                      .toDouble())
+                  getStatisticValue(e.value.delta, statistics).toDouble())
             ])
         .toList();
   }
@@ -128,8 +127,7 @@ class TimeSeriesLineChart extends StatelessWidget {
   int _getMinStatistics(String statistics) {
     int minCases = 1000000009;
     _getTimeSeries().forEach((e) {
-      minCases =
-          min(minCases, getStatisticValue(e.delta, statistics));
+      minCases = min(minCases, getStatisticValue(e.delta, statistics));
     });
 
     return minCases;
@@ -138,8 +136,7 @@ class TimeSeriesLineChart extends StatelessWidget {
   int _getMaxStatistics(String statistics) {
     int maxCases = 1;
     _getTimeSeries().forEach((e) {
-      maxCases =
-          max(maxCases, getStatisticValue(e.delta, statistics));
+      maxCases = max(maxCases, getStatisticValue(e.delta, statistics));
     });
 
     return maxCases;

@@ -1,12 +1,14 @@
 import 'package:covid19india/core/common/widgets/footer.dart';
 import 'package:covid19india/core/common/widgets/measure_size.dart';
 import 'package:covid19india/core/common/widgets/my_app_bar.dart';
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/district/district_top_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_switcher.dart';
+import 'package:covid19india/features/states/presentation/bloc/page_bloc.dart';
 import 'package:covid19india/features/states/presentation/widgets/header/header_widget.dart';
 import 'package:covid19india/features/states/presentation/widgets/meta/state_meta_widget.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/bloc.dart';
@@ -23,77 +25,65 @@ class StatePageArguments {
   StatePageArguments({this.region});
 }
 
-class StatePage extends StatefulWidget {
+class StatePage extends StatelessWidget {
   static const routeName = '/state';
-
-  final Region region;
-
-  StatePage({this.region}) : assert(region != null);
-
-  @override
-  _StatePageState createState() => _StatePageState();
-}
-
-class _StatePageState extends State<StatePage> {
-  final GlobalKey<RefreshIndicatorState> refreshKey =
-      GlobalKey<RefreshIndicatorState>();
-
-  DailyCountBloc _dailyCountBloc;
-  StateTimeSeriesBloc _timeSeriesBloc;
-
-  DateTime date = new DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
-  String statistic;
-
-  Region regionHighlighted;
-
-  Size mapSwitcherSize = Size(0, 0);
-
-  @override
-  void initState() {
-    super.initState();
-
-    _dailyCountBloc = sl<DailyCountBloc>();
-    _timeSeriesBloc = sl<StateTimeSeriesBloc>();
-
-    statistic = 'confirmed';
-
-    regionHighlighted = widget.region;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _dailyCountBloc.close();
-    _timeSeriesBloc.close();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppBar(),
-      body: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-              create: (_) =>
-                  _dailyCountBloc..add(GetDailyCountData(date: date))),
-          BlocProvider(
-              create: (_) => _timeSeriesBloc
-                ..add(GetTimeSeriesData(
-                    stateCode: widget.region.stateCode, cache: true))),
-        ],
-        child: SafeArea(
-          child: RefreshIndicator(
-            key: refreshKey,
-            onRefresh: _refreshAll,
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-                child: buildBody(context),
-              ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: MyAppBarTitle(),
+      ),
+      body: BlocBuilder<StatePageBloc, StatePageState>(
+        builder: (context, state) {
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                  create: (_) => sl<DailyCountBloc>()
+                    ..add(GetDailyCountData(date: state.date))),
+              BlocProvider(
+                  create: (_) => sl<StateTimeSeriesBloc>()
+                    ..add(GetTimeSeriesData(
+                        stateCode: state.region.stateCode, cache: true))),
+            ],
+            child: StatePageBody(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class StatePageBody extends StatelessWidget {
+  final GlobalKey<RefreshIndicatorState> refreshKey =
+      GlobalKey<RefreshIndicatorState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: RefreshIndicator(
+        key: refreshKey,
+        onRefresh: () => refreshData(context),
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    MyHeader(),
+                    MySwitcher(),
+                    MyMapExplorer(),
+                    MyStateMeta(),
+                    MyDistrictTop(),
+                    MyDeltaBarGraph(),
+                    MyTimeSeriesExplorer(),
+                    Footer(),
+                  ]),
             ),
           ),
         ),
@@ -101,95 +91,175 @@ class _StatePageState extends State<StatePage> {
     );
   }
 
-  Widget buildBody(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          HeaderWidget(
-            stateCode: widget.region.stateCode,
-            statistic: statistic,
-          ),
-          Stack(
-            children: [
-              MeasureSize(
-                onChange: (Size size) {
-                  this.setState(() {
-                    mapSwitcherSize = size;
-                  });
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    DailyCountLevelWidget(stateCode: widget.region.stateCode),
-                    StateTimeSeriesMiniGraphWidget(date: date),
-                  ],
-                ),
-              ),
-              MapSwitcher(
-                height: mapSwitcherSize.height,
-                statistic: statistic,
-                setStatistic: (String newStatistic) {
-                  setState(() {
-                    statistic = newStatistic;
-                  });
-                },
-              )
-            ],
-          ),
-          MapExplorerWidget(
-            statistic: statistic,
-            stateCode: widget.region.stateCode,
-            setStatistic: (String newStatistic) {
-              setState(() {
-                statistic = newStatistic;
-              });
-            },
-            regionHighlighted: regionHighlighted,
-            setRegionHighlighted: (Region newRegionHighlighted) {
-              setState(() {
-                regionHighlighted = newRegionHighlighted;
-              });
-            },
-          ),
-          StateMetaWidget(
-            stateCode: widget.region.stateCode,
-          ),
-          DistrictTopWidget(
-            stateCode: widget.region.stateCode,
-            statistic: statistic,
-          ),
-          DeltaBarGraphWidget(
-            stateCode: widget.region.stateCode,
-            statistic: statistic,
-          ),
-          TimeSeriesExplorerWidget(
-            stateCode: widget.region.stateCode,
-            timelineDate: date,
-            regionHighlighted: regionHighlighted,
-            setRegionHighlighted: (Region newRegionHighlighted) {
-              print(newRegionHighlighted);
-              setState(() {
-                regionHighlighted = newRegionHighlighted;
-              });
-            },
-          ),
-          Footer(),
-        ],
-      ),
+  Future<Null> refreshData(BuildContext context) async {
+    refreshKey.currentState?.show(atTop: false);
+
+    final StatePageState state = context.bloc<StatePageBloc>().state;
+
+    BlocProvider.of<DailyCountBloc>(context)
+        .add(GetDailyCountData(forced: true, date: state.date));
+
+    BlocProvider.of<StateTimeSeriesBloc>(context).add(GetTimeSeriesData(
+        forced: true, stateCode: state.region.stateCode, cache: true));
+  }
+}
+
+class MyHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.statistic != current.statistic ||
+          previous.region.stateCode != current.region.stateCode,
+      builder: (context, state) {
+        return HeaderWidget(
+          stateCode: state.region.stateCode,
+          statistic: STATISTIC_MAP[state.statistic],
+        );
+      },
     );
   }
+}
 
-  Future<Null> _refreshAll() async {
-    refreshKey.currentState?.show(atTop: false);
-    _dailyCountBloc..add(GetDailyCountData(forced: true, date: date));
-    _timeSeriesBloc
-      ..add(GetTimeSeriesData(
-          forced: true, stateCode: widget.region.stateCode, cache: true));
+class MySwitcher extends StatelessWidget {
+  final Size mapSwitcherSize = Size(0, 0);
 
-    setState(() {});
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.statistic != current.statistic ||
+          previous.region.stateCode != current.region.stateCode,
+      builder: (context, state) {
+        return Stack(
+          children: [
+            MeasureSize(
+              onChange: (Size size) {
+//                this.setState(() {
+//                  mapSwitcherSize = size;
+//                });
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  DailyCountLevelWidget(stateCode: state.region.stateCode),
+                  StateTimeSeriesMiniGraphWidget(date: state.date),
+                ],
+              ),
+            ),
+            MapSwitcher(
+              height: mapSwitcherSize.height,
+              statistic: STATISTIC_MAP[state.statistic],
+              setStatistic: (String newStatistic) {
+                BlocProvider.of<StatePageBloc>(context).add(StatisticChanged(
+                    statistic: STATISTIC_MAP_REVERED[newStatistic]));
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+}
+
+class MyMapExplorer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.statistic != current.statistic ||
+          previous.region.stateCode != current.region.stateCode ||
+          previous.regionHighlighted != current.regionHighlighted,
+      builder: (context, state) {
+        return MapExplorerWidget(
+          statistic: STATISTIC_MAP[state.statistic],
+          stateCode: state.region.stateCode,
+          setStatistic: (String newStatistic) {
+            BlocProvider.of<StatePageBloc>(context).add(StatisticChanged(
+                statistic: STATISTIC_MAP_REVERED[newStatistic]));
+          },
+          regionHighlighted: state.regionHighlighted,
+          setRegionHighlighted: (Region newRegionHighlighted) {
+            BlocProvider.of<StatePageBloc>(context).add(
+                RegionHighlightedChanged(
+                    regionHighlighted: newRegionHighlighted));
+          },
+        );
+      },
+    );
+  }
+}
+
+class MyStateMeta extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.region.stateCode != current.region.stateCode,
+      builder: (context, state) {
+        return StateMetaWidget(
+          stateCode: state.region.stateCode,
+        );
+      },
+    );
+  }
+}
+
+class MyDistrictTop extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.region.stateCode != current.region.stateCode ||
+          previous.statistic != current.statistic,
+      builder: (context, state) {
+        return DistrictTopWidget(
+          stateCode: state.region.stateCode,
+          statistic: STATISTIC_MAP[state.statistic],
+        );
+      },
+    );
+  }
+}
+
+class MyDeltaBarGraph extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.region.stateCode != current.region.stateCode ||
+          previous.statistic != current.statistic,
+      builder: (context, state) {
+        return DeltaBarGraphWidget(
+          stateCode: state.region.stateCode,
+          statistic: STATISTIC_MAP[state.statistic],
+        );
+      },
+    );
+  }
+}
+
+class MyTimeSeriesExplorer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<StatePageBloc, StatePageState>(
+      condition: (previous, current) =>
+          previous.region.stateCode != current.region.stateCode ||
+          previous.regionHighlighted != current.regionHighlighted ||
+          previous.date != current.date,
+      builder: (context, state) {
+        return TimeSeriesExplorerWidget(
+          stateCode: state.region.stateCode,
+          timelineDate: state.date,
+          regionHighlighted: state.regionHighlighted,
+          setRegionHighlighted: (Region newRegionHighlighted) {
+            BlocProvider.of<StatePageBloc>(context).add(
+                RegionHighlightedChanged(
+                    regionHighlighted: newRegionHighlighted));
+          },
+        );
+      },
+    );
   }
 }

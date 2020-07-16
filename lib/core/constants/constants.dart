@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+enum STATISTIC {
+  CONFIRMED,
+  ACTIVE,
+  RECOVERED,
+  DECEASED,
+  TESTED,
+  MIGRATED,
+}
+
 enum MAP_VIZS {
   CHOROPLETH,
   BUBBLES,
@@ -25,6 +34,24 @@ enum TIME_SERIES_OPTIONS {
   MONTH,
   TWO_WEEKS,
 }
+
+const Map<STATISTIC, String> STATISTIC_MAP = {
+  STATISTIC.CONFIRMED: "confirmed",
+  STATISTIC.ACTIVE: "active",
+  STATISTIC.RECOVERED: "recovered",
+  STATISTIC.DECEASED: "deceased",
+  STATISTIC.TESTED: "tested",
+  STATISTIC.MIGRATED: "migrated",
+};
+
+const Map<String, STATISTIC> STATISTIC_MAP_REVERED = {
+  "confirmed": STATISTIC.CONFIRMED,
+  "active": STATISTIC.ACTIVE,
+  "recovered": STATISTIC.RECOVERED,
+  "deceased": STATISTIC.DECEASED,
+  "tested": STATISTIC.TESTED,
+  "migrated": STATISTIC.MIGRATED,
+};
 
 const Map<TIME_SERIES_CHART_TYPES, String> TIME_SERIES_CHART_TYPES_MAP = {
   TIME_SERIES_CHART_TYPES.TOTAL: "Cumulative",

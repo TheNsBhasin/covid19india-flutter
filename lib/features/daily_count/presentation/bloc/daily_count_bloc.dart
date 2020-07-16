@@ -22,7 +22,7 @@ class DailyCountBloc extends Bloc<DailyCountEvent, DailyCountState> {
 
   @override
   Stream<DailyCountState> mapEventToState(DailyCountEvent event) async* {
-    print(event);
+    print('DailyCountBloc: $event');
 
     if (event is GetDailyCountData) {
       yield Loading();

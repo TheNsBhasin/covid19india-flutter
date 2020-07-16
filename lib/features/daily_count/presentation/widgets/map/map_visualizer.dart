@@ -75,6 +75,10 @@ class MapVisualizer extends StatelessWidget {
         ));
       },
       onDoubleTap: (TapPosition pos) {
+        if (mapCode != 'TT') {
+          return;
+        }
+
         RenderBox box = context.findRenderObject();
         final offset = box.globalToLocal(pos.global);
         final index = mapShape

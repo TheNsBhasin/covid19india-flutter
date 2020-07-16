@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
 
-PreferredSizeWidget myAppBar() {
-  return AppBar(
-    centerTitle: true,
-    title: RichText(
-        text: TextSpan(
+class MyAppBarTitle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+        text: const TextSpan(
             text: 'COVID19',
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[200]),
+                color: Color(0xFFEEEEEE)),
             children: [
-          TextSpan(
+          const TextSpan(
               text: 'IN',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.orangeAccent)),
-          TextSpan(
+          const TextSpan(
               text: 'D',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white)),
-          TextSpan(
+          const TextSpan(
               text: 'IA',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.greenAccent)),
-        ])),
-  );
+        ]));
+  }
 }

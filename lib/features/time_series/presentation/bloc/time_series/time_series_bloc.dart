@@ -22,7 +22,7 @@ class TimeSeriesBloc extends Bloc<TimeSeriesEvent, TimeSeriesState> {
 
   @override
   Stream<TimeSeriesState> mapEventToState(TimeSeriesEvent event) async* {
-    print(event);
+    print('TimeSeriesBloc: $event');
 
     if (event is GetTimeSeriesData) {
       yield Loading();

@@ -11,13 +11,13 @@ class Footer extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: 32),
-          Text(
+          const SizedBox(height: 32),
+          const Text(
             "We stand with everyone fighting on the frontlines",
             style: TextStyle(
                 color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
@@ -25,12 +25,12 @@ class Footer extends StatelessWidget {
               color: Theme.of(context).primaryColor,
             ),
             child: RichText(
-                text: TextSpan(
+                text: const TextSpan(
                     text: 'COVID19',
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey[200]),
+                        color: Color(0xFFEEEEEE)),
                     children: [
                   TextSpan(
                       text: 'IN',
@@ -52,18 +52,18 @@ class Footer extends StatelessWidget {
                           color: Colors.greenAccent)),
                 ])),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           FlatButton.icon(
             onPressed: _launchURL,
             padding: const EdgeInsets.all(8.0),
             materialTapTargetSize: MaterialTapTargetSize.padded,
             color: Colors.black,
-            icon: FaIcon(
+            icon: const FaIcon(
               FontAwesomeIcons.github,
               color: Colors.white,
             ),
-            label: Text("Open Sourced on GitHub",
-                style: TextStyle(
+            label: const Text("Open Sourced on GitHub",
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
