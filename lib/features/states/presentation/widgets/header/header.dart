@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 
 class Header extends StatelessWidget {
   final StateWiseDailyCount stateDailyCount;
-  final String statistic;
+  final STATISTIC statistic;
 
   Header({this.stateDailyCount, this.statistic});
 
@@ -66,7 +66,7 @@ class Header extends StatelessWidget {
                   padding: const EdgeInsets.all(2.0),
                   child: Text(
                       NumberFormat.decimalPattern('en_IN').format(
-                          getStatisticValue(stateDailyCount.total, 'tested')),
+                          getStatisticValue(stateDailyCount.total, STATISTIC.TESTED)),
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

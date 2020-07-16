@@ -15,7 +15,7 @@ class DeltaBarGraph extends StatefulWidget {
   final StateWiseTimeSeries timeSeries;
 
   final String stateCode;
-  final String statistic;
+  final STATISTIC statistic;
 
   DeltaBarGraph({this.timeSeries, this.stateCode, this.statistic});
 

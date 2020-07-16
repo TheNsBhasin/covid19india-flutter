@@ -1,5 +1,6 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
 import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/bargraph/delta_bar_graph.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DeltaBarGraphWidget extends StatelessWidget {
   final String stateCode;
-  final String statistic;
+  final STATISTIC statistic;
 
   DeltaBarGraphWidget({this.stateCode, this.statistic});
 

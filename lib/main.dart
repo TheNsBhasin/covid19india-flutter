@@ -2,7 +2,6 @@ import 'package:covid19india/features/home/presentation/bloc/page_bloc.dart';
 import 'package:covid19india/features/home/presentation/pages/home_page.dart';
 import 'package:covid19india/features/states/presentation/bloc/page_bloc.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
-import 'package:covid19india/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';

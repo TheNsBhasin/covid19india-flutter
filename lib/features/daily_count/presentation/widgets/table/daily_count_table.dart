@@ -6,17 +6,37 @@ import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_top.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 enum TableOption { STATES, DISTRICTS }
 
-class SortData {
-  final int columnIndex;
+class SortData extends Equatable {
   final bool ascending;
-  final bool delta;
+  final STATISTIC statistic;
+  final STATISTIC_TYPE type;
+  final bool perMillion;
 
-  SortData({this.columnIndex, this.ascending, this.delta});
+  SortData({this.ascending, this.statistic, this.type, this.perMillion});
+
+  SortData copyWith(
+      {bool ascending,
+      STATISTIC statistic,
+      STATISTIC_TYPE type,
+      bool perMillion}) {
+    return SortData(
+        ascending: ascending ?? this.ascending,
+        statistic: statistic ?? this.statistic,
+        type: type ?? this.type,
+        perMillion: perMillion ?? this.perMillion);
+  }
+
+  @override
+  List<Object> get props => [ascending, statistic, type, perMillion];
+
+  @override
+  bool get stringify => true;
 }
 
 class DailyCountTable extends StatefulWidget {
@@ -32,7 +52,6 @@ class DailyCountTable extends StatefulWidget {
 class _DailyCountTableState extends State<DailyCountTable> {
   TableOption tableOption;
   SortData sortData;
-  bool perMillion;
 
   List<String> titleRow;
   List<String> titleColumn;
@@ -40,11 +59,11 @@ class _DailyCountTableState extends State<DailyCountTable> {
   _DailyCountTableState()
       : tableOption = TableOption.STATES,
         sortData = new SortData(
-          columnIndex: 1,
           ascending: false,
-          delta: true,
+          statistic: STATISTIC.CONFIRMED,
+          type: STATISTIC_TYPE.DELTA,
+          perMillion: false,
         ),
-        perMillion = false,
         titleRow = <String>[],
         titleColumn = <String>[];
 
@@ -64,7 +83,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
       children: [
         DailyCountTableTop(
           district: tableOption == TableOption.DISTRICTS,
-          perMillion: perMillion,
+          perMillion: sortData.perMillion,
           setDistrict: () {
             setState(() {
               tableOption = (tableOption == TableOption.DISTRICTS)
@@ -75,7 +94,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
           },
           setPerMillion: () {
             setState(() {
-              perMillion = !perMillion;
+              sortData = sortData.copyWith(perMillion: !sortData.perMillion);
             });
           },
         ),
@@ -86,16 +105,15 @@ class _DailyCountTableState extends State<DailyCountTable> {
             legendCell: _buildLegendCell(
                 onTap: () {
                   setState(() {
-                    if (sortData.columnIndex == 0) {
-                      sortData = new SortData(
-                          columnIndex: sortData.columnIndex,
-                          ascending: !sortData.ascending,
-                          delta: sortData.delta);
+                    if (sortData.statistic == null) {
+                      sortData =
+                          sortData.copyWith(ascending: !sortData.ascending);
                     } else {
-                      sortData = new SortData(
-                          columnIndex: 0,
+                      sortData = SortData(
                           ascending: sortData.ascending,
-                          delta: sortData.delta);
+                          statistic: null,
+                          type: sortData.type,
+                          perMillion: sortData.perMillion);
                     }
 
                     titleRow = sortColumn(sortData);
@@ -106,7 +124,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       ? "State/UT"
                       : "Districts",
                   numeric: false,
-                  sorted: sortData.columnIndex == 0,
+                  sorted: sortData.statistic == null,
                   ascending: sortData.ascending,
                 )),
             rowsTitleBuilder: (int rowIndex) {
@@ -125,16 +143,12 @@ class _DailyCountTableState extends State<DailyCountTable> {
               return _buildColumnTitle(
                   onTap: () {
                     setState(() {
-                      if (sortData.columnIndex == columnIndex + 1) {
-                        sortData = new SortData(
-                            columnIndex: sortData.columnIndex,
-                            ascending: !sortData.ascending,
-                            delta: sortData.delta);
+                      if (sortData.statistic == TABLE_STATISTICS[columnIndex]) {
+                        sortData =
+                            sortData.copyWith(ascending: !sortData.ascending);
                       } else {
-                        sortData = new SortData(
-                            columnIndex: columnIndex + 1,
-                            ascending: sortData.ascending,
-                            delta: sortData.delta);
+                        sortData = sortData.copyWith(
+                            statistic: TABLE_STATISTICS[columnIndex]);
                       }
 
                       titleRow = sortColumn(sortData);
@@ -142,16 +156,14 @@ class _DailyCountTableState extends State<DailyCountTable> {
                   },
                   onLongPress: () {
                     setState(() {
-                      if (sortData.columnIndex == columnIndex + 1) {
-                        sortData = new SortData(
-                            columnIndex: sortData.columnIndex,
-                            ascending: sortData.ascending,
-                            delta: !sortData.delta);
+                      if (sortData.statistic == TABLE_STATISTICS[columnIndex]) {
+                        sortData = sortData.copyWith(
+                            type: sortData.type == STATISTIC_TYPE.DELTA
+                                ? STATISTIC_TYPE.TOTAL
+                                : STATISTIC_TYPE.DELTA);
                       } else {
-                        sortData = new SortData(
-                            columnIndex: columnIndex + 1,
-                            ascending: sortData.ascending,
-                            delta: !sortData.delta);
+                        sortData = sortData.copyWith(
+                            statistic: TABLE_STATISTICS[columnIndex]);
                       }
 
                       titleRow = sortColumn(sortData);
@@ -160,23 +172,24 @@ class _DailyCountTableState extends State<DailyCountTable> {
                   child: _buildHeading(
                       label: titleColumn[columnIndex].capitalize(),
                       numeric: true,
-                      sorted: sortData.columnIndex == columnIndex + 1,
+                      sorted:
+                          sortData.statistic == TABLE_STATISTICS[columnIndex],
                       ascending: sortData.ascending,
                       arrowColor: _arrowColor(
-                          statistic: titleColumn[columnIndex],
-                          delta: sortData.delta)));
+                          statistic: sortData.statistic,
+                          delta: sortData.type == STATISTIC_TYPE.DELTA)));
             },
             contentCellBuilder: (int columnIndex, int rowIndex) {
               if (tableOption == TableOption.STATES) {
                 String stateCode = titleRow[rowIndex];
-                String statistics = titleColumn[columnIndex];
+                STATISTIC statistics = TABLE_STATISTICS[columnIndex];
 
                 return _buildContentCell(
                     child: _buildStats(
                         widget.stateWiseDailyCount[stateCode], statistics));
               } else {
                 String districtName = titleRow[rowIndex];
-                String statistics = titleColumn[columnIndex];
+                STATISTIC statistics = TABLE_STATISTICS[columnIndex];
 
                 return _buildContentCell(
                     child: _buildStats(
@@ -254,7 +267,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  Widget _buildStats(dynamic data, String statistics) {
+  Widget _buildStats(dynamic data, STATISTIC statistics) {
     return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -342,9 +355,9 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  _getDeltaText(dynamic data, statistics) {
-    int value =
-        getStatistics(data, 'delta', statistics, perMillion: perMillion);
+  _getDeltaText(dynamic data, STATISTIC statistics) {
+    int value = getStatistics(data, STATISTIC_TYPE.DELTA, statistics,
+        perMillion: sortData.perMillion);
 
     return Text(
       (value < 0 ? "↓" : "↑") +
@@ -356,8 +369,8 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   _getTotalText(dynamic data, statistics) {
-    int value =
-        getStatistics(data, 'total', statistics, perMillion: perMillion);
+    int value = getStatistics(data, STATISTIC_TYPE.TOTAL, statistics,
+        perMillion: sortData.perMillion);
 
     return Text(
       NumberFormat.decimalPattern('en_IN').format(value),
@@ -370,7 +383,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  Color _arrowColor({String statistic, bool delta}) {
+  Color _arrowColor({STATISTIC statistic, bool delta}) {
     if (delta) {
       return STATS_COLOR[statistic];
     }
@@ -381,7 +394,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   List<String> _getTitleColumn() {
-    return TABLE_STATISTICS;
+    return TABLE_STATISTICS.map((e) => e.name).toList();
   }
 
   List<String> _getTitleRow() {
@@ -398,24 +411,20 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   int _compareStats(dynamic a, dynamic b,
       {ascending: true,
-      type: 'total',
-      statistic: 'confirmed',
+      type: STATISTIC_TYPE.TOTAL,
+      statistic: STATISTIC.CONFIRMED,
       perMillion: false}) {
     if (ascending) {
       return getStatistics(a, type, statistic, perMillion: perMillion)
-          .compareTo(getStatistics(a, type, statistic, perMillion: perMillion));
+          .compareTo(getStatistics(b, type, statistic, perMillion: perMillion));
     } else {
       return getStatistics(b, type, statistic, perMillion: perMillion)
           .compareTo(getStatistics(a, type, statistic, perMillion: perMillion));
     }
   }
 
-  String _mapColumnIndexToStats(int columnIndex) {
-    return TABLE_STATISTICS[columnIndex - 1];
-  }
-
   List<String> _sortStateColumn(SortData sortData) {
-    if (sortData.columnIndex == 0) {
+    if (sortData.statistic == null) {
       if (sortData.ascending) {
         return widget.stateWiseDailyCount.keys
             .toList()
@@ -435,27 +444,21 @@ class _DailyCountTableState extends State<DailyCountTable> {
       }
     }
 
-    String statistic = _mapColumnIndexToStats(sortData.columnIndex);
-
-    if (statistic != '') {
-      return widget.stateWiseDailyCount.keys
-          .toList()
-          .where((stateCode) => stateCode != 'TT')
-          .toList()
-            ..sort((a, b) => _compareStats(
-                widget.stateWiseDailyCount[a], widget.stateWiseDailyCount[b],
-                ascending: sortData.ascending,
-                type: sortData.delta ? 'delta' : 'total',
-                statistic: statistic,
-                perMillion: perMillion))
-            ..add('TT');
-    }
-
-    return widget.stateWiseDailyCount.keys.toList();
+    return widget.stateWiseDailyCount.keys
+        .toList()
+        .where((stateCode) => stateCode != 'TT')
+        .toList()
+          ..sort((a, b) => _compareStats(
+              widget.stateWiseDailyCount[a], widget.stateWiseDailyCount[b],
+              ascending: sortData.ascending,
+              type: sortData.type,
+              statistic: sortData.statistic,
+              perMillion: sortData.perMillion))
+          ..add('TT');
   }
 
   List<String> _sortDistrictColumn(SortData sortData) {
-    if (sortData.columnIndex == 0) {
+    if (sortData.statistic == null) {
       if (sortData.ascending) {
         return widget.districtWiseDailyCount.keys.toList()
           ..sort((a, b) => widget.districtWiseDailyCount[a].name
@@ -467,22 +470,16 @@ class _DailyCountTableState extends State<DailyCountTable> {
       }
     }
 
-    String statistic = _mapColumnIndexToStats(sortData.columnIndex);
-
-    if (statistic != '') {
-      return widget.districtWiseDailyCount.keys
-          .toList()
-          .where((stateCode) => stateCode != 'TT')
-          .toList()
-            ..sort((a, b) => _compareStats(widget.districtWiseDailyCount[a],
-                widget.districtWiseDailyCount[b],
-                ascending: sortData.ascending,
-                type: sortData.delta ? 'delta' : 'total',
-                statistic: statistic,
-                perMillion: perMillion))
-            ..add('TT');
-    }
-
-    return widget.districtWiseDailyCount.keys.toList();
+    return widget.districtWiseDailyCount.keys
+        .toList()
+        .where((stateCode) => stateCode != 'TT')
+        .toList()
+          ..sort((a, b) => _compareStats(widget.districtWiseDailyCount[a],
+              widget.districtWiseDailyCount[b],
+              ascending: sortData.ascending,
+              type: sortData.type,
+              statistic: sortData.statistic,
+              perMillion: sortData.perMillion))
+          ..add('TT');
   }
 }

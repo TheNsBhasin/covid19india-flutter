@@ -1,5 +1,6 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/district/district_top.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DistrictTopWidget extends StatelessWidget {
   final String stateCode;
-  final String statistic;
+  final STATISTIC statistic;
 
   DistrictTopWidget({this.stateCode, this.statistic});
 

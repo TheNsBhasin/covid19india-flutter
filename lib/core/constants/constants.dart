@@ -9,6 +9,8 @@ enum STATISTIC {
   MIGRATED,
 }
 
+enum STATISTIC_TYPE { TOTAL, DELTA }
+
 enum MAP_VIZS {
   CHOROPLETH,
   BUBBLES,
@@ -35,24 +37,6 @@ enum TIME_SERIES_OPTIONS {
   TWO_WEEKS,
 }
 
-const Map<STATISTIC, String> STATISTIC_MAP = {
-  STATISTIC.CONFIRMED: "confirmed",
-  STATISTIC.ACTIVE: "active",
-  STATISTIC.RECOVERED: "recovered",
-  STATISTIC.DECEASED: "deceased",
-  STATISTIC.TESTED: "tested",
-  STATISTIC.MIGRATED: "migrated",
-};
-
-const Map<String, STATISTIC> STATISTIC_MAP_REVERED = {
-  "confirmed": STATISTIC.CONFIRMED,
-  "active": STATISTIC.ACTIVE,
-  "recovered": STATISTIC.RECOVERED,
-  "deceased": STATISTIC.DECEASED,
-  "tested": STATISTIC.TESTED,
-  "migrated": STATISTIC.MIGRATED,
-};
-
 const Map<TIME_SERIES_CHART_TYPES, String> TIME_SERIES_CHART_TYPES_MAP = {
   TIME_SERIES_CHART_TYPES.TOTAL: "Cumulative",
   TIME_SERIES_CHART_TYPES.DELTA: "Daily"
@@ -64,18 +48,27 @@ const Map<TIME_SERIES_OPTIONS, String> TIME_SERIES_OPTIONS_MAP = {
   TIME_SERIES_OPTIONS.TWO_WEEKS: "2 Weeks"
 };
 
-const List<String> PRIMARY_STATISTICS = <String>[
-  'confirmed',
-  'active',
-  'recovered',
-  'deceased',
+const List<STATISTIC> PRIMARY_STATISTICS = <STATISTIC>[
+  STATISTIC.CONFIRMED,
+  STATISTIC.ACTIVE,
+  STATISTIC.RECOVERED,
+  STATISTIC.DECEASED
 ];
 
-const List<String> TABLE_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+const List<STATISTIC> TABLE_STATISTICS = [
+  ...PRIMARY_STATISTICS,
+  STATISTIC.TESTED
+];
 
-const List<String> MAP_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+const List<STATISTIC> MAP_STATISTICS = [
+  ...PRIMARY_STATISTICS,
+  STATISTIC.TESTED
+];
 
-const List<String> TIME_SERIES_STATISTICS = [...PRIMARY_STATISTICS, 'tested'];
+const List<STATISTIC> TIME_SERIES_STATISTICS = [
+  ...PRIMARY_STATISTICS,
+  STATISTIC.TESTED
+];
 
 const int MINIGRAPH_LOOKBACK_DAYS = 20;
 
@@ -83,31 +76,31 @@ const int CACHE_TIMEOUT_IN_MINUTES = 15;
 
 const int DISTRICT_TABLE_COUNT = 30;
 
-const Map<String, Color> STATS_COLOR = {
-  'confirmed': Colors.red,
-  'active': Colors.blue,
-  'recovered': Colors.green,
-  'deceased': Colors.grey,
-  'tested': Colors.purple,
-  'migrated': Colors.yellow,
+const Map<STATISTIC, Color> STATS_COLOR = {
+  STATISTIC.CONFIRMED: Colors.red,
+  STATISTIC.ACTIVE: Colors.blue,
+  STATISTIC.RECOVERED: Colors.green,
+  STATISTIC.DECEASED: Colors.grey,
+  STATISTIC.TESTED: Colors.purple,
+  STATISTIC.MIGRATED: Colors.yellow,
 };
 
-const Map<String, List<Color>> STATS_GRADIENT_COLOR = {
-  'confirmed': <Color>[Color(0xFFEF9A9A), Color(0xFFB71C1C)],
-  'active': <Color>[Color(0xFF90CAF9), Color(0xFF0D47A1)],
-  'recovered': <Color>[Color(0xFFA5D6A7), Color(0xFF1B5E20)],
-  'deceased': <Color>[Color(0xFFEEEEEE), Color(0xFF212121)],
-  'tested': <Color>[Color(0xFFCE93D8), Color(0xFF4A148C)],
-  'migrated': <Color>[Color(0xFFFFF59D), Color(0xFFF57F17)],
+const Map<STATISTIC, List<Color>> STATS_GRADIENT_COLOR = {
+  STATISTIC.CONFIRMED: <Color>[Color(0xFFEF9A9A), Color(0xFFB71C1C)],
+  STATISTIC.ACTIVE: <Color>[Color(0xFF90CAF9), Color(0xFF0D47A1)],
+  STATISTIC.RECOVERED: <Color>[Color(0xFFA5D6A7), Color(0xFF1B5E20)],
+  STATISTIC.DECEASED: <Color>[Color(0xFFEEEEEE), Color(0xFF212121)],
+  STATISTIC.TESTED: <Color>[Color(0xFFCE93D8), Color(0xFF4A148C)],
+  STATISTIC.MIGRATED: <Color>[Color(0xFFFFF59D), Color(0xFFF57F17)],
 };
 
-const Map<String, Color> STATS_HIGHLIGHT_COLOR = {
-  'confirmed': Colors.redAccent,
-  'active': Colors.blueAccent,
-  'recovered': Colors.greenAccent,
-  'deceased': Colors.blueGrey,
-  'tested': Colors.purpleAccent,
-  'migrated': Colors.orangeAccent,
+const Map<STATISTIC, Color> STATS_HIGHLIGHT_COLOR = {
+  STATISTIC.CONFIRMED: Colors.redAccent,
+  STATISTIC.ACTIVE: Colors.blueAccent,
+  STATISTIC.RECOVERED: Colors.greenAccent,
+  STATISTIC.DECEASED: Colors.blueGrey,
+  STATISTIC.TESTED: Colors.purpleAccent,
+  STATISTIC.MIGRATED: Colors.orangeAccent,
 };
 
 const UNASSIGNED_STATE_CODE = 'UN';

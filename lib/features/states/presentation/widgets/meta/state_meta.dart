@@ -20,13 +20,15 @@ class StateMeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int confirmed =
-        getStatisticValue(dailyCount[stateCode].total, 'confirmed');
-    final int active = getStatisticValue(dailyCount[stateCode].total, 'active');
+        getStatisticValue(dailyCount[stateCode].total, STATISTIC.CONFIRMED);
+    final int active =
+        getStatisticValue(dailyCount[stateCode].total, STATISTIC.ACTIVE);
     final int deceased =
-        getStatisticValue(dailyCount[stateCode].total, 'deceased');
+        getStatisticValue(dailyCount[stateCode].total, STATISTIC.DECEASED);
     final int recovered =
-        getStatisticValue(dailyCount[stateCode].total, 'recovered');
-    final int tested = getStatisticValue(dailyCount[stateCode].total, 'tested');
+        getStatisticValue(dailyCount[stateCode].total, STATISTIC.RECOVERED);
+    final int tested =
+        getStatisticValue(dailyCount[stateCode].total, STATISTIC.TESTED);
 
     final DateTime indiaDate = DateTime.now().toLocal();
     final DateTime prevWeekDate = indiaDate.subtract(Duration(days: 7));
@@ -36,16 +38,17 @@ class StateMeta extends StatelessWidget {
         .first;
 
     final int prevWeekConfirmed =
-        getStatisticValue(prevWeekTimeSeries.total, 'confirmed');
+        getStatisticValue(prevWeekTimeSeries.total, STATISTIC.CONFIRMED);
 
     final int confirmedPerMillion = getStatistics(
-        dailyCount[stateCode], 'total', 'confirmed',
+        dailyCount[stateCode], STATISTIC_TYPE.TOTAL, STATISTIC.CONFIRMED,
         perMillion: true);
     final int testPerMillion = getStatistics(
-        dailyCount[stateCode], 'total', 'tested',
+        dailyCount[stateCode], STATISTIC_TYPE.TOTAL, STATISTIC.TESTED,
         perMillion: true);
-    final int totalConfirmedPerMillion =
-        getStatistics(dailyCount['TT'], 'total', 'confirmed', perMillion: true);
+    final int totalConfirmedPerMillion = getStatistics(
+        dailyCount['TT'], STATISTIC_TYPE.TOTAL, STATISTIC.CONFIRMED,
+        perMillion: true);
 
     final double recoveryPercent = (recovered / confirmed) * 100;
     final double activePercent = (active / confirmed) * 100;

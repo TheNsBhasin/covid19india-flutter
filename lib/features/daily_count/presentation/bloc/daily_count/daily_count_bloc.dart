@@ -1,11 +1,13 @@
 import 'package:covid19india/core/error/failures.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/usecases/get_daily_count.dart';
-import 'package:covid19india/features/daily_count/presentation/bloc/daily_count_event.dart';
-import 'package:covid19india/features/daily_count/presentation/bloc/daily_count_state.dart';
 import 'package:dartz/dartz.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'daily_count_event.dart';
+part 'daily_count_state.dart';
 
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
 const String CACHE_FAILURE_MESSAGE = 'Cache Failure';

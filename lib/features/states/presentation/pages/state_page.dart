@@ -114,7 +114,7 @@ class MyHeader extends StatelessWidget {
       builder: (context, state) {
         return HeaderWidget(
           stateCode: state.region.stateCode,
-          statistic: STATISTIC_MAP[state.statistic],
+          statistic: state.statistic,
         );
       },
     );
@@ -150,10 +150,10 @@ class MySwitcher extends StatelessWidget {
             ),
             MapSwitcher(
               height: mapSwitcherSize.height,
-              statistic: STATISTIC_MAP[state.statistic],
-              setStatistic: (String newStatistic) {
-                BlocProvider.of<StatePageBloc>(context).add(StatisticChanged(
-                    statistic: STATISTIC_MAP_REVERED[newStatistic]));
+              statistic: state.statistic,
+              setStatistic: (STATISTIC newStatistic) {
+                BlocProvider.of<StatePageBloc>(context)
+                    .add(StatisticChanged(statistic: newStatistic));
               },
             )
           ],
@@ -173,11 +173,11 @@ class MyMapExplorer extends StatelessWidget {
           previous.regionHighlighted != current.regionHighlighted,
       builder: (context, state) {
         return MapExplorerWidget(
-          statistic: STATISTIC_MAP[state.statistic],
+          statistic: state.statistic,
           stateCode: state.region.stateCode,
-          setStatistic: (String newStatistic) {
-            BlocProvider.of<StatePageBloc>(context).add(StatisticChanged(
-                statistic: STATISTIC_MAP_REVERED[newStatistic]));
+          setStatistic: (STATISTIC newStatistic) {
+            BlocProvider.of<StatePageBloc>(context)
+                .add(StatisticChanged(statistic: newStatistic));
           },
           regionHighlighted: state.regionHighlighted,
           setRegionHighlighted: (Region newRegionHighlighted) {
@@ -216,7 +216,7 @@ class MyDistrictTop extends StatelessWidget {
       builder: (context, state) {
         return DistrictTopWidget(
           stateCode: state.region.stateCode,
-          statistic: STATISTIC_MAP[state.statistic],
+          statistic: state.statistic,
         );
       },
     );
@@ -233,7 +233,7 @@ class MyDeltaBarGraph extends StatelessWidget {
       builder: (context, state) {
         return DeltaBarGraphWidget(
           stateCode: state.region.stateCode,
-          statistic: STATISTIC_MAP[state.statistic],
+          statistic: state.statistic,
         );
       },
     );

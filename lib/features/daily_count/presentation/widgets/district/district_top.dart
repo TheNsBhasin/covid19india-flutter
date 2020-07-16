@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 
 class DistrictTop extends StatefulWidget {
   final String stateCode;
-  final String statistic;
+  final STATISTIC statistic;
 
   final StateWiseDailyCount stateDailyCount;
 
@@ -80,10 +80,10 @@ class _DistrictTopState extends State<DistrictTop> {
                                 .map((districtData) {
                               final String districtName = districtData.name;
 
-                              final int total = getStatistics(
-                                  districtData, 'total', widget.statistic);
-                              final int delta = getStatistics(
-                                  districtData, 'delta', widget.statistic);
+                              final int total = getStatistics(districtData,
+                                  STATISTIC_TYPE.TOTAL, widget.statistic);
+                              final int delta = getStatistics(districtData,
+                                  STATISTIC_TYPE.DELTA, widget.statistic);
 
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -170,7 +170,7 @@ class _DistrictTopState extends State<DistrictTop> {
   }
 
   List<DistrictWiseDailyCount> _getDistrictDailyCount(
-      StateWiseDailyCount stateDailyCount, String statistic,
+      StateWiseDailyCount stateDailyCount, STATISTIC statistic,
       {int count}) {
     List<DistrictWiseDailyCount> sortedList = stateDailyCount.districts
         .where((e) => e.name != UNKNOWN_DISTRICT_KEY)

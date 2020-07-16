@@ -9,10 +9,10 @@ class MapExplorer extends StatefulWidget {
   final Map<String, StateWiseDailyCount> dailyCounts;
 
   final String mapCode;
-  final String statistic;
+  final STATISTIC statistic;
   final Region regionHighlighted;
 
-  final Function(String statistic) setStatistic;
+  final Function(STATISTIC statistic) setStatistic;
   final Function(Region regionHighlighted) setRegionHighlighted;
 
   MapExplorer(

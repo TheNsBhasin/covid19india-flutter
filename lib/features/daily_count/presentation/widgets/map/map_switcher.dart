@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class MapSwitcherItem extends StatelessWidget {
   final double height;
   final bool show;
-  final String statistic;
+  final STATISTIC statistic;
 
   MapSwitcherItem({this.height, this.statistic, this.show});
 
@@ -19,8 +19,8 @@ class MapSwitcherItem extends StatelessWidget {
 }
 
 class MapSwitcher extends StatelessWidget {
-  final String statistic;
-  final Null Function(String statistic) setStatistic;
+  final STATISTIC statistic;
+  final Null Function(STATISTIC statistic) setStatistic;
   final double height;
 
   MapSwitcher({this.height, this.statistic, this.setStatistic});

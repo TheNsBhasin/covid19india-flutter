@@ -12,13 +12,13 @@ class MapHeader extends StatelessWidget {
   final Map<String, StateWiseDailyCount> dailyCounts;
 
   final String mapCode;
-  final String statistic;
+  final STATISTIC statistic;
   final Region regionHighlighted;
 
   final MAP_VIEWS mapView;
   final MAP_VIZS mapViz;
 
-  final Function(String statistic) setStatistic;
+  final Function(STATISTIC statistic) setStatistic;
   final Function(MAP_VIEWS mapView) setMapView;
   final Function(MAP_VIZS mapViz) setMapViz;
 
@@ -69,7 +69,7 @@ class MapHeader extends StatelessWidget {
                               color: STATS_COLOR[statistic]),
                           children: [
                             TextSpan(
-                                text: "\n${statistic.capitalize()}",
+                                text: "\n${statistic.name.capitalize()}",
                                 style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,

@@ -1,8 +1,30 @@
 import 'dart:math';
 
+import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/scale/pow.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:grizzly_range/grizzly_range.dart' as ranger;
+
+extension StatisticExtension on STATISTIC {
+  String get name {
+    switch (this) {
+      case STATISTIC.CONFIRMED:
+        return 'confirmed';
+      case STATISTIC.ACTIVE:
+        return 'active';
+      case STATISTIC.RECOVERED:
+        return 'recovered';
+      case STATISTIC.DECEASED:
+        return 'deceased';
+      case STATISTIC.TESTED:
+        return 'tested';
+      case STATISTIC.MIGRATED:
+        return 'migrated';
+      default:
+        return null;
+    }
+  }
+}
 
 extension StringExtension on String {
   String capitalize() {

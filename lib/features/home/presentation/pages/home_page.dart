@@ -143,15 +143,15 @@ class MyMapExplorer extends StatelessWidget {
           previous.regionHighlighted != current.regionHighlighted,
       builder: (context, state) {
         return MapExplorerWidget(
-          statistic: STATISTIC_MAP[state.statistic],
-          setStatistic: (String newStatistic) {
-            BlocProvider.of<HomePageBloc>(context).add(StatisticChanged(
-                statistic: STATISTIC_MAP_REVERED[newStatistic]));
+          statistic: state.statistic,
+          setStatistic: (STATISTIC newStatistic) {
+            BlocProvider.of<HomePageBloc>(context)
+                .add(StatisticChanged(statistic: newStatistic));
           },
           regionHighlighted: state.regionHighlighted,
           setRegionHighlighted: (Region newRegionHighlighted) {
-            BlocProvider.of<HomePageBloc>(context)
-                .add(RegionHighlightedChanged(regionHighlighted: newRegionHighlighted));
+            BlocProvider.of<HomePageBloc>(context).add(RegionHighlightedChanged(
+                regionHighlighted: newRegionHighlighted));
           },
         );
       },
@@ -164,15 +164,16 @@ class MyTimeSeriesExplorer extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomePageBloc, HomePageState>(
       condition: (previous, current) =>
-          previous.date != current.date || previous.regionHighlighted != current.regionHighlighted,
+          previous.date != current.date ||
+          previous.regionHighlighted != current.regionHighlighted,
       builder: (context, state) {
         return TimeSeriesExplorerWidget(
           stateCode: 'TT',
           timelineDate: state.date,
           regionHighlighted: state.regionHighlighted,
           setRegionHighlighted: (Region newRegionHighlighted) {
-            BlocProvider.of<HomePageBloc>(context)
-                .add(RegionHighlightedChanged(regionHighlighted: newRegionHighlighted));
+            BlocProvider.of<HomePageBloc>(context).add(RegionHighlightedChanged(
+                regionHighlighted: newRegionHighlighted));
           },
         );
       },

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class LevelItem extends StatelessWidget {
-  final String statistics;
+  final STATISTIC statistics;
   final Stats total;
   final Stats delta;
 
@@ -20,7 +20,7 @@ class LevelItem extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(statistics.capitalize(),
+            child: Text(statistics.name.capitalize(),
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -31,8 +31,8 @@ class LevelItem extends StatelessWidget {
             child: Text(
                 getStatisticValue(delta, statistics) > 0
                     ? "+" +
-                        NumberFormat.decimalPattern('en_IN').format(
-                            getStatisticValue(delta, statistics))
+                        NumberFormat.decimalPattern('en_IN')
+                            .format(getStatisticValue(delta, statistics))
                     : "♥",
                 style: TextStyle(fontSize: 12, color: STATS_COLOR[statistics])),
           ),

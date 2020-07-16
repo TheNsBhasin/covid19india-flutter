@@ -1,6 +1,4 @@
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+part of 'daily_count_bloc.dart';
 
 abstract class DailyCountState extends Equatable {}
 

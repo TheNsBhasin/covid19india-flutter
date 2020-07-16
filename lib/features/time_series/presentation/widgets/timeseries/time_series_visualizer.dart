@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
 
-  final String statistic;
+  final STATISTIC statistic;
 
   final TIME_SERIES_OPTIONS timeSeriesOption;
   final TIME_SERIES_CHART_TYPES chartType;
@@ -45,7 +45,7 @@ class TimeSeriesItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  statistic.capitalize(),
+                  statistic.name.capitalize(),
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -362,16 +362,16 @@ class TimeSeriesItem extends StatelessWidget {
     );
   }
 
-  Scale _getYScale(List<TimeSeries> timeSeries, String statistic,
+  Scale _getYScale(List<TimeSeries> timeSeries, STATISTIC statistic,
       TIME_SERIES_CHART_TYPES chartType, bool isUniform, bool isLog) {
     if (isUniform &&
         chartType == TIME_SERIES_CHART_TYPES.TOTAL &&
         isLog &&
-        statistic != 'tested') {
+        statistic != STATISTIC.TESTED) {
       return yScaleUniformLog(timeSeries, chartType);
     }
 
-    if (isUniform && statistic != 'tested') {
+    if (isUniform && statistic != STATISTIC.TESTED) {
       return yScaleUniformLinear(timeSeries, chartType);
     }
 
@@ -428,25 +428,25 @@ class TimeSeriesItem extends StatelessWidget {
   int _uniformScaleMin(
       List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
     return min(
-      min(_getMinStatistics(timeSeries, chartType, 'confirmed'),
-          _getMinStatistics(timeSeries, chartType, 'active')),
-      min(_getMinStatistics(timeSeries, chartType, 'recovered'),
-          _getMinStatistics(timeSeries, chartType, 'deceased')),
+      min(_getMinStatistics(timeSeries, chartType, STATISTIC.CONFIRMED),
+          _getMinStatistics(timeSeries, chartType, STATISTIC.ACTIVE)),
+      min(_getMinStatistics(timeSeries, chartType, STATISTIC.RECOVERED),
+          _getMinStatistics(timeSeries, chartType, STATISTIC.DECEASED)),
     );
   }
 
   int _uniformScaleMax(
       List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
     return max(
-      max(_getMaxStatistics(timeSeries, chartType, 'confirmed'),
-          _getMaxStatistics(timeSeries, chartType, 'active')),
-      max(_getMaxStatistics(timeSeries, chartType, 'recovered'),
-          _getMaxStatistics(timeSeries, chartType, 'deceased')),
+      max(_getMaxStatistics(timeSeries, chartType, STATISTIC.CONFIRMED),
+          _getMaxStatistics(timeSeries, chartType, STATISTIC.ACTIVE)),
+      max(_getMaxStatistics(timeSeries, chartType, STATISTIC.RECOVERED),
+          _getMaxStatistics(timeSeries, chartType, STATISTIC.DECEASED)),
     );
   }
 
   int _getMinStatistics(List<TimeSeries> timeSeries,
-      TIME_SERIES_CHART_TYPES chartType, String statistic) {
+      TIME_SERIES_CHART_TYPES chartType, STATISTIC statistic) {
     return timeSeries
         .map((e) => getStatisticValue(
             chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,
@@ -455,7 +455,7 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   int _getMaxStatistics(List<TimeSeries> timeSeries,
-      TIME_SERIES_CHART_TYPES chartType, String statistic) {
+      TIME_SERIES_CHART_TYPES chartType, STATISTIC statistic) {
     return timeSeries
         .map((e) => getStatisticValue(
             chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,

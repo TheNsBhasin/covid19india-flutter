@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+part of 'daily_count_bloc.dart';
 
 abstract class DailyCountEvent extends Equatable {}
 

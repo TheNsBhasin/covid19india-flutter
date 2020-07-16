@@ -10,7 +10,7 @@ import 'package:grizzly_scales/grizzly_scales.dart';
 
 class TimeSeriesLineChart extends StatelessWidget {
   final List<TimeSeries> timeSeries;
-  final String statistics;
+  final STATISTIC statistics;
   final DateTime date;
 
   final double yBufferTop = 1.2;
@@ -112,19 +112,23 @@ class TimeSeriesLineChart extends StatelessWidget {
 
   int _uniformScaleMin() {
     return min(
-      min(_getMinStatistics('confirmed'), _getMinStatistics('active')),
-      min(_getMinStatistics('recovered'), _getMinStatistics('deceased')),
+      min(_getMinStatistics(STATISTIC.CONFIRMED),
+          _getMinStatistics(STATISTIC.ACTIVE)),
+      min(_getMinStatistics(STATISTIC.RECOVERED),
+          _getMinStatistics(STATISTIC.DECEASED)),
     );
   }
 
   int _uniformScaleMax() {
     return max(
-      max(_getMaxStatistics('confirmed'), _getMaxStatistics('active')),
-      max(_getMaxStatistics('recovered'), _getMaxStatistics('deceased')),
+      max(_getMaxStatistics(STATISTIC.CONFIRMED),
+          _getMaxStatistics(STATISTIC.ACTIVE)),
+      max(_getMaxStatistics(STATISTIC.RECOVERED),
+          _getMaxStatistics(STATISTIC.DECEASED)),
     );
   }
 
-  int _getMinStatistics(String statistics) {
+  int _getMinStatistics(STATISTIC statistics) {
     int minCases = 1000000009;
     _getTimeSeries().forEach((e) {
       minCases = min(minCases, getStatisticValue(e.delta, statistics));
@@ -133,7 +137,7 @@ class TimeSeriesLineChart extends StatelessWidget {
     return minCases;
   }
 
-  int _getMaxStatistics(String statistics) {
+  int _getMaxStatistics(STATISTIC statistics) {
     int maxCases = 1;
     _getTimeSeries().forEach((e) {
       maxCases = max(maxCases, getStatisticValue(e.delta, statistics));

@@ -5,8 +5,6 @@ import 'package:covid19india/features/daily_count/domain/entities/metadata.dart'
 import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/usecases/get_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
-import 'package:covid19india/features/daily_count/presentation/bloc/daily_count_event.dart';
-import 'package:covid19india/features/daily_count/presentation/bloc/daily_count_state.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
