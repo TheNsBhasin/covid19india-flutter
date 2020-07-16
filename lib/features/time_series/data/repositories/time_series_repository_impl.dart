@@ -29,7 +29,7 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
         if (!forced) {
           try {
             final DateTime lastCached =
-                await localDataSource.getCachedTimeStamp();
+                await localDataSource.getCachedTimeStamp(stateCode: 'TT');
             if (new DateTime.now().difference(lastCached).inMinutes <=
                 CACHE_TIMEOUT_IN_MINUTES) {
               final localTimeSeries = await localDataSource.getLastTimeSeries();
@@ -68,9 +68,14 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
       try {
         if (!forced) {
           try {
-            final localTimeSeries =
-                await localDataSource.getStateTimeSeries(stateCode);
-            return Right(localTimeSeries);
+            final DateTime lastCached =
+                await localDataSource.getCachedTimeStamp(stateCode: stateCode);
+            if (new DateTime.now().difference(lastCached).inMinutes <=
+                CACHE_TIMEOUT_IN_MINUTES) {
+              final localTimeSeries =
+                  await localDataSource.getStateTimeSeries(stateCode);
+              return Right(localTimeSeries);
+            }
           } on CacheException {
             print(
                 'TimeSeriesRepositoryImpl: getStateTimeSeries: CacheException');

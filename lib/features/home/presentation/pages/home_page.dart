@@ -1,7 +1,6 @@
 import 'package:covid19india/core/common/widgets/footer.dart';
 import 'package:covid19india/core/common/widgets/my_app_bar.dart';
 import 'package:covid19india/core/entity/region.dart';
-import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/level/daily_count_level_widget.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer_widget.dart';

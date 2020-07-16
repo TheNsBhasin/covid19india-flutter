@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 abstract class TimeSeriesLocalDataSource {
   Future<List<StateWiseTimeSeries>> getLastTimeSeries();
 
-  Future<DateTime> getCachedTimeStamp();
+  Future<DateTime> getCachedTimeStamp({stateCode: 'TT'});
 
   Future<void> cacheTimeSeries(List<StateWiseTimeSeries> timeSeries);
 
@@ -60,8 +60,10 @@ class TimeSeriesLocalDataSourceImpl implements TimeSeriesLocalDataSource {
   }
 
   @override
-  Future<DateTime> getCachedTimeStamp() {
-    final jsonString = sharedPreferences.getString(CACHED_TIME_SERIES);
+  Future<DateTime> getCachedTimeStamp({stateCode: 'TT'}) {
+    final jsonString = stateCode == 'TT'
+        ? sharedPreferences.getString(CACHED_TIME_SERIES)
+        : sharedPreferences.getString("${CACHED_TIME_SERIES}_$stateCode");
     if (jsonString != null) {
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
       return Future.value(DateTime.parse(jsonMap['time_stamp']));

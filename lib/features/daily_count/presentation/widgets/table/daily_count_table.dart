@@ -42,7 +42,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
         sortData = new SortData(
           columnIndex: 1,
           ascending: false,
-          delta: false,
+          delta: true,
         ),
         perMillion = false,
         titleRow = <String>[],
@@ -142,10 +142,17 @@ class _DailyCountTableState extends State<DailyCountTable> {
                   },
                   onLongPress: () {
                     setState(() {
-                      sortData = new SortData(
-                          columnIndex: sortData.columnIndex,
-                          ascending: sortData.ascending,
-                          delta: !sortData.delta);
+                      if (sortData.columnIndex == columnIndex + 1) {
+                        sortData = new SortData(
+                            columnIndex: sortData.columnIndex,
+                            ascending: sortData.ascending,
+                            delta: !sortData.delta);
+                      } else {
+                        sortData = new SortData(
+                            columnIndex: columnIndex + 1,
+                            ascending: sortData.ascending,
+                            delta: !sortData.delta);
+                      }
 
                       titleRow = sortColumn(sortData);
                     });
@@ -336,23 +343,21 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   _getDeltaText(dynamic data, statistics) {
-    int value = getStatistics(data, 'delta', statistics,
-        perMillion: perMillion);
+    int value =
+        getStatistics(data, 'delta', statistics, perMillion: perMillion);
 
     return Text(
       (value < 0 ? "↓" : "↑") +
           NumberFormat.decimalPattern('en_IN').format(value),
       style: TextStyle(
           fontSize: 12,
-          color: value > 0
-              ? STATS_COLOR[statistics]
-              : Colors.transparent),
+          color: value > 0 ? STATS_COLOR[statistics] : Colors.transparent),
     );
   }
 
   _getTotalText(dynamic data, statistics) {
-    int value = getStatistics(data, 'total', statistics,
-        perMillion: perMillion);
+    int value =
+        getStatistics(data, 'total', statistics, perMillion: perMillion);
 
     return Text(
       NumberFormat.decimalPattern('en_IN').format(value),
@@ -387,8 +392,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     if (tableOption == TableOption.STATES) {
       return _sortStateColumn(sortData);
     } else {
-      return _sortDistrictColumn(sortData)
-          .sublist(0, DISTRICT_TABLE_COUNT);
+      return _sortDistrictColumn(sortData).sublist(0, DISTRICT_TABLE_COUNT);
     }
   }
 
@@ -399,12 +403,10 @@ class _DailyCountTableState extends State<DailyCountTable> {
       perMillion: false}) {
     if (ascending) {
       return getStatistics(a, type, statistic, perMillion: perMillion)
-          .compareTo(getStatistics(a, type, statistic,
-              perMillion: perMillion));
+          .compareTo(getStatistics(a, type, statistic, perMillion: perMillion));
     } else {
       return getStatistics(b, type, statistic, perMillion: perMillion)
-          .compareTo(getStatistics(a, type, statistic,
-              perMillion: perMillion));
+          .compareTo(getStatistics(a, type, statistic, perMillion: perMillion));
     }
   }
 
