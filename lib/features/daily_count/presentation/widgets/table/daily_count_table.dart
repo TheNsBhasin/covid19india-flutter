@@ -1,10 +1,13 @@
 import 'package:covid19india/core/common/widgets/sort_arrow.dart';
 import 'package:covid19india/core/common/widgets/sticky_headers_table.dart';
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/statistic.dart';
+import 'package:covid19india/core/entity/statistic_type.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/district_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table_top.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -14,16 +17,16 @@ enum TableOption { STATES, DISTRICTS }
 
 class SortData extends Equatable {
   final bool ascending;
-  final STATISTIC statistic;
-  final STATISTIC_TYPE type;
+  final Statistic statistic;
+  final StatisticType type;
   final bool perMillion;
 
   SortData({this.ascending, this.statistic, this.type, this.perMillion});
 
   SortData copyWith(
       {bool ascending,
-      STATISTIC statistic,
-      STATISTIC_TYPE type,
+      Statistic statistic,
+      StatisticType type,
       bool perMillion}) {
     return SortData(
         ascending: ascending ?? this.ascending,
@@ -40,10 +43,10 @@ class SortData extends Equatable {
 }
 
 class DailyCountTable extends StatefulWidget {
-  final Map<String, StateWiseDailyCount> stateWiseDailyCount;
-  final Map<String, DistrictWiseDailyCount> districtWiseDailyCount;
+  final Map<MapCodes, StateDailyCount> stateDailyCounts;
+  final Map<String, DistrictDailyCount> districtDailyCounts;
 
-  DailyCountTable({this.stateWiseDailyCount, this.districtWiseDailyCount});
+  DailyCountTable({this.stateDailyCounts, this.districtDailyCounts});
 
   @override
   _DailyCountTableState createState() => _DailyCountTableState();
@@ -60,8 +63,8 @@ class _DailyCountTableState extends State<DailyCountTable> {
       : tableOption = TableOption.STATES,
         sortData = new SortData(
           ascending: false,
-          statistic: STATISTIC.CONFIRMED,
-          type: STATISTIC_TYPE.DELTA,
+          statistic: Statistic.confirmed,
+          type: StatisticType.delta,
           perMillion: false,
         ),
         titleRow = <String>[],
@@ -131,9 +134,9 @@ class _DailyCountTableState extends State<DailyCountTable> {
               if (tableOption == TableOption.STATES) {
                 return _buildRowTitle(
                     child: _buildTitle(
-                        text: (titleRow[rowIndex] == "TT"
+                        text: (titleRow[rowIndex] == MapCodes.TT.key
                             ? "Total"
-                            : STATE_CODE_MAP[titleRow[rowIndex]])));
+                            : titleRow[rowIndex].toMapCode().name)));
               } else {
                 return _buildRowTitle(
                     child: _buildTitle(text: (titleRow[rowIndex])));
@@ -158,9 +161,9 @@ class _DailyCountTableState extends State<DailyCountTable> {
                     setState(() {
                       if (sortData.statistic == TABLE_STATISTICS[columnIndex]) {
                         sortData = sortData.copyWith(
-                            type: sortData.type == STATISTIC_TYPE.DELTA
-                                ? STATISTIC_TYPE.TOTAL
-                                : STATISTIC_TYPE.DELTA);
+                            type: sortData.type == StatisticType.delta
+                                ? StatisticType.total
+                                : StatisticType.delta);
                       } else {
                         sortData = sortData.copyWith(
                             statistic: TABLE_STATISTICS[columnIndex]);
@@ -177,24 +180,23 @@ class _DailyCountTableState extends State<DailyCountTable> {
                       ascending: sortData.ascending,
                       arrowColor: _arrowColor(
                           statistic: sortData.statistic,
-                          delta: sortData.type == STATISTIC_TYPE.DELTA)));
+                          delta: sortData.type == StatisticType.delta)));
             },
             contentCellBuilder: (int columnIndex, int rowIndex) {
               if (tableOption == TableOption.STATES) {
-                String stateCode = titleRow[rowIndex];
-                STATISTIC statistics = TABLE_STATISTICS[columnIndex];
+                MapCodes stateCode = titleRow[rowIndex].toMapCode();
+                Statistic statistics = TABLE_STATISTICS[columnIndex];
 
                 return _buildContentCell(
                     child: _buildStats(
-                        widget.stateWiseDailyCount[stateCode], statistics));
+                        widget.stateDailyCounts[stateCode], statistics));
               } else {
                 String districtName = titleRow[rowIndex];
-                STATISTIC statistics = TABLE_STATISTICS[columnIndex];
+                Statistic statistics = TABLE_STATISTICS[columnIndex];
 
                 return _buildContentCell(
                     child: _buildStats(
-                        widget.districtWiseDailyCount[districtName],
-                        statistics));
+                        widget.districtDailyCounts[districtName], statistics));
               }
             },
           ),
@@ -267,7 +269,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  Widget _buildStats(dynamic data, STATISTIC statistics) {
+  Widget _buildStats(dynamic data, Statistic statistics) {
     return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -355,8 +357,8 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  _getDeltaText(dynamic data, STATISTIC statistics) {
-    int value = getStatistics(data, STATISTIC_TYPE.DELTA, statistics,
+  _getDeltaText(dynamic data, Statistic statistics) {
+    int value = getStatistics(data, StatisticType.delta, statistics,
         perMillion: sortData.perMillion);
 
     return Text(
@@ -369,7 +371,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
   }
 
   _getTotalText(dynamic data, statistics) {
-    int value = getStatistics(data, STATISTIC_TYPE.TOTAL, statistics,
+    int value = getStatistics(data, StatisticType.total, statistics,
         perMillion: sortData.perMillion);
 
     return Text(
@@ -383,7 +385,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
     );
   }
 
-  Color _arrowColor({STATISTIC statistic, bool delta}) {
+  Color _arrowColor({Statistic statistic, bool delta}) {
     if (delta) {
       return STATS_COLOR[statistic];
     }
@@ -403,7 +405,7 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   List<String> sortColumn(SortData sortData) {
     if (tableOption == TableOption.STATES) {
-      return _sortStateColumn(sortData);
+      return _sortStateColumn(sortData).map((e) => e.key).toList();
     } else {
       return _sortDistrictColumn(sortData).sublist(0, DISTRICT_TABLE_COUNT);
     }
@@ -411,8 +413,8 @@ class _DailyCountTableState extends State<DailyCountTable> {
 
   int _compareStats(dynamic a, dynamic b,
       {ascending: true,
-      type: STATISTIC_TYPE.TOTAL,
-      statistic: STATISTIC.CONFIRMED,
+      type: StatisticType.total,
+      statistic: Statistic.confirmed,
       perMillion: false}) {
     if (ascending) {
       return getStatistics(a, type, statistic, perMillion: perMillion)
@@ -423,59 +425,59 @@ class _DailyCountTableState extends State<DailyCountTable> {
     }
   }
 
-  List<String> _sortStateColumn(SortData sortData) {
+  List<MapCodes> _sortStateColumn(SortData sortData) {
     if (sortData.statistic == null) {
       if (sortData.ascending) {
-        return widget.stateWiseDailyCount.keys
+        return widget.stateDailyCounts.keys
             .toList()
-            .where((stateCode) => stateCode != 'TT')
+            .where((stateCode) => stateCode != MapCodes.TT)
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[a].name
-                  .compareTo(widget.stateWiseDailyCount[b].name))
-              ..add('TT');
+              ..sort((a, b) => widget.stateDailyCounts[a].stateCode.name
+                  .compareTo(widget.stateDailyCounts[b].stateCode.name))
+              ..add(MapCodes.TT);
       } else {
-        return widget.stateWiseDailyCount.keys
+        return widget.stateDailyCounts.keys
             .toList()
-            .where((stateCode) => stateCode != 'TT')
+            .where((stateCode) => stateCode != MapCodes.TT)
             .toList()
-              ..sort((a, b) => widget.stateWiseDailyCount[b].name
-                  .compareTo(widget.stateWiseDailyCount[a].name))
-              ..add('TT');
+              ..sort((a, b) => widget.stateDailyCounts[b].stateCode.name
+                  .compareTo(widget.stateDailyCounts[a].stateCode.name))
+              ..add(MapCodes.TT);
       }
     }
 
-    return widget.stateWiseDailyCount.keys
+    return widget.stateDailyCounts.keys
         .toList()
-        .where((stateCode) => stateCode != 'TT')
+        .where((stateCode) => stateCode != MapCodes.TT)
         .toList()
           ..sort((a, b) => _compareStats(
-              widget.stateWiseDailyCount[a], widget.stateWiseDailyCount[b],
+              widget.stateDailyCounts[a], widget.stateDailyCounts[b],
               ascending: sortData.ascending,
               type: sortData.type,
               statistic: sortData.statistic,
               perMillion: sortData.perMillion))
-          ..add('TT');
+          ..add(MapCodes.TT);
   }
 
   List<String> _sortDistrictColumn(SortData sortData) {
     if (sortData.statistic == null) {
       if (sortData.ascending) {
-        return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[a].name
-              .compareTo(widget.districtWiseDailyCount[b].name));
+        return widget.districtDailyCounts.keys.toList()
+          ..sort((a, b) => widget.districtDailyCounts[a].name
+              .compareTo(widget.districtDailyCounts[b].name));
       } else {
-        return widget.districtWiseDailyCount.keys.toList()
-          ..sort((a, b) => widget.districtWiseDailyCount[b].name
-              .compareTo(widget.districtWiseDailyCount[a].name));
+        return widget.districtDailyCounts.keys.toList()
+          ..sort((a, b) => widget.districtDailyCounts[b].name
+              .compareTo(widget.districtDailyCounts[a].name));
       }
     }
 
-    return widget.districtWiseDailyCount.keys
+    return widget.districtDailyCounts.keys
         .toList()
         .where((stateCode) => stateCode != 'TT')
         .toList()
-          ..sort((a, b) => _compareStats(widget.districtWiseDailyCount[a],
-              widget.districtWiseDailyCount[b],
+          ..sort((a, b) => _compareStats(
+              widget.districtDailyCounts[a], widget.districtDailyCounts[b],
               ascending: sortData.ascending,
               type: sortData.type,
               statistic: sortData.statistic,

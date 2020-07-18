@@ -1,34 +1,36 @@
 import 'package:covid19india/core/common/widgets/alert_box.dart';
-import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/statistic.dart';
+import 'package:covid19india/core/entity/statistic_type.dart';
+import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/formatter.dart';
 import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/states/presentation/widgets/meta/state_meta_card.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
-import 'package:covid19india/core/util/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class StateMeta extends StatelessWidget {
-  final String stateCode;
-  final Map<String, StateWiseDailyCount> dailyCount;
-  final StateWiseTimeSeries timeSeries;
+  final MapCodes stateCode;
+  final Map<MapCodes, StateDailyCount> dailyCount;
+  final StateTimeSeries timeSeries;
 
   StateMeta({this.stateCode, this.dailyCount, this.timeSeries});
 
   @override
   Widget build(BuildContext context) {
     final int confirmed =
-        getStatisticValue(dailyCount[stateCode].total, STATISTIC.CONFIRMED);
+        getStatisticValue(dailyCount[stateCode].total, Statistic.confirmed);
     final int active =
-        getStatisticValue(dailyCount[stateCode].total, STATISTIC.ACTIVE);
+        getStatisticValue(dailyCount[stateCode].total, Statistic.active);
     final int deceased =
-        getStatisticValue(dailyCount[stateCode].total, STATISTIC.DECEASED);
+        getStatisticValue(dailyCount[stateCode].total, Statistic.deceased);
     final int recovered =
-        getStatisticValue(dailyCount[stateCode].total, STATISTIC.RECOVERED);
+        getStatisticValue(dailyCount[stateCode].total, Statistic.recovered);
     final int tested =
-        getStatisticValue(dailyCount[stateCode].total, STATISTIC.TESTED);
+        getStatisticValue(dailyCount[stateCode].total, Statistic.tested);
 
     final DateTime indiaDate = DateTime.now().toLocal();
     final DateTime prevWeekDate = indiaDate.subtract(Duration(days: 7));
@@ -38,16 +40,16 @@ class StateMeta extends StatelessWidget {
         .first;
 
     final int prevWeekConfirmed =
-        getStatisticValue(prevWeekTimeSeries.total, STATISTIC.CONFIRMED);
+        getStatisticValue(prevWeekTimeSeries.total, Statistic.confirmed);
 
     final int confirmedPerMillion = getStatistics(
-        dailyCount[stateCode], STATISTIC_TYPE.TOTAL, STATISTIC.CONFIRMED,
+        dailyCount[stateCode], StatisticType.total, Statistic.confirmed,
         perMillion: true);
     final int testPerMillion = getStatistics(
-        dailyCount[stateCode], STATISTIC_TYPE.TOTAL, STATISTIC.TESTED,
+        dailyCount[stateCode], StatisticType.total, Statistic.tested,
         perMillion: true);
     final int totalConfirmedPerMillion = getStatistics(
-        dailyCount['TT'], STATISTIC_TYPE.TOTAL, STATISTIC.CONFIRMED,
+        dailyCount[MapCodes.TT], StatisticType.total, Statistic.confirmed,
         perMillion: true);
 
     final double recoveryPercent = (recovered / confirmed) * 100;
@@ -119,7 +121,7 @@ class StateMeta extends StatelessWidget {
                 date: null,
                 formula: '(confirmed / state population) * 1 Million',
                 description:
-                    "${NumberFormat.decimalPattern('en_IN').format(confirmedPerMillion.round())} out of every 1 million people in ${STATE_CODE_MAP[stateCode]} have tested positive for the virus.",
+                    "${NumberFormat.decimalPattern('en_IN').format(confirmedPerMillion.round())} out of every 1 million people in ${stateCode.name} have tested positive for the virus.",
                 color: Colors.red,
               ),
               StateMetaCard(
@@ -184,7 +186,7 @@ class StateMeta extends StatelessWidget {
                 formula:
                     '(total tests in state / total population of state) * 1 Million',
                 description: testPerMillion > 0
-                    ? "For every 1 million people in ${STATE_CODE_MAP[stateCode]}, ${NumberFormat.decimalPattern('en_IN').format(testPerMillion.round())} people were tested."
+                    ? "For every 1 million people in ${stateCode.name}, ${NumberFormat.decimalPattern('en_IN').format(testPerMillion.round())} people were tested."
                     : "No tests have been conducted in this state yet.",
                 color: Colors.purple,
               ),

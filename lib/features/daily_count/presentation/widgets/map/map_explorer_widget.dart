@@ -1,48 +1,36 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
-import 'package:covid19india/core/constants/constants.dart';
-import 'package:covid19india/core/entity/region.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/map/map_explorer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MapExplorerWidget extends StatelessWidget {
-  final String stateCode;
-  final STATISTIC statistic;
-  final Region regionHighlighted;
+  final MapCodes stateCode;
 
-  final Function(STATISTIC statistic) setStatistic;
-  final Function(Region regionHighlighted) setRegionHighlighted;
-
-  MapExplorerWidget(
-      {this.statistic,
-      this.stateCode: 'TT',
-      this.setStatistic,
-      this.regionHighlighted,
-      this.setRegionHighlighted});
+  MapExplorerWidget({this.stateCode});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: BlocBuilder<DailyCountBloc, DailyCountState>(
         builder: (context, state) {
-          if (state is Empty) {
-            return MessageDisplay(
-              message: 'Empty',
-            );
-          } else if (state is Loading) {
+          if (state is DailyCountLoadInProgress) {
             return LoadingWidget();
-          } else if (state is Loaded) {
-            Map<String, StateWiseDailyCount> stateDailyCountMap =
+          } else if (state is DailyCountLoadSuccess) {
+            Map<MapCodes, StateDailyCount> stateDailyCountMap =
                 _getDailyCountMap(state.dailyCounts);
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: buildMapExplorer(stateDailyCountMap),
+              child: MapExplorer(
+                dailyCounts: stateDailyCountMap,
+                mapCode: stateCode,
+              ),
             );
-          } else if (state is Error) {
+          } else if (state is DailyCountLoadFailure) {
             return MessageDisplay(
               message: state.message,
             );
@@ -54,19 +42,9 @@ class MapExplorerWidget extends StatelessWidget {
     );
   }
 
-  Widget buildMapExplorer(Map<String, StateWiseDailyCount> stateDailyCountMap) {
-    return MapExplorer(
-      dailyCounts: stateDailyCountMap,
-      statistic: statistic,
-      setStatistic: setStatistic,
-      mapCode: stateCode,
-      regionHighlighted: regionHighlighted,
-      setRegionHighlighted: setRegionHighlighted,
-    );
-  }
-
-  Map<String, StateWiseDailyCount> _getDailyCountMap(
-      List<StateWiseDailyCount> dailyCounts) {
-    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
+  Map<MapCodes, StateDailyCount> _getDailyCountMap(
+      List<StateDailyCount> dailyCounts) {
+    return Map.fromIterable(dailyCounts,
+        key: (e) => e.stateCode, value: (e) => e);
   }
 }

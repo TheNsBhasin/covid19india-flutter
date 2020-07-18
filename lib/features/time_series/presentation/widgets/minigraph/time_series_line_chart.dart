@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
@@ -10,7 +11,7 @@ import 'package:grizzly_scales/grizzly_scales.dart';
 
 class TimeSeriesLineChart extends StatelessWidget {
   final List<TimeSeries> timeSeries;
-  final STATISTIC statistics;
+  final Statistic statistics;
   final DateTime date;
 
   final double yBufferTop = 1.2;
@@ -112,23 +113,23 @@ class TimeSeriesLineChart extends StatelessWidget {
 
   int _uniformScaleMin() {
     return min(
-      min(_getMinStatistics(STATISTIC.CONFIRMED),
-          _getMinStatistics(STATISTIC.ACTIVE)),
-      min(_getMinStatistics(STATISTIC.RECOVERED),
-          _getMinStatistics(STATISTIC.DECEASED)),
+      min(_getMinStatistics(Statistic.confirmed),
+          _getMinStatistics(Statistic.active)),
+      min(_getMinStatistics(Statistic.recovered),
+          _getMinStatistics(Statistic.deceased)),
     );
   }
 
   int _uniformScaleMax() {
     return max(
-      max(_getMaxStatistics(STATISTIC.CONFIRMED),
-          _getMaxStatistics(STATISTIC.ACTIVE)),
-      max(_getMaxStatistics(STATISTIC.RECOVERED),
-          _getMaxStatistics(STATISTIC.DECEASED)),
+      max(_getMaxStatistics(Statistic.confirmed),
+          _getMaxStatistics(Statistic.active)),
+      max(_getMaxStatistics(Statistic.recovered),
+          _getMaxStatistics(Statistic.deceased)),
     );
   }
 
-  int _getMinStatistics(STATISTIC statistics) {
+  int _getMinStatistics(Statistic statistics) {
     int minCases = 1000000009;
     _getTimeSeries().forEach((e) {
       minCases = min(minCases, getStatisticValue(e.delta, statistics));
@@ -137,7 +138,7 @@ class TimeSeriesLineChart extends StatelessWidget {
     return minCases;
   }
 
-  int _getMaxStatistics(STATISTIC statistics) {
+  int _getMaxStatistics(Statistic statistics) {
     int maxCases = 1;
     _getTimeSeries().forEach((e) {
       maxCases = max(maxCases, getStatisticValue(e.delta, statistics));

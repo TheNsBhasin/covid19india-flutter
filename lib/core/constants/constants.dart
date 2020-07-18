@@ -1,73 +1,27 @@
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:flutter/material.dart';
 
-enum STATISTIC {
-  CONFIRMED,
-  ACTIVE,
-  RECOVERED,
-  DECEASED,
-  TESTED,
-  MIGRATED,
-}
-
-enum STATISTIC_TYPE { TOTAL, DELTA }
-
-enum MAP_VIZS {
-  CHOROPLETH,
-  BUBBLES,
-}
-
-enum MAP_VIEWS {
-  STATES,
-  DISTRICTS,
-}
-
-enum MAP_TYPES {
-  COUNTRY,
-  STATE,
-}
-
-enum TIME_SERIES_CHART_TYPES {
-  TOTAL,
-  DELTA,
-}
-
-enum TIME_SERIES_OPTIONS {
-  BEGINNING,
-  MONTH,
-  TWO_WEEKS,
-}
-
-const Map<TIME_SERIES_CHART_TYPES, String> TIME_SERIES_CHART_TYPES_MAP = {
-  TIME_SERIES_CHART_TYPES.TOTAL: "Cumulative",
-  TIME_SERIES_CHART_TYPES.DELTA: "Daily"
-};
-
-const Map<TIME_SERIES_OPTIONS, String> TIME_SERIES_OPTIONS_MAP = {
-  TIME_SERIES_OPTIONS.BEGINNING: "Beginning",
-  TIME_SERIES_OPTIONS.MONTH: "1 Month",
-  TIME_SERIES_OPTIONS.TWO_WEEKS: "2 Weeks"
-};
-
-const List<STATISTIC> PRIMARY_STATISTICS = <STATISTIC>[
-  STATISTIC.CONFIRMED,
-  STATISTIC.ACTIVE,
-  STATISTIC.RECOVERED,
-  STATISTIC.DECEASED
+const List<Statistic> PRIMARY_STATISTICS = <Statistic>[
+  Statistic.confirmed,
+  Statistic.active,
+  Statistic.recovered,
+  Statistic.deceased
 ];
 
-const List<STATISTIC> TABLE_STATISTICS = [
+const List<Statistic> TABLE_STATISTICS = [
   ...PRIMARY_STATISTICS,
-  STATISTIC.TESTED
+  Statistic.tested
 ];
 
-const List<STATISTIC> MAP_STATISTICS = [
+const List<Statistic> MAP_STATISTICS = [
   ...PRIMARY_STATISTICS,
-  STATISTIC.TESTED
+  Statistic.tested
 ];
 
-const List<STATISTIC> TIME_SERIES_STATISTICS = [
+const List<Statistic> TIME_SERIES_STATISTICS = [
   ...PRIMARY_STATISTICS,
-  STATISTIC.TESTED
+  Statistic.tested
 ];
 
 const int MINIGRAPH_LOOKBACK_DAYS = 20;
@@ -76,271 +30,40 @@ const int CACHE_TIMEOUT_IN_MINUTES = 15;
 
 const int DISTRICT_TABLE_COUNT = 30;
 
-const Map<STATISTIC, Color> STATS_COLOR = {
-  STATISTIC.CONFIRMED: Colors.red,
-  STATISTIC.ACTIVE: Colors.blue,
-  STATISTIC.RECOVERED: Colors.green,
-  STATISTIC.DECEASED: Colors.grey,
-  STATISTIC.TESTED: Colors.purple,
-  STATISTIC.MIGRATED: Colors.yellow,
+const Map<Statistic, Color> STATS_COLOR = {
+  Statistic.confirmed: Colors.red,
+  Statistic.active: Colors.blue,
+  Statistic.recovered: Colors.green,
+  Statistic.deceased: Colors.grey,
+  Statistic.tested: Colors.purple,
+  Statistic.migrated: Colors.yellow,
 };
 
-const Map<STATISTIC, List<Color>> STATS_GRADIENT_COLOR = {
-  STATISTIC.CONFIRMED: <Color>[Color(0xFFEF9A9A), Color(0xFFB71C1C)],
-  STATISTIC.ACTIVE: <Color>[Color(0xFF90CAF9), Color(0xFF0D47A1)],
-  STATISTIC.RECOVERED: <Color>[Color(0xFFA5D6A7), Color(0xFF1B5E20)],
-  STATISTIC.DECEASED: <Color>[Color(0xFFEEEEEE), Color(0xFF212121)],
-  STATISTIC.TESTED: <Color>[Color(0xFFCE93D8), Color(0xFF4A148C)],
-  STATISTIC.MIGRATED: <Color>[Color(0xFFFFF59D), Color(0xFFF57F17)],
+const Map<Statistic, List<Color>> STATS_GRADIENT_COLOR = {
+  Statistic.confirmed: <Color>[Color(0xFFEF9A9A), Color(0xFFB71C1C)],
+  Statistic.active: <Color>[Color(0xFF90CAF9), Color(0xFF0D47A1)],
+  Statistic.recovered: <Color>[Color(0xFFA5D6A7), Color(0xFF1B5E20)],
+  Statistic.deceased: <Color>[Color(0xFFEEEEEE), Color(0xFF212121)],
+  Statistic.tested: <Color>[Color(0xFFCE93D8), Color(0xFF4A148C)],
+  Statistic.migrated: <Color>[Color(0xFFFFF59D), Color(0xFFF57F17)],
 };
 
-const Map<STATISTIC, Color> STATS_HIGHLIGHT_COLOR = {
-  STATISTIC.CONFIRMED: Colors.redAccent,
-  STATISTIC.ACTIVE: Colors.blueAccent,
-  STATISTIC.RECOVERED: Colors.greenAccent,
-  STATISTIC.DECEASED: Colors.blueGrey,
-  STATISTIC.TESTED: Colors.purpleAccent,
-  STATISTIC.MIGRATED: Colors.orangeAccent,
+const Map<Statistic, Color> STATS_HIGHLIGHT_COLOR = {
+  Statistic.confirmed: Colors.redAccent,
+  Statistic.active: Colors.blueAccent,
+  Statistic.recovered: Colors.greenAccent,
+  Statistic.deceased: Colors.blueGrey,
+  Statistic.tested: Colors.purpleAccent,
+  Statistic.migrated: Colors.orangeAccent,
 };
 
 const UNASSIGNED_STATE_CODE = 'UN';
 
 const UNKNOWN_DISTRICT_KEY = 'Unknown';
 
-const Map<String, dynamic> MAP_META = {
-  'AP': {
-    'name': 'Andhra Pradesh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'AR': {
-    'name': 'Arunachal Pradesh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'AS': {
-    'name': 'Assam',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'BR': {
-    'name': 'Bihar',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'CT': {
-    'name': 'Chhattisgarh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'GA': {
-    'name': 'Goa',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'GJ': {
-    'name': 'Gujarat',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'HR': {
-    'name': 'Haryana',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'HP': {
-    'name': 'Himachal Pradesh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'JK': {
-    'name': 'Jammu and Kashmir',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'JH': {
-    'name': 'Jharkhand',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'KA': {
-    'name': 'Karnataka',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'KL': {
-    'name': 'Kerala',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'MP': {
-    'name': 'Madhya Pradesh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'MH': {
-    'name': 'Maharashtra',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'MN': {
-    'name': 'Manipur',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'ML': {
-    'name': 'Meghalaya',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'MZ': {
-    'name': 'Mizoram',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'NL': {
-    'name': 'Nagaland',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'OR': {
-    'name': 'Odisha',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'PB': {
-    'name': 'Punjab',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'RJ': {
-    'name': 'Rajasthan',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'SK': {
-    'name': 'Sikkim',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'TN': {
-    'name': 'Tamil Nadu',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'TG': {
-    'name': 'Telangana',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'TR': {
-    'name': 'Tripura',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'UT': {
-    'name': 'Uttarakhand',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'UP': {
-    'name': 'Uttar Pradesh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'WB': {
-    'name': 'West Bengal',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'AN': {
-    'name': 'Andaman and Nicobar Islands',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'CH': {
-    'name': 'Chandigarh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'DN': {
-    'name': 'Dadra and Nagar Haveli and Daman and Diu',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'DL': {
-    'name': 'Delhi',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'LA': {
-    'name': 'Ladakh',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'LD': {
-    'name': 'Lakshadweep',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'PY': {
-    'name': 'Puducherry',
-    'map_type': MAP_TYPES.STATE,
-  },
-  'TT': {
-    'name': 'India',
-    'map_type': MAP_TYPES.COUNTRY,
-  },
-};
-
-const List<String> STATE_CODES = [
-  'AP',
-  'AR',
-  'AS',
-  'BR',
-  'CT',
-  'GA',
-  'GJ',
-  'HR',
-  'HP',
-  'JH',
-  'KA',
-  'KL',
-  'MP',
-  'MH',
-  'MN',
-  'ML',
-  'MZ',
-  'NL',
-  'OR',
-  'PB',
-  'RJ',
-  'SK',
-  'TN',
-  'TG',
-  'TR',
-  'UT',
-  'UP',
-  'WB',
-  'AN',
-  'CH',
-  'DN',
-  'DL',
-  'JK',
-  'LA',
-  'LD',
-  'PY'
-];
-
-const Map<String, String> STATE_CODE_MAP = {
-  'AP': 'Andhra Pradesh',
-  'AR': 'Arunachal Pradesh',
-  'AS': 'Assam',
-  'BR': 'Bihar',
-  'CT': 'Chhattisgarh',
-  'GA': 'Goa',
-  'GJ': 'Gujarat',
-  'HR': 'Haryana',
-  'HP': 'Himachal Pradesh',
-  'JH': 'Jharkhand',
-  'KA': 'Karnataka',
-  'KL': 'Kerala',
-  'MP': 'Madhya Pradesh',
-  'MH': 'Maharashtra',
-  'MN': 'Manipur',
-  'ML': 'Meghalaya',
-  'MZ': 'Mizoram',
-  'NL': 'Nagaland',
-  'OR': 'Odisha',
-  'PB': 'Punjab',
-  'RJ': 'Rajasthan',
-  'SK': 'Sikkim',
-  'TN': 'Tamil Nadu',
-  'TG': 'Telangana',
-  'TR': 'Tripura',
-  'UT': 'Uttarakhand',
-  'UP': 'Uttar Pradesh',
-  'WB': 'West Bengal',
-  'AN': 'Andaman and Nicobar Islands',
-  'CH': 'Chandigarh',
-  'DN': 'Dadra and Nagar Haveli and Daman and Diu',
-  'DL': 'Delhi',
-  'JK': 'Jammu and Kashmir',
-  'LA': 'Ladakh',
-  'LD': 'Lakshadweep',
-  'PY': 'Puducherry',
-  'TT': 'India',
-  'UN': 'Unassigned'
-};
-
-const Map<String, List<String>> STATE_DISTRICT_MAP = {
-  'DN': ['Dadra and Nagar Haveli', 'Daman', 'Diu'],
-  'DL': [
+const Map<MapCodes, List<String>> STATE_DISTRICT_MAP = {
+  MapCodes.DN: ['Dadra and Nagar Haveli', 'Daman', 'Diu'],
+  MapCodes.DL: [
     'North Delhi',
     'New Delhi',
     'East Delhi',
@@ -353,7 +76,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'South East Delhi',
     'North East Delhi'
   ],
-  'WB': [
+  MapCodes.WB: [
     'Hooghly',
     'Purba Medinipur',
     'South 24 Parganas',
@@ -378,7 +101,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Malda',
     'Murshidabad'
   ],
-  'HR': [
+  MapCodes.HR: [
     'Jind',
     'Jhajjar',
     'Rohtak',
@@ -402,7 +125,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Yamunanagar',
     'Sonipat'
   ],
-  'HP': [
+  MapCodes.HP: [
     'Hamirpur',
     'Kullu',
     'Lahaul and Spiti',
@@ -416,7 +139,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Mandi',
     'Sirmaur'
   ],
-  'MH': [
+  MapCodes.MH: [
     'Satara',
     'Mumbai Suburban',
     'Beed',
@@ -454,7 +177,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Yavatmal',
     'Latur'
   ],
-  'JH': [
+  MapCodes.JH: [
     'Pakur',
     'Ranchi',
     'Godda',
@@ -480,7 +203,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Palamu',
     'Dhanbad'
   ],
-  'BR': [
+  MapCodes.BR: [
     'Saran',
     'Samastipur',
     'Munger',
@@ -520,7 +243,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Kishanganj',
     'Siwan'
   ],
-  'JK': [
+  MapCodes.JK: [
     'Samba',
     'Kulgam',
     'Kupwara',
@@ -544,7 +267,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Pulwama',
     'Kishtwar'
   ],
-  'PB': [
+  MapCodes.PB: [
     'Sangrur',
     'Sri Muktsar Sahib',
     'Amritsar',
@@ -568,8 +291,8 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Tarn Taran',
     'S.A.S. Nagar'
   ],
-  'LD': ['Lakshadweep'],
-  'NL': [
+  MapCodes.LD: ['Lakshadweep'],
+  MapCodes.NL: [
     'Wokha',
     'Kohima',
     'Phek',
@@ -582,9 +305,9 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Dimapur',
     'Mokokchung'
   ],
-  'LA': ['Leh', 'Kargil'],
-  'PY': ['Karaikal', 'Puducherry', 'Yanam', 'Mahe'],
-  'TR': [
+  MapCodes.LA: ['Leh', 'Kargil'],
+  MapCodes.PY: ['Karaikal', 'Puducherry', 'Yanam', 'Mahe'],
+  MapCodes.TR: [
     'West Tripura',
     'South Tripura',
     'Unokoti',
@@ -594,7 +317,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Sipahijala',
     'Dhalai'
   ],
-  'TN': [
+  MapCodes.TN: [
     'Tiruppur',
     'Ranipet',
     'Ramanathapuram',
@@ -633,7 +356,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Thanjavur',
     'Kallakurichi'
   ],
-  'TG': [
+  MapCodes.TG: [
     'Sangareddy',
     'Khammam',
     'Nalgonda',
@@ -668,7 +391,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Ranga Reddy',
     'Mancherial'
   ],
-  'RJ': [
+  MapCodes.RJ: [
     'Jaipur',
     'Dausa',
     'Dholpur',
@@ -703,9 +426,9 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Bharatpur',
     'Sawai Madhopur'
   ],
-  'CH': ['Chandigarh'],
-  'AN': ['North and Middle Andaman', 'South Andaman', 'Nicobars'],
-  'AP': [
+  MapCodes.CH: ['Chandigarh'],
+  MapCodes.AN: ['North and Middle Andaman', 'South Andaman', 'Nicobars'],
+  MapCodes.AP: [
     'Krishna',
     'Y.S.R. Kadapa',
     'West Godavari',
@@ -720,7 +443,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Srikakulam',
     'Anantapur'
   ],
-  'AS': [
+  MapCodes.AS: [
     'Nalbari',
     'Dhemaji',
     'Morigaon',
@@ -755,7 +478,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'South Salmara Mankachar',
     'Lakhimpur'
   ],
-  'AR': [
+  MapCodes.AR: [
     'Namsai',
     'Changlang',
     'Kra Daadi',
@@ -782,8 +505,8 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Siang',
     'West Siang'
   ],
-  'GA': ['South Goa', 'North Goa'],
-  'GJ': [
+  MapCodes.GA: ['South Goa', 'North Goa'],
+  MapCodes.GJ: [
     'Devbhumi Dwarka',
     'Botad',
     'Bhavnagar',
@@ -818,7 +541,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Gandhinagar',
     'Narmada'
   ],
-  'CT': [
+  MapCodes.CT: [
     'Mahasamund',
     'Dakshin Bastar Dantewada',
     'Bastar',
@@ -847,7 +570,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Mungeli',
     'Uttar Bastar Kanker'
   ],
-  'KA': [
+  MapCodes.KA: [
     'Haveri',
     'Yadgir',
     'Kalaburagi',
@@ -879,7 +602,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Gadag',
     'Mysuru'
   ],
-  'ML': [
+  MapCodes.ML: [
     'South West Garo Hills',
     'West Garo Hills',
     'South West Khasi Hills',
@@ -892,7 +615,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'East Jaintia Hills',
     'Ribhoi'
   ],
-  'MN': [
+  MapCodes.MN: [
     'Imphal West',
     'Kamjong',
     'Senapati',
@@ -910,7 +633,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Churachandpur',
     'Tengnoupal'
   ],
-  'UP': [
+  MapCodes.UP: [
     'Chitrakoot',
     'Banda',
     'Firozabad',
@@ -987,7 +710,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Ghazipur',
     'Agra'
   ],
-  'KL': [
+  MapCodes.KL: [
     'Ernakulam',
     'Palakkad',
     'Malappuram',
@@ -1003,8 +726,8 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Kasaragod',
     'Kannur'
   ],
-  'SK': ['South Sikkim', 'East Sikkim', 'West Sikkim', 'North Sikkim'],
-  'MP': [
+  MapCodes.SK: ['South Sikkim', 'East Sikkim', 'West Sikkim', 'North Sikkim'],
+  MapCodes.MP: [
     'Dindori',
     'Umaria',
     'Sheopur',
@@ -1058,7 +781,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Alirajpur',
     'Ratlam'
   ],
-  'UT': [
+  MapCodes.UT: [
     'Bageshwar',
     'Rudraprayag',
     'Pithoragarh',
@@ -1073,7 +796,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Pauri Garhwal',
     'Tehri Garhwal'
   ],
-  'OR': [
+  MapCodes.OR: [
     'Khordha',
     'Subarnapur',
     'Deogarh',
@@ -1105,7 +828,7 @@ const Map<String, List<String>> STATE_DISTRICT_MAP = {
     'Kandhamal',
     'Sundargarh'
   ],
-  'MZ': [
+  MapCodes.MZ: [
     'Kolasib',
     'Hnahthial',
     'Saiha',

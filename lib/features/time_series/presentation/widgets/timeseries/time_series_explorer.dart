@@ -1,44 +1,36 @@
-import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/bloc/bloc.dart';
+import 'package:covid19india/core/entity/entity.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
 import 'package:covid19india/core/entity/region.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_alerts.dart';
+import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_header.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_pills.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_visualizer.dart';
-import 'package:covid19india/features/time_series/presentation/widgets/timeseries/time_series_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TimeSeriesExplorer extends StatefulWidget {
-  final Map<String, StateWiseTimeSeries> timeSeries;
-  final String stateCode;
-  final DateTime timelineDate;
-  final Region regionHighlighted;
-  final Function(Region regionHighlighted) setRegionHighlighted;
+  final Map<MapCodes, StateTimeSeries> timeSeries;
+  final MapCodes stateCode;
 
-  TimeSeriesExplorer(
-      {this.timeSeries,
-      this.stateCode,
-      this.timelineDate,
-      this.regionHighlighted,
-      this.setRegionHighlighted});
+  TimeSeriesExplorer({
+    this.timeSeries,
+    this.stateCode,
+  });
 
   @override
   _TimeSeriesExplorerState createState() => _TimeSeriesExplorerState();
 }
 
 class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
-  TIME_SERIES_OPTIONS timeSeriesOption;
-  TIME_SERIES_CHART_TYPES chartType;
-
   bool isUniform;
   bool isLog;
 
   @override
   void initState() {
     super.initState();
-
-    timeSeriesOption = TIME_SERIES_OPTIONS.TWO_WEEKS;
-    chartType = TIME_SERIES_CHART_TYPES.TOTAL;
 
     isUniform = true;
     isLog = false;
@@ -48,70 +40,90 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
   Widget build(BuildContext context) {
     List<Region> regions = _getRegions(widget.timeSeries, widget.stateCode);
 
-    Region selectedRegion =
-        _getSelectedRegion(widget.timeSeries, widget.regionHighlighted);
-    List<TimeSeries> selectedTimeSeries =
-        _getSelectedTimeSeries(widget.timeSeries, selectedRegion);
-
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TimeSeriesHeader(
-              chartType: chartType,
-              isUniform: isUniform,
-              isLog: isLog,
-              selectedRegion: selectedRegion,
-              regions: regions,
-              setChartType: (TIME_SERIES_CHART_TYPES newChartType) {
-                setState(() {
-                  this.chartType = newChartType;
-                });
-              },
-              setUniform: (bool newIsUniform) {
-                setState(() {
-                  this.isUniform = newIsUniform;
-                });
-              },
-              setLog: (bool newIsLog) {
-                setState(() {
-                  this.isLog = newIsLog;
-                });
-              },
-              setRegionHighlighted: widget.setRegionHighlighted,
-            ),
-            TimeSeriesVisualizer(
-              timeSeries: selectedTimeSeries,
-              timelineDate: widget.timelineDate,
-              timeSeriesOption: timeSeriesOption,
-              chartType: chartType,
-              isUniform: isUniform,
-              isLog: isLog,
-            ),
-            TimeSeriesPills(
-              timeSeriesOption: timeSeriesOption,
-              setTimeSeriesOption: (TIME_SERIES_OPTIONS option) {
-                setState(() {
-                  timeSeriesOption = option;
-                });
-              },
-            ),
-            TimeSeriesAlerts()
-          ],
-        ),
+        child: BlocBuilder<RegionHighlightedBloc, Region>(
+            builder: (context, regionHighlighted) {
+          Region selectedRegion =
+              _getSelectedRegion(widget.timeSeries, regionHighlighted);
+
+          List<TimeSeries> selectedTimeSeries =
+              _getSelectedTimeSeries(widget.timeSeries, selectedRegion);
+
+          return BlocBuilder<TimeSeriesChartTypeBloc, TimeSeriesChartType>(
+            builder: (context, chartType) {
+              return BlocBuilder<TimeSeriesOptionBloc, TimeSeriesOption>(
+                builder: (context, option) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      TimeSeriesHeader(
+                        chartType: chartType,
+                        isUniform: isUniform,
+                        isLog: isLog,
+                        selectedRegion: selectedRegion,
+                        regions: regions,
+                        setChartType: (TimeSeriesChartType newChartType) {
+                          context.bloc<TimeSeriesChartTypeBloc>().add(
+                              TimeSeriesChartTypeChanged(
+                                  chartType: newChartType));
+                        },
+                        setUniform: (bool newIsUniform) {
+                          setState(() {
+                            this.isUniform = newIsUniform;
+                          });
+                        },
+                        setLog: (bool newIsLog) {
+                          setState(() {
+                            this.isLog = newIsLog;
+                          });
+                        },
+                        setRegionHighlighted: (Region regionHighlighted) {
+                          context.bloc<RegionHighlightedBloc>().add(
+                              RegionHighlightedChanged(
+                                  regionHighlighted: regionHighlighted));
+                        },
+                      ),
+                      BlocBuilder<DateBloc, DateTime>(
+                        builder: (context, timelineDate) {
+                          return TimeSeriesVisualizer(
+                            timeSeries: selectedTimeSeries,
+                            timelineDate: timelineDate,
+                            timeSeriesOption: option,
+                            chartType: chartType,
+                            isUniform: isUniform,
+                            isLog: isLog,
+                          );
+                        },
+                      ),
+                      TimeSeriesPills(
+                        timeSeriesOption: option,
+                        setTimeSeriesOption: (TimeSeriesOption newOption) {
+                          context
+                              .bloc<TimeSeriesOptionBloc>()
+                              .add(TimeSeriesOptionChanged(option: newOption));
+                        },
+                      ),
+                      TimeSeriesAlerts()
+                    ],
+                  );
+                },
+              );
+            },
+          );
+        }),
       ),
     );
   }
 
   List<Region> _getRegions(
-      Map<String, StateWiseTimeSeries> timeSeries, String stateCode) {
+      Map<MapCodes, StateTimeSeries> timeSeries, MapCodes stateCode) {
     List<Region> states = timeSeries.entries
-        .where((stateData) => stateData.value.name != stateCode)
+        .where((stateData) => stateData.value.stateCode != stateCode)
         .map((stateData) => new Region(
-              stateCode: stateData.value.name,
+              stateCode: stateData.value.stateCode,
               districtName: null,
             ))
         .toList();
@@ -135,7 +147,7 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
   }
 
   Region _getSelectedRegion(
-      Map<String, StateWiseTimeSeries> timeSeries, Region regionHighlighted) {
+      Map<MapCodes, StateTimeSeries> timeSeries, Region regionHighlighted) {
     if (timeSeries[regionHighlighted.stateCode].districts != null &&
         timeSeries[regionHighlighted.stateCode]
                 .districts
@@ -153,7 +165,7 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
   }
 
   List<TimeSeries> _getSelectedTimeSeries(
-      Map<String, StateWiseTimeSeries> timeSeries, Region selectedRegion) {
+      Map<MapCodes, StateTimeSeries> timeSeries, Region selectedRegion) {
     if (selectedRegion.districtName != null) {
       return timeSeries[selectedRegion.stateCode]
           .districts

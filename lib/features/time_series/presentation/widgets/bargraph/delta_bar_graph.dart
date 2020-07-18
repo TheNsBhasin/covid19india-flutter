@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
-import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/util/extensions.dart';
+import 'package:covid19india/core/util/util.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
+import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,10 +14,10 @@ import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
 
 class DeltaBarGraph extends StatefulWidget {
-  final StateWiseTimeSeries timeSeries;
+  final StateTimeSeries timeSeries;
 
-  final String stateCode;
-  final STATISTIC statistic;
+  final MapCodes stateCode;
+  final Statistic statistic;
 
   DeltaBarGraph({this.timeSeries, this.stateCode, this.statistic});
 

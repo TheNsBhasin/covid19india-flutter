@@ -1,7 +1,8 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
-import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/core/entity/entity.dart';
+import 'package:covid19india/features/daily_count/domain/entities/district_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/daily_count/presentation/widgets/table/daily_count_table.dart';
 import 'package:flutter/material.dart';
@@ -15,18 +16,14 @@ class DailyCountTableWidget extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: BlocBuilder<DailyCountBloc, DailyCountState>(
           builder: (context, state) {
-            if (state is Empty) {
-              return MessageDisplay(
-                message: 'Empty',
-              );
-            } else if (state is Loading) {
+            if (state is DailyCountLoadInProgress) {
               return LoadingWidget();
-            } else if (state is Loaded) {
+            } else if (state is DailyCountLoadSuccess) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: buildDailyCountTable(context, state.dailyCounts),
               );
-            } else if (state is Error) {
+            } else if (state is DailyCountLoadFailure) {
               return MessageDisplay(
                 message: state.message,
               );
@@ -42,20 +39,21 @@ class DailyCountTableWidget extends StatelessWidget {
   Widget buildDailyCountTable(BuildContext context, dailyCounts) {
     return IntrinsicHeight(
       child: DailyCountTable(
-        stateWiseDailyCount: _getStateWiseDailyCountMap(dailyCounts),
-        districtWiseDailyCount: _getDistrictWiseDailyCountMap(dailyCounts),
+        stateDailyCounts: _getStateWiseDailyCountMap(dailyCounts),
+        districtDailyCounts: _getDistrictWiseDailyCountMap(dailyCounts),
       ),
     );
   }
 
-  Map<String, StateWiseDailyCount> _getStateWiseDailyCountMap(
-      List<StateWiseDailyCount> dailyCounts) {
-    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
+  Map<MapCodes, StateDailyCount> _getStateWiseDailyCountMap(
+      List<StateDailyCount> dailyCounts) {
+    return Map.fromIterable(dailyCounts,
+        key: (e) => e.stateCode, value: (e) => e);
   }
 
-  Map<String, DistrictWiseDailyCount> _getDistrictWiseDailyCountMap(
-      List<StateWiseDailyCount> dailyCounts) {
-    Map<String, DistrictWiseDailyCount> dailyCountMap = {};
+  Map<String, DistrictDailyCount> _getDistrictWiseDailyCountMap(
+      List<StateDailyCount> dailyCounts) {
+    Map<String, DistrictDailyCount> dailyCountMap = {};
 
     dailyCounts.forEach((stateDailyCount) {
       stateDailyCount.districts.forEach((districtDailyCount) {

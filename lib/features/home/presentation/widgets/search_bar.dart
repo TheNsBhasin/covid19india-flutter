@@ -1,5 +1,6 @@
 import 'package:autotrie/autotrie.dart';
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/entity.dart';
 import 'package:covid19india/core/entity/region.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,9 @@ class _SearchBarState extends State<SearchBar> {
     _focus.addListener(_onFocusChange);
     _textController.addListener(_onTextChange);
 
-    STATE_CODE_MAP.entries.forEach((e) {
-      _statesBox
-          .put(e.value, {'name': e.value, 'type': 'state', 'route': e.key});
+    MapCodes.values.forEach((mapCode) {
+      _statesBox.put(mapCode.name,
+          {'name': mapCode.name, 'type': 'state', 'route': mapCode.key});
     });
 
     STATE_DISTRICT_MAP.entries.forEach((e) {
@@ -154,7 +155,8 @@ class _SearchBarState extends State<SearchBar> {
                                 StatePage.routeName,
                                 arguments: StatePageArguments(
                                     region: new Region(
-                                        stateCode: e.value['route'],
+                                        stateCode: (e.value['route'] as String)
+                                            .toMapCode(),
                                         districtName: null)),
                               );
                             },
@@ -179,7 +181,7 @@ class _SearchBarState extends State<SearchBar> {
                             child: Text(
                               e.value['name'] +
                                   ", " +
-                                  STATE_CODE_MAP[e.value['route']],
+                                  (e.value['route'] as String).toMapCode().name,
                               softWrap: true,
                               style:
                                   TextStyle(fontSize: 14, color: Colors.grey),
@@ -201,7 +203,9 @@ class _SearchBarState extends State<SearchBar> {
                                     StatePage.routeName,
                                     arguments: StatePageArguments(
                                         region: new Region(
-                                            stateCode: e.value['route'],
+                                            stateCode:
+                                                (e.value['route'] as String)
+                                                    .toMapCode(),
                                             districtName: e.value['name'])),
                                   );
                                 },

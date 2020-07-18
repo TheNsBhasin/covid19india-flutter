@@ -1,0 +1,4 @@
+enum MapView {
+  states,
+  districts,
+}

@@ -1,13 +1,14 @@
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/entity/stats.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class LevelItem extends StatelessWidget {
-  final STATISTIC statistics;
+  final Statistic statistics;
   final Stats total;
   final Stats delta;
 
@@ -53,7 +54,7 @@ class LevelItem extends StatelessWidget {
 }
 
 class Level extends StatelessWidget {
-  final StateWiseDailyCount dailyCount;
+  final StateDailyCount dailyCount;
 
   Level(this.dailyCount);
 

@@ -1,7 +1,9 @@
-import 'package:covid19india/core/constants/constants.dart';
-import 'package:covid19india/features/daily_count/data/models/state_wise_daily_count_model.dart';
-import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
+import 'package:covid19india/features/daily_count/data/models/state_daily_count_model.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
+import 'package:covid19india/features/time_series/data/models/state_time_series_model.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
 import 'package:covid19india/features/update_log/data/models/update_log_model.dart';
+import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
 import 'package:flutter/foundation.dart';
 
 class ResponseParser {
@@ -10,8 +12,12 @@ class ResponseParser {
   }
 
   static Map<String, dynamic> dailyCountsToJson(
-      List<StateWiseDailyCountModel> dailyCounts) {
-    return {'results': dailyCounts.map((e) => e.toJson()).toList()};
+      List<StateDailyCount> dailyCounts) {
+    return {
+      'results': dailyCounts
+          .map((e) => StateDailyCountModel.fromEntity(e).toJson())
+          .toList()
+    };
   }
 
   static Map<String, dynamic> jsonToTimeSeries(Map<String, dynamic> json) {
@@ -19,9 +25,12 @@ class ResponseParser {
   }
 
   static Map<String, dynamic> timeSeriesToJson(
-      List<StateWiseTimeSeriesModel> timeSeries) {
+      List<StateTimeSeries> timeSeries) {
     return {
-      'results': timeSeries.map((stateData) => stateData.toJson()).toList()
+      'results': timeSeries
+          .map((stateData) =>
+              StateTimeSeriesModel.fromEntity(stateData).toJson())
+          .toList()
     };
   }
 
@@ -30,33 +39,28 @@ class ResponseParser {
   }
 
   static Map<String, dynamic> stateTimeSeriesToJson(
-      StateWiseTimeSeriesModel timeSeries) {
-    return {'result': timeSeries.toJson()};
+      StateTimeSeries timeSeries) {
+    return {'result': StateTimeSeriesModel.fromEntity(timeSeries).toJson()};
   }
 
   static Map<String, dynamic> jsonToUpdateLogs(List<dynamic> json) {
     return {'results': parseJsonToUpdateLogs(json)};
   }
 
-  static Map<String, dynamic> updateLogsToJson(
-      List<UpdateLogModel> updateLogs) {
+  static Map<String, dynamic> updateLogsToJson(List<UpdateLog> updateLogs) {
     return {
-      'results': updateLogs.map((updateLog) => updateLog.toJson()).toList()
+      'results': updateLogs
+          .map((updateLog) => UpdateLogModel.fromEntity(updateLog).toJson())
+          .toList()
     };
   }
 }
 
 List<Map<String, dynamic>> parseJsonToDailyCount(Map<String, dynamic> json) {
   try {
-    STATE_CODES.forEach((stateCode) {
-      if (!json.containsKey(stateCode)) {
-        json[stateCode] = {};
-      }
-    });
-
     return json.entries
         .map((e) => {
-              'name': e.key,
+              'state_code': e.key,
               'total': {
                 'confirmed': (e.value['total'] ?? {})['confirmed'] ?? 0,
                 'recovered': (e.value['total'] ?? {})['recovered'] ?? 0,
@@ -137,7 +141,7 @@ List<Map<String, dynamic>> parseJsonToTimeSeries(Map<String, dynamic> json) {
   try {
     return json.entries
         .map((stateData) => {
-              'name': stateData.key,
+              'state_code': stateData.key,
               'time_series': (stateData.value['dates'] ?? {})
                   .entries
                   .map((timeSeries) => {

@@ -1,240 +1,267 @@
+import 'package:covid19india/core/bloc/bloc.dart';
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/map_type.dart';
+import 'package:covid19india/core/entity/map_view.dart';
+import 'package:covid19india/core/entity/map_viz.dart';
 import 'package:covid19india/core/entity/region.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/district_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 class MapHeader extends StatelessWidget {
-  final Map<String, StateWiseDailyCount> dailyCounts;
+  final Map<MapCodes, StateDailyCount> dailyCounts;
 
-  final String mapCode;
-  final STATISTIC statistic;
-  final Region regionHighlighted;
+  final MapCodes mapCode;
 
-  final MAP_VIEWS mapView;
-  final MAP_VIZS mapViz;
-
-  final Function(STATISTIC statistic) setStatistic;
-  final Function(MAP_VIEWS mapView) setMapView;
-  final Function(MAP_VIZS mapViz) setMapViz;
-
-  MapHeader(
-      {this.dailyCounts,
-      this.mapCode,
-      this.statistic,
-      this.regionHighlighted,
-      this.mapView,
-      this.mapViz,
-      this.setStatistic,
-      this.setMapView,
-      this.setMapViz});
+  MapHeader({
+    this.dailyCounts,
+    this.mapCode,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  child: Text(
-                    _getHighlightedRegionName(),
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: STATS_COLOR[statistic]),
-                  ),
-                ),
-                if (regionHighlighted.stateCode != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: RichText(
-                      textAlign: TextAlign.start,
-                      text: TextSpan(
-                          text: NumberFormat.decimalPattern('en_IN')
-                              .format(_getHighlightedRegionStats()),
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: STATS_COLOR[statistic]),
-                          children: [
-                            TextSpan(
-                                text: "\n${statistic.name.capitalize()}",
+      child: BlocBuilder<StatisticBloc, Statistic>(
+        builder: (context, statistic) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: BlocBuilder<RegionHighlightedBloc, Region>(
+                  builder: (context, regionHighlighted) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          child: Text(
+                            _getRegionName(regionHighlighted),
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: STATS_COLOR[statistic]),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: RichText(
+                            textAlign: TextAlign.start,
+                            text: TextSpan(
+                                text: NumberFormat.decimalPattern('en_IN')
+                                    .format(_getRegionStats(
+                                        regionHighlighted, statistic)),
                                 style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: STATS_COLOR[statistic])),
-                          ]),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(width: 4.0),
-                    Expanded(
-                      child: ButtonTheme(
-                        minWidth: 48,
-                        height: 48,
-                        child: FlatButton(
-                          color: (mapViz == MAP_VIZS.CHOROPLETH
-                              ? STATS_COLOR[statistic].withOpacity(0.25)
-                              : Colors.grey.withOpacity(0.125)),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0)),
-                          onPressed: () => {
-                            if (mapViz != MAP_VIZS.CHOROPLETH)
-                              setMapViz(MAP_VIZS.CHOROPLETH)
-                          },
-                          child: FaIcon(
-                            FontAwesomeIcons.map,
-                            color: (mapViz == MAP_VIZS.CHOROPLETH
-                                ? STATS_COLOR[statistic]
-                                : Colors.grey),
+                                    color: STATS_COLOR[statistic]),
+                                children: [
+                                  TextSpan(
+                                      text: "\n${statistic.name.capitalize()}",
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: STATS_COLOR[statistic])),
+                                ]),
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(width: 4.0),
-                    Expanded(
-                      child: ButtonTheme(
-                        minWidth: 48,
-                        height: 48,
-                        child: FlatButton(
-                          color: (mapViz == MAP_VIZS.BUBBLES
-                              ? STATS_COLOR[statistic].withOpacity(0.25)
-                              : Colors.grey.withOpacity(0.125)),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0)),
-                          onPressed: () => {
-                            if (mapViz != MAP_VIZS.BUBBLES)
-                              setMapViz(MAP_VIZS.BUBBLES)
-                          },
-                          child: FaIcon(
-                            FontAwesomeIcons.circle,
-                            color: (mapViz == MAP_VIZS.BUBBLES
-                                ? STATS_COLOR[statistic]
-                                : Colors.grey),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 4.0),
-                    if (MAP_META[mapCode]['map_type'] == MAP_TYPES.COUNTRY)
-                      Expanded(
-                        child: ButtonTheme(
-                          minWidth: 48,
-                          height: 48,
-                          child: FlatButton(
-                            color: (mapView == MAP_VIEWS.DISTRICTS
-                                ? STATS_COLOR[statistic].withOpacity(0.25)
-                                : Colors.grey.withOpacity(0.125)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
-                            onPressed: () => setMapView(
-                                mapView == MAP_VIEWS.DISTRICTS
-                                    ? MAP_VIEWS.STATES
-                                    : MAP_VIEWS.DISTRICTS),
-                            child: FaIcon(
-                              FontAwesomeIcons.building,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (MAP_META[mapCode]['map_type'] == MAP_TYPES.STATE)
-                      Expanded(
-                        child: ButtonTheme(
-                          minWidth: 48,
-                          height: 48,
-                          child: FlatButton(
-                            color: Colors.grey.withOpacity(0.125),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)),
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: FaIcon(
-                              FontAwesomeIcons.arrowLeft,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                    SizedBox(width: 4.0),
-                  ],
+                      ],
+                    );
+                  },
                 ),
-                SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ...PRIMARY_STATISTICS.map((stats) => Expanded(
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(32.0),
-                            onTap: () {
-                              setStatistic(stats);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 16.0),
-                              child: Container(
-                                width: 12,
-                                height: 12,
-                                decoration: new BoxDecoration(
-                                  color: (statistic == stats)
-                                      ? STATS_COLOR[stats]
-                                      : STATS_COLOR[stats].withOpacity(0.25),
-                                  shape: BoxShape.circle,
+              ),
+              Expanded(
+                child: BlocBuilder<MapViewBloc, MapView>(
+                  builder: (context, mapView) {
+                    return BlocBuilder<MapVizBloc, MapViz>(
+                      builder: (context, mapViz) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 4.0),
+                                Expanded(
+                                  child: ButtonTheme(
+                                    minWidth: 48,
+                                    height: 48,
+                                    child: FlatButton(
+                                      color: (mapViz == MapViz.choropleth
+                                          ? STATS_COLOR[statistic]
+                                              .withOpacity(0.25)
+                                          : Colors.grey.withOpacity(0.125)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0)),
+                                      onPressed: () => {
+                                        if (mapViz != MapViz.choropleth)
+                                          context.bloc<MapVizBloc>().add(
+                                              MapVizChanged(
+                                                  mapViz: MapViz.choropleth))
+                                      },
+                                      child: FaIcon(
+                                        FontAwesomeIcons.map,
+                                        color: (mapViz == MapViz.choropleth
+                                            ? STATS_COLOR[statistic]
+                                            : Colors.grey),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(width: 4.0),
+                                Expanded(
+                                  child: ButtonTheme(
+                                    minWidth: 48,
+                                    height: 48,
+                                    child: FlatButton(
+                                      color: (mapViz == MapViz.bubbles
+                                          ? STATS_COLOR[statistic]
+                                              .withOpacity(0.25)
+                                          : Colors.grey.withOpacity(0.125)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0)),
+                                      onPressed: () => {
+                                        if (mapViz != MapViz.bubbles)
+                                          context.bloc<MapVizBloc>().add(
+                                              MapVizChanged(
+                                                  mapViz: MapViz.bubbles))
+                                      },
+                                      child: FaIcon(
+                                        FontAwesomeIcons.circle,
+                                        color: (mapViz == MapViz.bubbles
+                                            ? STATS_COLOR[statistic]
+                                            : Colors.grey),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 4.0),
+                                if (mapCode.mapType == MapType.country)
+                                  Expanded(
+                                    child: ButtonTheme(
+                                      minWidth: 48,
+                                      height: 48,
+                                      child: FlatButton(
+                                        color: (mapView == MapView.districts
+                                            ? STATS_COLOR[statistic]
+                                                .withOpacity(0.25)
+                                            : Colors.grey.withOpacity(0.125)),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0)),
+                                        onPressed: () => context
+                                            .bloc<MapViewBloc>()
+                                            .add(MapViewChanged(
+                                                mapView:
+                                                    mapView == MapView.districts
+                                                        ? MapView.states
+                                                        : MapView.districts)),
+                                        child: FaIcon(
+                                          FontAwesomeIcons.building,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (mapCode.mapType == MapType.state)
+                                  Expanded(
+                                    child: ButtonTheme(
+                                      minWidth: 48,
+                                      height: 48,
+                                      child: FlatButton(
+                                        color: Colors.grey.withOpacity(0.125),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0)),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: FaIcon(
+                                          FontAwesomeIcons.arrowLeft,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(width: 4.0),
+                              ],
                             ),
-                          ),
-                        ))
-                  ],
-                )
-              ],
-            ),
-          )
-        ],
+                            SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                ...PRIMARY_STATISTICS.map((stats) => Expanded(
+                                      child: InkWell(
+                                        borderRadius:
+                                            BorderRadius.circular(32.0),
+                                        onTap: () {
+                                          context.bloc<StatisticBloc>().add(
+                                              StatisticChanged(
+                                                  statistic: stats));
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16, horizontal: 16.0),
+                                          child: Container(
+                                            width: 12,
+                                            height: 12,
+                                            decoration: new BoxDecoration(
+                                              color: (statistic == stats)
+                                                  ? STATS_COLOR[stats]
+                                                  : STATS_COLOR[stats]
+                                                      .withOpacity(0.25),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ))
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              )
+            ],
+          );
+        },
       ),
     );
   }
 
-  String _getHighlightedRegionName() {
-    if (regionHighlighted.districtName != null) {
-      return regionHighlighted.districtName;
+  String _getRegionName(Region region) {
+    if (region.districtName != null) {
+      return region.districtName;
     }
 
-    return STATE_CODE_MAP[regionHighlighted.stateCode];
+    return region.stateCode.name;
   }
 
-  int _getHighlightedRegionStats() {
-    String stateCode = regionHighlighted.stateCode;
+  int _getRegionStats(Region region, Statistic statistic) {
+    MapCodes stateCode = region.stateCode;
 
-    StateWiseDailyCount stateDailyCount = dailyCounts[stateCode];
+    StateDailyCount stateDailyCount = dailyCounts[stateCode];
 
-    if (regionHighlighted.districtName != null) {
+    if (region.districtName != null) {
       var items = stateDailyCount.districts
-          .where((district) => district.name == regionHighlighted.districtName);
+          .where((district) => district.name == region.districtName);
       if (items.length > 0) {
-        DistrictWiseDailyCount districtDailyCount = items.first;
+        DistrictDailyCount districtDailyCount = items.first;
         return getStatisticValue(districtDailyCount.total, statistic);
       } else {
         return 0;

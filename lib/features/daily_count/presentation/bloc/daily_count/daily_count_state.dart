@@ -1,31 +1,28 @@
 part of 'daily_count_bloc.dart';
 
-abstract class DailyCountState extends Equatable {}
+abstract class DailyCountState extends Equatable {
+  const DailyCountState();
 
-class Empty extends DailyCountState {
   @override
   List<Object> get props => [];
-}
 
-class Loading extends DailyCountState {
   @override
-  List<Object> get props => [];
+  bool get stringify => true;
 }
 
-class Loaded extends DailyCountState {
-  final List<StateWiseDailyCount> dailyCounts;
+class DailyCountLoadInProgress extends DailyCountState {}
 
-  Loaded({this.dailyCounts});
+class DailyCountLoadSuccess extends DailyCountState {
+  final List<StateDailyCount> dailyCounts;
+
+  const DailyCountLoadSuccess([this.dailyCounts = const []]);
 
   @override
   List<Object> get props => [dailyCounts];
 }
 
-class Error extends DailyCountState {
+class DailyCountLoadFailure extends DailyCountState {
   final String message;
 
-  Error({@required this.message});
-
-  @override
-  List<Object> get props => [message];
+  DailyCountLoadFailure({this.message});
 }

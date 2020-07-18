@@ -1,36 +1,41 @@
+import 'package:covid19india/core/bloc/bloc.dart';
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
-import 'package:covid19india/core/constants/constants.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/bloc.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/statistic.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/time_series/presentation/widgets/bargraph/delta_bar_graph.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DeltaBarGraphWidget extends StatelessWidget {
-  final String stateCode;
-  final STATISTIC statistic;
+  final MapCodes stateCode;
 
-  DeltaBarGraphWidget({this.stateCode, this.statistic});
+  DeltaBarGraphWidget({this.stateCode});
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: BlocBuilder<StateTimeSeriesBloc, StateTimeSeriesState>(
+    return Center(child: BlocBuilder<TimeSeriesBloc, TimeSeriesState>(
       builder: (context, state) {
-        if (state is Empty) {
-          return MessageDisplay(
-            message: 'Empty',
-          );
-        } else if (state is Loading) {
+        if (state is TimeSeriesLoadInProgress) {
           return LoadingWidget(height: 72);
-        } else if (state is Loaded) {
-          StateWiseTimeSeries stateTimeSeries = state.timeSeries;
+        } else if (state is TimeSeriesLoadSuccess) {
+          StateTimeSeries stateTimeSeries = state.timeSeries
+              .firstWhere((stateData) => stateData.stateCode == stateCode);
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: buildDeltaBarGraph(context, stateTimeSeries),
+            child: BlocBuilder<StatisticBloc, Statistic>(
+                builder: (context, statistic) {
+              return DeltaBarGraph(
+                timeSeries: stateTimeSeries,
+                stateCode: stateCode,
+                statistic: statistic,
+              );
+            }),
           );
-        } else if (state is Error) {
+        } else if (state is TimeSeriesLoadFailure) {
           return MessageDisplay(
             message: state.message,
           );
@@ -39,14 +44,5 @@ class DeltaBarGraphWidget extends StatelessWidget {
         return Container();
       },
     ));
-  }
-
-  Widget buildDeltaBarGraph(
-      BuildContext context, StateWiseTimeSeries timeSeries) {
-    return DeltaBarGraph(
-      timeSeries: timeSeries,
-      stateCode: stateCode,
-      statistic: statistic,
-    );
   }
 }

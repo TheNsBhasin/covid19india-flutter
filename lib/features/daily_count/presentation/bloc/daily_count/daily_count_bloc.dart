@@ -1,12 +1,15 @@
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
 import 'package:covid19india/core/error/failures.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/usecases/get_daily_count.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
 
 part 'daily_count_event.dart';
+
 part 'daily_count_state.dart';
 
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
@@ -17,29 +20,36 @@ class DailyCountBloc extends Bloc<DailyCountEvent, DailyCountState> {
 
   DailyCountBloc({@required GetDailyCount dailyCount})
       : assert(dailyCount != null),
-        getDailyCount = dailyCount;
+        getDailyCount = dailyCount,
+        super(DailyCountLoadInProgress());
 
   @override
-  DailyCountState get initialState => Empty();
+  Stream<DailyCountState> mapEventToState(
+    DailyCountEvent event,
+  ) async* {
+    if (event is LoadDailyCount) {
+      yield* _mapLoadDailyCountToState(event);
+    }
+  }
 
-  @override
-  Stream<DailyCountState> mapEventToState(DailyCountEvent event) async* {
-    print('DailyCountBloc: $event');
-
-    if (event is GetDailyCountData) {
-      yield Loading();
-      final failureOrDailyCounts = await getDailyCount(
-          Params(forced: event.forced, cache: event.cache, date: event.date));
+  Stream<DailyCountState> _mapLoadDailyCountToState(
+      LoadDailyCount event) async* {
+    try {
+      yield DailyCountLoadInProgress();
+      final failureOrDailyCounts = await this.getDailyCount(DailyCountParams(
+          forced: event.forced, cache: event.cache, date: event.date));
       yield* _eitherLoadedOrErrorState(failureOrDailyCounts);
+    } catch (_) {
+      yield DailyCountLoadFailure(message: _.toString());
     }
   }
 
   Stream<DailyCountState> _eitherLoadedOrErrorState(
-    Either<Failure, List<StateWiseDailyCount>> failureOrDailyCounts,
-  ) async* {
+      Either<Failure, List<StateDailyCount>> failureOrDailyCounts) async* {
     yield failureOrDailyCounts.fold(
-      (failure) => Error(message: _mapFailureToMessage(failure)),
-      (dailyCounts) => Loaded(dailyCounts: dailyCounts),
+      (failure) =>
+          DailyCountLoadFailure(message: _mapFailureToMessage(failure)),
+      (dailyCounts) => DailyCountLoadSuccess(dailyCounts),
     );
   }
 

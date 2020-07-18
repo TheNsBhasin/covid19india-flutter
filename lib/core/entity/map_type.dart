@@ -1,0 +1,4 @@
+enum MapType {
+  country,
+  state,
+}

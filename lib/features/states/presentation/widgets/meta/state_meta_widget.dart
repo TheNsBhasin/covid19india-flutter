@@ -1,56 +1,46 @@
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart'
-    as DailyCountBloc;
+import 'package:covid19india/core/entity/entity.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
+import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/states/presentation/widgets/meta/state_meta.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/state_time_series/bloc.dart'
-    as StateTimeSeriesBloc;
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StateMetaWidget extends StatelessWidget {
-  final String stateCode;
+  final MapCodes stateCode;
 
   StateMetaWidget({this.stateCode});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: BlocBuilder<DailyCountBloc.DailyCountBloc,
-          DailyCountBloc.DailyCountState>(
+      child: BlocBuilder<DailyCountBloc, DailyCountState>(
         builder: (context, state) {
-          if (state is DailyCountBloc.Empty) {
-            return MessageDisplay(
-              message: 'Empty',
-            );
-          } else if (state is DailyCountBloc.Loading) {
+          if (state is DailyCountLoadInProgress) {
             return LoadingWidget(
               height: 100,
             );
-          } else if (state is DailyCountBloc.Loaded) {
-            Map<String, StateWiseDailyCount> stateDailyCountMap =
+          } else if (state is DailyCountLoadSuccess) {
+            Map<MapCodes, StateDailyCount> stateDailyCountMap =
                 _getStateWiseDailyCountMap(state.dailyCounts);
 
-            return BlocBuilder<StateTimeSeriesBloc.StateTimeSeriesBloc,
-                StateTimeSeriesBloc.StateTimeSeriesState>(
+            return BlocBuilder<TimeSeriesBloc, TimeSeriesState>(
               builder: (context, state) {
-                if (state is StateTimeSeriesBloc.Empty) {
-                  return MessageDisplay(
-                    message: 'Empty',
-                  );
-                } else if (state is StateTimeSeriesBloc.Loading) {
+                if (state is TimeSeriesLoadInProgress) {
                   return LoadingWidget(height: 72);
-                } else if (state is StateTimeSeriesBloc.Loaded) {
-                  StateWiseTimeSeries stateTimeSeries = state.timeSeries;
+                } else if (state is TimeSeriesLoadSuccess) {
+                  StateTimeSeries stateTimeSeries = state.timeSeries.firstWhere(
+                      (stateData) => stateData.stateCode == stateCode);
 
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: buildStateMeta(
                         context, stateDailyCountMap, stateTimeSeries),
                   );
-                } else if (state is StateTimeSeriesBloc.Error) {
+                } else if (state is TimeSeriesLoadFailure) {
                   return MessageDisplay(
                     message: state.message,
                   );
@@ -59,7 +49,7 @@ class StateMetaWidget extends StatelessWidget {
                 return Container();
               },
             );
-          } else if (state is DailyCountBloc.Error) {
+          } else if (state is DailyCountLoadFailure) {
             return MessageDisplay(
               message: state.message,
             );
@@ -71,10 +61,8 @@ class StateMetaWidget extends StatelessWidget {
     );
   }
 
-  Widget buildStateMeta(
-      BuildContext context,
-      Map<String, StateWiseDailyCount> dailyCount,
-      StateWiseTimeSeries timeSeries) {
+  Widget buildStateMeta(BuildContext context,
+      Map<MapCodes, StateDailyCount> dailyCount, StateTimeSeries timeSeries) {
     return StateMeta(
       stateCode: stateCode,
       dailyCount: dailyCount,
@@ -82,8 +70,9 @@ class StateMetaWidget extends StatelessWidget {
     );
   }
 
-  Map<String, StateWiseDailyCount> _getStateWiseDailyCountMap(
-      List<StateWiseDailyCount> dailyCounts) {
-    return Map.fromIterable(dailyCounts, key: (e) => e.name, value: (e) => e);
+  Map<MapCodes, StateDailyCount> _getStateWiseDailyCountMap(
+      List<StateDailyCount> dailyCounts) {
+    return Map.fromIterable(dailyCounts,
+        key: (e) => e.stateCode, value: (e) => e);
   }
 }

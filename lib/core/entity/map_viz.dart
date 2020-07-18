@@ -1,0 +1,4 @@
+enum MapViz {
+  choropleth,
+  bubbles,
+}

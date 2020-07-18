@@ -1,58 +1,56 @@
+import 'package:covid19india/core/bloc/bloc.dart';
 import 'package:covid19india/core/common/widgets/loading_widget.dart';
 import 'package:covid19india/core/common/widgets/message_display.dart';
+import 'package:covid19india/core/entity/entity.dart';
 import 'package:covid19india/features/home/presentation/widgets/action_bar/action_bar.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart'
-    as TimeSeriesBloc;
-import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
-import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart'
-    as UpdateLogBloc;
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ActionBarWidget extends StatelessWidget {
-  final DateTime date;
-  final void Function(DateTime date) setDate;
-
-  ActionBarWidget({this.date, this.setDate});
-
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: BlocBuilder<UpdateLogBloc.UpdateLogBloc,
-            UpdateLogBloc.UpdateLogState>(
+        child: BlocBuilder<UpdateLogBloc, UpdateLogState>(
           builder: (context, updateLogState) {
-            if (updateLogState is UpdateLogBloc.Empty) {
-              return MessageDisplay(
-                message: 'Empty',
-              );
-            } else if (updateLogState is UpdateLogBloc.Loading) {
+            if (updateLogState is UpdateLogLoadInProgress) {
               return LoadingWidget(height: 50);
-            } else if (updateLogState is UpdateLogBloc.Loaded) {
-              return BlocBuilder<TimeSeriesBloc.TimeSeriesBloc,
-                  TimeSeriesBloc.TimeSeriesState>(
+            } else if (updateLogState is UpdateLogLoadSuccess) {
+              return BlocBuilder<TimeSeriesBloc, TimeSeriesState>(
                 builder: (context, timeSeriesState) {
-                  if (timeSeriesState is TimeSeriesBloc.Empty) {
-                    return MessageDisplay(
-                      message: 'Empty',
-                    );
-                  } else if (timeSeriesState is TimeSeriesBloc.Loading) {
+                  if (timeSeriesState is TimeSeriesLoadInProgress) {
                     return LoadingWidget(height: 50);
-                  } else if (timeSeriesState is TimeSeriesBloc.Loaded) {
+                  } else if (timeSeriesState is TimeSeriesLoadSuccess) {
+                    final List<DateTime> timeline = _getTimeline(timeSeriesState
+                        .timeSeries
+                        .where(
+                            (stateDate) => stateDate.stateCode == MapCodes.TT)
+                        .toList()
+                        .first);
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: buildActionBar(
-                          context,
-                          updateLogState.updateLogs,
-                          updateLogState.lastViewedTimestamp,
-                          _getTimeline(timeSeriesState.timeSeries
-                              .where((stateDate) => stateDate.name == 'TT')
-                              .toList()
-                              .first)),
+                      child: BlocBuilder<DateBloc, DateTime>(
+                        builder: (context, date) {
+                          return ActionBar(
+                              updateLogs: updateLogState.updateLogs,
+                              lastViewedTimestamp:
+                                  updateLogState.lastViewedTimestamp,
+                              timeline: timeline,
+                              date: date,
+                              setDate: (DateTime newDate) {
+                                context
+                                    .bloc<DateBloc>()
+                                    .add(DateChanged(date: newDate));
+                              });
+                        },
+                      ),
                     );
-                  } else if (timeSeriesState is TimeSeriesBloc.Error) {
+                  } else if (timeSeriesState is TimeSeriesLoadFailure) {
                     return MessageDisplay(
                       message: timeSeriesState.message,
                     );
@@ -61,7 +59,7 @@ class ActionBarWidget extends StatelessWidget {
                   return Container();
                 },
               );
-            } else if (updateLogState is UpdateLogBloc.Error) {
+            } else if (updateLogState is UpdateLogLoadFailure) {
               return MessageDisplay(
                 message: updateLogState.message,
               );
@@ -74,17 +72,7 @@ class ActionBarWidget extends StatelessWidget {
     );
   }
 
-  Widget buildActionBar(BuildContext context, List<UpdateLog> updateLogs,
-      DateTime timestamp, List<DateTime> timeline) {
-    return ActionBar(
-        updateLogs: updateLogs,
-        lastViewedTimestamp: timestamp,
-        timeline: timeline,
-        date: date,
-        setDate: setDate);
-  }
-
-  List<DateTime> _getTimeline(StateWiseTimeSeries stateData) {
+  List<DateTime> _getTimeline(StateTimeSeries stateData) {
     return stateData.timeSeries.map((e) => e.date).toList();
   }
 }

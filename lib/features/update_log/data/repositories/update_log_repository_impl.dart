@@ -37,7 +37,11 @@ class UpdateLogRepositoryImpl implements UpdateLogRepository {
           } on CacheException {}
         }
         final remoteUpdateLogs = await remoteDataSource.getUpdateLogs();
-        localDataSource.cacheUpdateLogs(remoteUpdateLogs);
+        try {
+          localDataSource.cacheUpdateLogs(remoteUpdateLogs);
+        } catch (e) {
+          print('UpdateLogRepositoryImpl: _getUpdateLogs: $e');
+        }
         return Right(remoteUpdateLogs);
       } on ServerException {
         return Left(ServerFailure());

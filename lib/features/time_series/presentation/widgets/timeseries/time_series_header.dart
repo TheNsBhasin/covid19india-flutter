@@ -1,18 +1,19 @@
 import 'dart:convert';
 
-import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
 import 'package:covid19india/core/entity/region.dart';
+import 'package:covid19india/core/entity/time_series_chart_type.dart';
 import 'package:covid19india/core/model/region_model.dart';
 import 'package:flutter/material.dart';
 
 class TimeSeriesHeader extends StatelessWidget {
-  final TIME_SERIES_CHART_TYPES chartType;
+  final TimeSeriesChartType chartType;
   final bool isUniform;
   final bool isLog;
   final Region selectedRegion;
   final List<Region> regions;
 
-  final Null Function(TIME_SERIES_CHART_TYPES chartType) setChartType;
+  final Null Function(TimeSeriesChartType chartType) setChartType;
   final Null Function(bool isUniform) setUniform;
   final Null Function(bool isLogarithmic) setLog;
   final Function(Region regionHighlighted) setRegionHighlighted;
@@ -68,17 +69,17 @@ class TimeSeriesHeader extends StatelessWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: TIME_SERIES_CHART_TYPES_MAP.entries
+        children: TimeSeriesChartType.values
             .map((e) => FlatButton(
-                  color: (e.key == chartType)
+                  color: (e == chartType)
                       ? Colors.orange.withAlpha(100)
                       : Colors.orange.withAlpha(50),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0.0)),
                   onPressed: () {
-                    this.setChartType(e.key);
+                    this.setChartType(e);
                   },
-                  child: Text(e.value,
+                  child: Text(e.name,
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -122,7 +123,7 @@ class TimeSeriesHeader extends StatelessWidget {
                 ),
               ],
             ),
-            if (chartType == TIME_SERIES_CHART_TYPES.TOTAL)
+            if (chartType == TimeSeriesChartType.total)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +175,7 @@ class TimeSeriesHeader extends StatelessWidget {
                         child: Text(
                             region.districtName != null
                                 ? region.districtName
-                                : STATE_CODE_MAP[region.stateCode],
+                                : region.stateCode.name,
                             softWrap: true,
                             maxLines: 2,
                             style: TextStyle(

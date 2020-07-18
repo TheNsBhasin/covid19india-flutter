@@ -1,3 +1,5 @@
+import 'package:covid19india/core/bloc/bloc.dart';
+import 'package:covid19india/core/network/network_info.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_local_data_source.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_remote_data_source.dart';
 import 'package:covid19india/features/daily_count/data/repositories/daily_count_repository_impl.dart';
@@ -10,7 +12,7 @@ import 'package:covid19india/features/time_series/data/repositories/time_series_
 import 'package:covid19india/features/time_series/domain/repositories/time_series_repository.dart';
 import 'package:covid19india/features/time_series/domain/usecases/get_state_time_series.dart';
 import 'package:covid19india/features/time_series/domain/usecases/get_time_series.dart';
-import 'package:covid19india/features/time_series/presentation/bloc/time_series/bloc.dart';
+import 'package:covid19india/features/time_series/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/update_log/data/datasources/update_log_local_data_source.dart';
 import 'package:covid19india/features/update_log/data/datasources/update_log_remote_datasource.dart';
 import 'package:covid19india/features/update_log/data/repositories/update_log_repository_impl.dart';
@@ -24,13 +26,37 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/network/network_info.dart';
-import 'features/time_series/presentation/bloc/state_time_series/bloc.dart';
+import 'core/entity/entity.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
   // Bloc
+  sl.registerFactory<StatisticBloc>(
+    () => StatisticBloc(statistic: Statistic.confirmed),
+  );
+
+  sl.registerFactory<RegionHighlightedBloc>(
+    () => RegionHighlightedBloc(
+        region: Region(stateCode: MapCodes.TT, districtName: null)),
+  );
+
+  sl.registerFactory<MapViewBloc>(
+    () => MapViewBloc(mapView: MapView.states),
+  );
+
+  sl.registerFactory<MapVizBloc>(
+    () => MapVizBloc(mapViz: MapViz.choropleth),
+  );
+
+  sl.registerFactory<TimeSeriesChartTypeBloc>(
+    () => TimeSeriesChartTypeBloc(chartType: TimeSeriesChartType.total),
+  );
+
+  sl.registerFactory<TimeSeriesOptionBloc>(
+    () => TimeSeriesOptionBloc(option: TimeSeriesOption.two_weeks),
+  );
+
   sl.registerFactory<DailyCountBloc>(
     () => DailyCountBloc(
       dailyCount: sl(),
@@ -38,15 +64,7 @@ Future<void> init() async {
   );
 
   sl.registerFactory<TimeSeriesBloc>(
-    () => TimeSeriesBloc(
-      timeSeries: sl(),
-    ),
-  );
-
-  sl.registerFactory<StateTimeSeriesBloc>(
-    () => StateTimeSeriesBloc(
-      timeSeries: sl(),
-    ),
+    () => TimeSeriesBloc(timeSeries: sl(), stateTimeSeries: sl()),
   );
 
   sl.registerFactory<UpdateLogBloc>(

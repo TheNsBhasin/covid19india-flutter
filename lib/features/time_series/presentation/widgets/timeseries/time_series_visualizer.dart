@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/statistic.dart';
+import 'package:covid19india/core/entity/time_series_chart_type.dart';
+import 'package:covid19india/core/entity/time_series_option.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
@@ -13,10 +16,10 @@ import 'package:intl/intl.dart';
 class TimeSeriesItem extends StatelessWidget {
   final List<TimeSeries> timeSeries;
 
-  final STATISTIC statistic;
+  final Statistic statistic;
 
-  final TIME_SERIES_OPTIONS timeSeriesOption;
-  final TIME_SERIES_CHART_TYPES chartType;
+  final TimeSeriesOption timeSeriesOption;
+  final TimeSeriesChartType chartType;
 
   final bool isUniform;
   final bool isLog;
@@ -104,7 +107,7 @@ class TimeSeriesItem extends StatelessWidget {
     final numDates = timeSeries.length;
 
     final double barWidth =
-        timeSeriesOption == TIME_SERIES_OPTIONS.BEGINNING ? 2 : 6;
+        timeSeriesOption == TimeSeriesOption.beginning ? 2 : 6;
 
     final double spacing = (maxWidth - 72 - numDates * barWidth) / numDates;
 
@@ -141,7 +144,7 @@ class TimeSeriesItem extends StatelessWidget {
     final double minY = min(yTicks.first.toDouble(), minValue);
     final double maxY = max(yTicks.last.toDouble(), maxValue);
 
-    if (chartType == TIME_SERIES_CHART_TYPES.TOTAL) {
+    if (chartType == TimeSeriesChartType.total) {
       return Container(
         child: AspectRatio(
           aspectRatio: 1.7,
@@ -215,14 +218,13 @@ class TimeSeriesItem extends StatelessWidget {
                     spots: <FlSpot>[
                       ...timeSeries.asMap().entries.map((e) {
                         final double x = e.key.toDouble();
-                        final double y =
-                            chartType == TIME_SERIES_CHART_TYPES.TOTAL
-                                ? yScale.scale(yScale.clamper()(
-                                    getStatisticValue(e.value.total, statistic)
-                                        .toDouble()))
-                                : yScale.scale(yScale.clamper()(
-                                    getStatisticValue(e.value.delta, statistic)
-                                        .toDouble()));
+                        final double y = chartType == TimeSeriesChartType.total
+                            ? yScale.scale(yScale.clamper()(
+                                getStatisticValue(e.value.total, statistic)
+                                    .toDouble()))
+                            : yScale.scale(yScale.clamper()(
+                                getStatisticValue(e.value.delta, statistic)
+                                    .toDouble()));
 
                         return FlSpot(x, y);
                       }),
@@ -232,8 +234,7 @@ class TimeSeriesItem extends StatelessWidget {
                     barWidth: 3,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
-                        show:
-                            timeSeriesOption != TIME_SERIES_OPTIONS.BEGINNING),
+                        show: timeSeriesOption != TimeSeriesOption.beginning),
                     belowBarData: BarAreaData(show: false),
                   ),
                 ],
@@ -323,7 +324,7 @@ class TimeSeriesItem extends StatelessWidget {
                 ...timeSeries.asMap().entries.map((e) {
                   final int x = e.key;
 
-                  final double y = chartType == TIME_SERIES_CHART_TYPES.TOTAL
+                  final double y = chartType == TimeSeriesChartType.total
                       ? yScale.scale(yScale.clamper()(
                           getStatisticValue(e.value.total, statistic)
                               .toDouble()))
@@ -362,23 +363,23 @@ class TimeSeriesItem extends StatelessWidget {
     );
   }
 
-  Scale _getYScale(List<TimeSeries> timeSeries, STATISTIC statistic,
-      TIME_SERIES_CHART_TYPES chartType, bool isUniform, bool isLog) {
+  Scale _getYScale(List<TimeSeries> timeSeries, Statistic statistic,
+      TimeSeriesChartType chartType, bool isUniform, bool isLog) {
     if (isUniform &&
-        chartType == TIME_SERIES_CHART_TYPES.TOTAL &&
+        chartType == TimeSeriesChartType.total &&
         isLog &&
-        statistic != STATISTIC.TESTED) {
+        statistic != Statistic.tested) {
       return yScaleUniformLog(timeSeries, chartType);
     }
 
-    if (isUniform && statistic != STATISTIC.TESTED) {
+    if (isUniform && statistic != Statistic.tested) {
       return yScaleUniformLinear(timeSeries, chartType);
     }
 
     int minStats = _getMinStatistics(timeSeries, chartType, statistic);
     int maxStats = _getMaxStatistics(timeSeries, chartType, statistic);
 
-    if (chartType == TIME_SERIES_CHART_TYPES.TOTAL && isLog) {
+    if (chartType == TimeSeriesChartType.total && isLog) {
       return LogScale(<double>[
         max(1, minStats).toDouble(),
         max(10, maxStats).toDouble()
@@ -398,7 +399,7 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   Scale yScaleUniformLog(
-      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+      List<TimeSeries> timeSeries, TimeSeriesChartType chartType) {
     int minStats = _uniformScaleMin(timeSeries, chartType);
     int maxStats = _uniformScaleMax(timeSeries, chartType);
 
@@ -412,7 +413,7 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   Scale yScaleUniformLinear(
-      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+      List<TimeSeries> timeSeries, TimeSeriesChartType chartType) {
     int minStats = _uniformScaleMin(timeSeries, chartType);
     int maxStats = _uniformScaleMax(timeSeries, chartType);
 
@@ -426,39 +427,39 @@ class TimeSeriesItem extends StatelessWidget {
   }
 
   int _uniformScaleMin(
-      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+      List<TimeSeries> timeSeries, TimeSeriesChartType chartType) {
     return min(
-      min(_getMinStatistics(timeSeries, chartType, STATISTIC.CONFIRMED),
-          _getMinStatistics(timeSeries, chartType, STATISTIC.ACTIVE)),
-      min(_getMinStatistics(timeSeries, chartType, STATISTIC.RECOVERED),
-          _getMinStatistics(timeSeries, chartType, STATISTIC.DECEASED)),
+      min(_getMinStatistics(timeSeries, chartType, Statistic.confirmed),
+          _getMinStatistics(timeSeries, chartType, Statistic.active)),
+      min(_getMinStatistics(timeSeries, chartType, Statistic.recovered),
+          _getMinStatistics(timeSeries, chartType, Statistic.deceased)),
     );
   }
 
   int _uniformScaleMax(
-      List<TimeSeries> timeSeries, TIME_SERIES_CHART_TYPES chartType) {
+      List<TimeSeries> timeSeries, TimeSeriesChartType chartType) {
     return max(
-      max(_getMaxStatistics(timeSeries, chartType, STATISTIC.CONFIRMED),
-          _getMaxStatistics(timeSeries, chartType, STATISTIC.ACTIVE)),
-      max(_getMaxStatistics(timeSeries, chartType, STATISTIC.RECOVERED),
-          _getMaxStatistics(timeSeries, chartType, STATISTIC.DECEASED)),
+      max(_getMaxStatistics(timeSeries, chartType, Statistic.confirmed),
+          _getMaxStatistics(timeSeries, chartType, Statistic.active)),
+      max(_getMaxStatistics(timeSeries, chartType, Statistic.recovered),
+          _getMaxStatistics(timeSeries, chartType, Statistic.deceased)),
     );
   }
 
   int _getMinStatistics(List<TimeSeries> timeSeries,
-      TIME_SERIES_CHART_TYPES chartType, STATISTIC statistic) {
+      TimeSeriesChartType chartType, Statistic statistic) {
     return timeSeries
         .map((e) => getStatisticValue(
-            chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,
+            chartType == TimeSeriesChartType.total ? e.total : e.delta,
             statistic))
         .reduce(min);
   }
 
   int _getMaxStatistics(List<TimeSeries> timeSeries,
-      TIME_SERIES_CHART_TYPES chartType, STATISTIC statistic) {
+      TimeSeriesChartType chartType, Statistic statistic) {
     return timeSeries
         .map((e) => getStatisticValue(
-            chartType == TIME_SERIES_CHART_TYPES.TOTAL ? e.total : e.delta,
+            chartType == TimeSeriesChartType.total ? e.total : e.delta,
             statistic))
         .reduce(max);
   }
@@ -469,8 +470,8 @@ class TimeSeriesVisualizer extends StatelessWidget {
 
   final DateTime timelineDate;
 
-  final TIME_SERIES_OPTIONS timeSeriesOption;
-  final TIME_SERIES_CHART_TYPES chartType;
+  final TimeSeriesOption timeSeriesOption;
+  final TimeSeriesChartType chartType;
 
   final bool isUniform;
   final bool isLog;
@@ -512,7 +513,7 @@ class TimeSeriesVisualizer extends StatelessWidget {
   }
 
   List<TimeSeries> _getFilteredTimeSeries(List<TimeSeries> timeSeries,
-      DateTime timelineDate, TIME_SERIES_OPTIONS timeSeriesOption) {
+      DateTime timelineDate, TimeSeriesOption timeSeriesOption) {
     final List<TimeSeries> sortedTimeSeries = timeSeries
       ..sort((a, b) => a.date.compareTo(b.date))
       ..toList();
@@ -524,13 +525,13 @@ class TimeSeriesVisualizer extends StatelessWidget {
     List<TimeSeries> filteredTimeSeries =
         sortedTimeSeries.where((e) => !e.date.isAfter(today)).toList();
 
-    if (timeSeriesOption == TIME_SERIES_OPTIONS.MONTH) {
+    if (timeSeriesOption == TimeSeriesOption.month) {
       DateTime cuttOffDate = today.subtract(Duration(days: 30));
 
       return filteredTimeSeries
           .where((e) => !e.date.isBefore(cuttOffDate))
           .toList();
-    } else if (timeSeriesOption == TIME_SERIES_OPTIONS.TWO_WEEKS) {
+    } else if (timeSeriesOption == TimeSeriesOption.two_weeks) {
       DateTime cuttOffDate = today.subtract(Duration(days: 14));
 
       return filteredTimeSeries

@@ -5,7 +5,7 @@ import 'package:covid19india/core/network/network_info.dart';
 import 'package:covid19india/core/util/extensions.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_local_data_source.dart';
 import 'package:covid19india/features/daily_count/data/datasources/daily_count_remote_data_source.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/domain/repositories/daily_count_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -14,17 +14,26 @@ class DailyCountRepositoryImpl implements DailyCountRepository {
   final DailyCountLocalDataSource localDataSource;
   final NetworkInfo networkInfo;
 
-  DailyCountRepositoryImpl(
-      {this.remoteDataSource, this.localDataSource, this.networkInfo});
+  DailyCountRepositoryImpl({
+    this.remoteDataSource,
+    this.localDataSource,
+    this.networkInfo,
+  });
 
   @override
-  Future<Either<Failure, List<StateWiseDailyCount>>> getDailyCount(
-      {bool forced, bool cache, DateTime date}) async {
+  Future<Either<Failure, List<StateDailyCount>>> getDailyCount({
+    bool forced,
+    bool cache,
+    DateTime date,
+  }) async {
     return await _getDailyCount(forced: forced, cache: cache, date: date);
   }
 
-  Future<Either<Failure, List<StateWiseDailyCount>>> _getDailyCount(
-      {bool forced, bool cache, DateTime date}) async {
+  Future<Either<Failure, List<StateDailyCount>>> _getDailyCount({
+    bool forced,
+    bool cache,
+    DateTime date,
+  }) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
@@ -42,8 +51,13 @@ class DailyCountRepositoryImpl implements DailyCountRepository {
         }
 
         final remoteDailyCounts = await remoteDataSource.getDailyCount(date);
+
         if (cache) {
-          localDataSource.cacheDailyCount(remoteDailyCounts, date: date);
+          try {
+            localDataSource.cacheDailyCount(remoteDailyCounts, date: date);
+          } catch (e) {
+            print('DailyCountRepositoryImpl: _getDailyCount: $e');
+          }
         }
 
         return Right(remoteDailyCounts);

@@ -1,152 +1,120 @@
 import 'dart:math';
 
+import 'package:covid19india/core/bloc/bloc.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/constants/maps.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
+import 'package:covid19india/core/entity/map_type.dart';
+import 'package:covid19india/core/entity/map_view.dart';
+import 'package:covid19india/core/entity/map_viz.dart';
 import 'package:covid19india/core/entity/region.dart';
+import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/scale/pow.dart';
 import 'package:covid19india/core/util/util.dart';
-import 'package:covid19india/features/daily_count/domain/entities/district_wise_daily_count.dart';
-import 'package:covid19india/features/daily_count/domain/entities/state_wise_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/district_daily_count.dart';
+import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class MapVisualizer extends StatelessWidget {
-  final Map<String, StateWiseDailyCount> dailyCounts;
+  final Map<MapCodes, StateDailyCount> dailyCounts;
 
-  final String mapCode;
-  final STATISTIC statistic;
-  final Region regionHighlighted;
+  final MapCodes mapCode;
 
-  final MAP_VIEWS mapView;
-  final MAP_VIZS mapViz;
-
-  final Function(Region regionHighlighted) setRegionHighlighted;
-
-  MapVisualizer(
-      {this.dailyCounts,
-      this.mapCode,
-      this.statistic,
-      this.regionHighlighted,
-      this.setRegionHighlighted,
-      this.mapView,
-      this.mapViz});
+  MapVisualizer({
+    this.dailyCounts,
+    this.mapCode,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final int statisticMax = _getStatisticMax(dailyCounts, mapView, statistic);
+    return BlocBuilder<MapViewBloc, MapView>(builder: (context, mapView) {
+      return BlocBuilder<MapVizBloc, MapViz>(builder: (context, mapViz) {
+        return BlocBuilder<StatisticBloc, Statistic>(
+            builder: (context, statistic) {
+          final Size mapSize = _getMapSize(mapCode);
 
-    final Scale mapScale = _getMapScale(mapViz, statistic, statisticMax);
+          final List<Shape> mapShape =
+              _getShape(dailyCounts, mapView, mapViz, mapCode, statistic);
 
-    final Size mapSize = _getMapSize(mapCode);
+          final double width =
+              min(mapSize.width, MediaQuery.of(context).size.width);
+          final double height = mapSize.height * (width / mapSize.width);
 
-    final List<Shape> mapShape = _getShape(context, dailyCounts, mapScale,
-        mapView, mapCode, statistic, regionHighlighted);
-
-    final double width = min(mapSize.width, MediaQuery.of(context).size.width);
-    final double height = mapSize.height * (width / mapSize.width);
-
-    return Center(
-        child: Container(
-      constraints: BoxConstraints(maxWidth: width, maxHeight: height),
-      child: MapPlot(
-        mapShape: mapShape,
-        mapCode: mapCode,
-        mapSize: mapSize,
-        mapView: mapView,
-        statistic: statistic,
-        setRegionHighlighted: setRegionHighlighted,
-      ),
-    ));
-  }
-
-  int _getStatisticMax(Map<String, StateWiseDailyCount> dailyCounts,
-      MAP_VIEWS mapView, STATISTIC statistic) {
-    List<String> stateCodes = dailyCounts.keys
-        .where((stateCode) =>
-            stateCode != 'TT' && MAP_META.keys.contains(stateCode))
-        .toList();
-
-    if (mapView == MAP_VIEWS.STATES) {
-      int maxStats = 0;
-      stateCodes.forEach((stateCode) {
-        maxStats = max(maxStats,
-            getStatisticValue(dailyCounts[stateCode].total, statistic));
-      });
-
-      return maxStats;
-    } else if (mapView == MAP_VIEWS.DISTRICTS) {
-      int maxStats = 0;
-      stateCodes.forEach((stateCode) {
-        dailyCounts[stateCode].districts.forEach((districtData) {
-          maxStats =
-              max(maxStats, getStatisticValue(districtData.total, statistic));
+          return Center(
+              child: Container(
+            constraints: BoxConstraints(maxWidth: width, maxHeight: height),
+            child: MapPlot(
+              mapShape: mapShape,
+              mapCode: mapCode,
+              mapSize: mapSize,
+              mapView: mapView,
+              statistic: statistic,
+            ),
+          ));
         });
       });
-
-      return maxStats;
-    }
-
-    return 0;
+    });
   }
 
-  Scale _getMapScale(MAP_VIZS mapViz, STATISTIC statistic, int statisticMax) {
-    if (mapViz == MAP_VIZS.BUBBLES) {
-      return SqrtScale([0, max(statisticMax, 1)], [0, 40]);
-    } else {
-      return LinearScale([0, max(1, statisticMax)], [0.0, 1.0]);
-    }
-  }
-
-  Size _getMapSize(String mapCode) {
-    if (mapView == MAP_VIEWS.STATES) {
-      return MAP_SIZE['TT'];
-    }
-
-    return MAP_SIZE[mapCode];
+  Size _getMapSize(MapCodes mapCode) {
+    return MAP_SIZE[mapCode.key];
   }
 
   List<Shape> _getShape(
-      BuildContext context,
-      Map<String, StateWiseDailyCount> dailyCounts,
-      Scale mapScale,
-      MAP_VIEWS mapView,
-      String mapCode,
-      STATISTIC statistic,
-      Region regionHighlighted) {
-    if (MAP_META[mapCode]['map_type'] == MAP_TYPES.STATE) {
-      return STATE_DATA[mapCode]
+    Map<MapCodes, StateDailyCount> dailyCounts,
+    MapView mapView,
+    MapViz mapViz,
+    MapCodes mapCode,
+    Statistic statistic,
+  ) {
+    if (mapCode.mapType == MapType.state) {
+      return STATE_DATA[mapCode.key]
           .map((districtData) {
             String districtName = districtData['district'];
             String path = districtData['path'];
 
+            final DistrictDailyCount districtDailyCount = dailyCounts[mapCode]
+                .districts
+                .firstWhere((districtData) => districtData.name == districtName,
+                    orElse: () => null);
+
             return Shape.withPathString(
-                path: path,
-                region: new Region(stateCode: mapCode, districtName: null),
-                color: _getGradient(context, dailyCounts, mapScale, mapCode,
-                    districtName, statistic),
-                highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-                highlighted: regionHighlighted.districtName == districtName);
+              path: path,
+              region: Region(
+                stateCode: mapCode,
+                districtName: districtName,
+              ),
+              value: districtDailyCount != null
+                  ? getStatisticValue(districtDailyCount.total, statistic)
+                  : 0,
+            );
           })
           .toList()
           .cast<Shape>();
     }
 
-    if (mapView == MAP_VIEWS.STATES) {
+    if (mapView == MapView.states) {
       return COUNTRY_DATA.entries
           .map((stateData) {
-            String stateCode = stateData.key;
+            MapCodes stateCode = stateData.key.toMapCode();
             String path = stateData.value['path'];
+
+            final StateDailyCount stateDailyCount = dailyCounts[stateCode];
 
             return Shape.withPathString(
               path: path,
-              region: new Region(districtName: null, stateCode: stateCode),
-              color: _getGradient(
-                  context, dailyCounts, mapScale, stateCode, null, statistic),
-              highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-              highlighted: regionHighlighted.stateCode == stateCode,
+              region: Region(
+                districtName: null,
+                stateCode: stateCode,
+              ),
+              value: stateDailyCount != null
+                  ? getStatisticValue(stateDailyCount.total, statistic)
+                  : 0,
             );
           })
           .toList()
@@ -156,20 +124,28 @@ class MapVisualizer extends StatelessWidget {
     List<Shape> shapes = <Shape>[];
 
     COUNTRY_DATA.entries.forEach((stateData) {
-      String stateCode = stateData.key;
+      MapCodes stateCode = stateData.key.toMapCode();
       stateData.value['districts'].entries.forEach((districtData) {
         String districtName = districtData.value['district'];
         String path = districtData.value['path'];
 
+        final DistrictDailyCount districtDailyCount = dailyCounts[stateCode]
+                ?.districts
+                ?.firstWhere(
+                    (districtData) => districtData.name == districtName,
+                    orElse: () => null) ??
+            null;
+
         if (path != null) {
           shapes.add(Shape.withPathString(
             path: path,
-            region:
-                new Region(districtName: districtName, stateCode: stateCode),
-            color: _getGradient(context, dailyCounts, mapScale, stateCode,
-                districtName, statistic),
-            highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
-            highlighted: regionHighlighted.districtName == districtName,
+            region: Region(
+              districtName: districtName,
+              stateCode: stateCode,
+            ),
+            value: districtDailyCount != null
+                ? getStatisticValue(districtDailyCount.total, statistic)
+                : 0,
           ));
         } else {
 //          print(districtName);
@@ -179,76 +155,30 @@ class MapVisualizer extends StatelessWidget {
 
     return shapes;
   }
-
-  Color _getGradient(
-      BuildContext context,
-      Map<String, StateWiseDailyCount> dailyCounts,
-      Scale mapScale,
-      String mapCode,
-      String districtName,
-      STATISTIC statistic) {
-    StateWiseDailyCount stateDailyCount = dailyCounts[mapCode];
-
-    int stats = getStatisticValue(stateDailyCount.total, statistic);
-
-    if (districtName != null) {
-      if (stateDailyCount.districts
-              .where((district) => district.name == districtName)
-              .length >
-          0) {
-        DistrictWiseDailyCount districtDailyCount = stateDailyCount.districts
-            .where((district) => district.name == districtName)
-            .first;
-
-        stats = getStatisticValue(districtDailyCount.total, statistic);
-      } else {
-        stats = 0;
-      }
-    }
-
-    int _startIndex = 0;
-    int _endIndex = 1;
-
-    if (MediaQuery.of(context).platformBrightness == Brightness.dark) {
-      _startIndex = 1;
-      _endIndex = 0;
-    }
-
-    try {
-      return stats == 0
-          ? Colors.transparent
-          : Color.lerp(
-                  STATS_GRADIENT_COLOR[statistic][_startIndex],
-                  STATS_GRADIENT_COLOR[statistic][_endIndex],
-                  mapScale.scale(stats))
-              .withAlpha(50);
-    } catch (e) {
-      print('${e.toString()}: $mapCode $districtName');
-    }
-
-    return Colors.transparent;
-  }
 }
 
 class MapPlot extends StatelessWidget {
   final List<Shape> mapShape;
-  final String mapCode;
+  final MapCodes mapCode;
   final Size mapSize;
-  final MAP_VIEWS mapView;
-  final STATISTIC statistic;
+  final MapViz mapViz;
+  final MapView mapView;
+  final Statistic statistic;
 
-  final Function(Region regionHighlighted) setRegionHighlighted;
-
-  MapPlot(
-      {this.mapShape,
-      this.mapCode,
-      this.mapSize,
-      this.mapView,
-      this.statistic,
-      this.setRegionHighlighted});
+  MapPlot({
+    this.mapShape,
+    this.mapCode,
+    this.mapSize,
+    this.mapViz,
+    this.mapView,
+    this.statistic,
+  });
 
   @override
   Widget build(BuildContext context) {
+    int maxValue = mapShape.map((e) => e.value).reduce(max);
+    Scale mapScale = _getMapScale(mapViz, statistic, maxValue);
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         Size size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -261,10 +191,13 @@ class MapPlot extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                setRegionHighlighted(Region(
-                  stateCode: mapCode,
-                  districtName: null,
-                ));
+                context
+                    .bloc<RegionHighlightedBloc>()
+                    .add(RegionHighlightedChanged(
+                        regionHighlighted: Region(
+                      stateCode: mapCode,
+                      districtName: null,
+                    )));
               },
               child: Container(
                 color: Colors.transparent,
@@ -274,112 +207,155 @@ class MapPlot extends StatelessWidget {
             ...mapShape.map((shape) => RegionPlot(
                   shape: shape.transform(matrix),
                   statistic: statistic,
-                  setRegionHighlighted: setRegionHighlighted,
+                  mapScale: mapScale,
+                  mapCode: mapCode,
                 )),
           ],
         );
       },
     );
   }
+
+  Scale _getMapScale(MapViz mapViz, Statistic statistic, int maxValue) {
+    if (mapViz == MapViz.bubbles) {
+      return SqrtScale([0, max(maxValue, 1)], [0, 40]);
+    } else {
+      return LinearScale([0, max(1, maxValue)], [0.0, 1.0]);
+    }
+  }
 }
 
 class RegionPlot extends StatelessWidget {
   final Shape shape;
-  final String mapCode;
-  final STATISTIC statistic;
+  final MapCodes mapCode;
+  final Scale mapScale;
+  final Statistic statistic;
 
-  final Function(Region regionHighlighted) setRegionHighlighted;
-
-  RegionPlot(
-      {this.shape, this.mapCode, this.statistic, this.setRegionHighlighted});
+  RegionPlot({this.shape, this.mapCode, this.mapScale, this.statistic});
 
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-        clipBehavior: Clip.antiAlias,
-        child: GestureDetector(
-          onTap: () {
-            setRegionHighlighted(shape.region);
-          },
-          onDoubleTap: () {
-            if (mapCode != 'TT') {
-              return;
-            }
+    bool isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
 
-            Navigator.pushNamed(
-              context,
-              StatePage.routeName,
-              arguments: StatePageArguments(region: shape.region),
-            );
-          },
-          child: CustomPaint(
-            child: SizedBox.expand(),
-            painter: RegionPainter(
-                shape: shape, strokeColor: STATS_COLOR[statistic]),
+    return BlocBuilder<RegionHighlightedBloc, Region>(
+      buildWhen: (previous, current) =>
+          previous == shape.region || current == shape.region,
+      builder: (context, regionHighlighted) {
+        return ClipPath(
+          clipBehavior: Clip.antiAlias,
+          child: GestureDetector(
+            onTap: () {
+              context.bloc<RegionHighlightedBloc>().add(
+                  RegionHighlightedChanged(regionHighlighted: shape.region));
+            },
+            onDoubleTap: () {
+              if (mapCode != MapCodes.TT) {
+                return;
+              }
+
+              Navigator.pushNamed(
+                context,
+                StatePage.routeName,
+                arguments: StatePageArguments(region: shape.region),
+              );
+            },
+            child: CustomPaint(
+              child: SizedBox.expand(),
+              painter: RegionPainter(
+                shape: shape,
+                strokeColor: STATS_COLOR[statistic],
+                fillColor: _getGradient(shape, mapScale, statistic,
+                    inverted: isDarkMode),
+                highlightColor: STATS_HIGHLIGHT_COLOR[statistic],
+                highlighted: regionHighlighted == shape.region,
+              ),
+            ),
           ),
-        ),
-        clipper: RegionClipper(shape));
+          clipper: RegionClipper(shape),
+        );
+      },
+    );
+  }
+
+  Color _getGradient(Shape shape, Scale mapScale, Statistic statistic,
+      {inverted: false}) {
+    int _startIndex = 0;
+    int _endIndex = 1;
+
+    if (inverted) {
+      _startIndex = 1;
+      _endIndex = 0;
+    }
+
+    return Color.lerp(
+            STATS_GRADIENT_COLOR[statistic][_startIndex],
+            STATS_GRADIENT_COLOR[statistic][_endIndex],
+            mapScale.scale(shape.value))
+        .withAlpha(50);
   }
 }
 
 class Shape extends Equatable {
   final Path path;
   final Region region;
-  final Color color;
-  final Color highlightColor;
-  final bool highlighted;
+  final int value;
 
-  Shape(
-      {this.path,
-      this.region,
-      this.color,
-      this.highlightColor,
-      this.highlighted});
+  Shape({
+    this.path,
+    this.region,
+    this.value,
+  });
 
-  factory Shape.withPathString(
-      {String path,
-      Region region,
-      Color color,
-      Color highlightColor,
-      bool highlighted}) {
+  factory Shape.withPathString({
+    String path,
+    Region region,
+    int value,
+  }) {
     return Shape(
-        path: parseSvgPathData(path),
-        region: region,
-        color: color,
-        highlightColor: highlightColor,
-        highlighted: highlighted);
+      path: parseSvgPathData(path),
+      region: region,
+      value: value,
+    );
   }
 
   Shape transform(Matrix4 matrix) => Shape(
         path: path.transform(matrix.storage),
         region: this.region,
-        color: this.color,
-        highlightColor: this.highlightColor,
-        highlighted: this.highlighted,
+        value: this.value,
       );
 
   @override
-  List<Object> get props => [path, region, color, highlighted, highlightColor];
+  List<Object> get props => [path, region, value];
 }
 
 class RegionPainter extends CustomPainter {
   final Shape shape;
+  final Color fillColor;
   final Color strokeColor;
+  final Color highlightColor;
+  final bool highlighted;
   final Matrix4 matrix;
   final Paint _paint = Paint();
 
-  RegionPainter({this.shape, this.strokeColor, this.matrix});
+  RegionPainter(
+      {this.shape,
+      this.fillColor,
+      this.strokeColor,
+      this.highlightColor,
+      this.highlighted,
+      this.matrix});
 
   @override
   void paint(Canvas canvas, Size size) {
     _paint
-      ..color = shape.color
+      ..color = fillColor
       ..style = PaintingStyle.fill;
     canvas.drawPath(shape.path, _paint);
 
     _paint
-      ..color = shape.highlighted
-          ? shape.highlightColor ?? strokeColor
+      ..color = highlighted
+          ? highlightColor ?? strokeColor
           : strokeColor.withAlpha(50)
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;

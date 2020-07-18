@@ -12,6 +12,35 @@ class MetadataModel extends Metadata {
             notes: notes,
             tested: tested);
 
+  MetadataModel copyWith(
+      {String lastUpdated,
+      int population,
+      String notes,
+      Map<String, dynamic> tested}) {
+    return MetadataModel(
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      population: population ?? this.population,
+      notes: notes ?? this.notes,
+      tested: tested ?? this.tested,
+    );
+  }
+
+  factory MetadataModel.fromEntity(Metadata entity) {
+    return MetadataModel(
+        lastUpdated: entity.lastUpdated,
+        population: entity.population,
+        notes: entity.notes,
+        tested: entity.tested);
+  }
+
+  Metadata toEntity() {
+    return Metadata(
+        lastUpdated: lastUpdated,
+        population: population,
+        notes: notes,
+        tested: tested);
+  }
+
   factory MetadataModel.fromJson(Map<String, dynamic> json) {
     return MetadataModel(
         lastUpdated: json['last_updated'],

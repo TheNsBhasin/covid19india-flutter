@@ -1,17 +1,18 @@
 import 'dart:convert';
 
 import 'package:covid19india/core/constants/endpoints.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
 import 'package:covid19india/core/error/exceptions.dart';
 import 'package:covid19india/core/util/response_parser.dart';
-import 'package:covid19india/features/time_series/data/models/state_wise_time_series_model.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
+import 'package:covid19india/features/time_series/data/models/state_time_series_model.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 abstract class TimeSeriesRemoteDataSource {
-  Future<List<StateWiseTimeSeries>> getTimeSeries();
+  Future<List<StateTimeSeries>> getTimeSeries();
 
-  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode);
+  Future<StateTimeSeries> getStateTimeSeries(MapCodes stateCode);
 }
 
 class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
@@ -20,10 +21,10 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
   TimeSeriesRemoteDataSourceImpl({@required this.client});
 
   @override
-  Future<List<StateWiseTimeSeries>> getTimeSeries() =>
+  Future<List<StateTimeSeries>> getTimeSeries() =>
       _getTimeSeriesFromUrl(Endpoints.TIME_SERIES);
 
-  Future<List<StateWiseTimeSeries>> _getTimeSeriesFromUrl(String url) async {
+  Future<List<StateTimeSeries>> _getTimeSeriesFromUrl(String url) async {
     final response = await client.get(url, headers: {
       'Content-Type': 'application/json',
     }).timeout(const Duration(seconds: 30));
@@ -33,11 +34,11 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
         Map<String, dynamic> jsonMap = ResponseParser.jsonToTimeSeries(
             json.decode(response.body.toString()));
         return jsonMap["results"]
-            .map((result) => StateWiseTimeSeriesModel.fromJson(result))
+            .map((result) => StateTimeSeriesModel.fromJson(result).toEntity())
             .toList()
-            .cast<StateWiseTimeSeries>();
+            .cast<StateTimeSeries>();
       } catch (e) {
-        debugPrint("_getTimeSeriesFromUrl: ${e.toString()}");
+        debugPrint("_getTimeSeriesFromUrl: $e");
         throw ServerException();
       }
     } else {
@@ -46,10 +47,11 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
   }
 
   @override
-  Future<StateWiseTimeSeries> getStateTimeSeries(String stateCode) =>
-      _getStateTimeSeriesFromUrl(Endpoints.timeSeries(stateCode: stateCode));
+  Future<StateTimeSeries> getStateTimeSeries(MapCodes stateCode) =>
+      _getStateTimeSeriesFromUrl(
+          Endpoints.timeSeries(stateCode: stateCode.key));
 
-  Future<StateWiseTimeSeries> _getStateTimeSeriesFromUrl(String url) async {
+  Future<StateTimeSeries> _getStateTimeSeriesFromUrl(String url) async {
     final response = await client.get(url, headers: {
       'Content-Type': 'application/json',
     }).timeout(const Duration(seconds: 30));
@@ -58,7 +60,7 @@ class TimeSeriesRemoteDataSourceImpl implements TimeSeriesRemoteDataSource {
       try {
         Map<String, dynamic> jsonMap = ResponseParser.jsonToStateTimeSeries(
             json.decode(response.body.toString()));
-        return StateWiseTimeSeriesModel.fromJson(jsonMap["result"]);
+        return StateTimeSeriesModel.fromJson(jsonMap["result"]).toEntity();
       } catch (e) {
         debugPrint("_getTimeSeriesFromUrl: ${e.toString()}");
         throw ServerException();

@@ -1,11 +1,12 @@
+import 'package:covid19india/core/entity/map_codes.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
 class Region extends Equatable {
-  final String stateCode;
+  final MapCodes stateCode;
   final String districtName;
 
-  Region({@required this.stateCode, this.districtName});
+  const Region({@required this.stateCode, this.districtName});
 
   @override
   List<Object> get props => [stateCode, districtName];

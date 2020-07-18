@@ -3,8 +3,35 @@ import 'package:covid19india/features/time_series/domain/entities/time_series.da
 import 'package:intl/intl.dart';
 
 class TimeSeriesModel extends TimeSeries {
-  TimeSeriesModel({DateTime date, StatsModel total, StatsModel delta})
-      : super(date: date, total: total, delta: delta);
+  TimeSeriesModel({
+    DateTime date,
+    StatsModel total,
+    StatsModel delta,
+  }) : super(date: date, total: total.toEntity(), delta: delta.toEntity());
+
+  TimeSeriesModel copyWith({
+    DateTime date,
+    StatsModel total,
+    StatsModel delta,
+  }) {
+    return TimeSeriesModel(
+      date: date ?? this.date,
+      total: total.toEntity() ?? this.total,
+      delta: delta.toEntity() ?? this.delta,
+    );
+  }
+
+  factory TimeSeriesModel.fromEntity(TimeSeries entity) {
+    return TimeSeriesModel(
+      date: entity.date,
+      total: StatsModel.fromEntity(entity.total),
+      delta: StatsModel.fromEntity(entity.delta),
+    );
+  }
+
+  TimeSeries toEntity() {
+    return TimeSeries(date: date, total: total, delta: delta);
+  }
 
   factory TimeSeriesModel.fromJson(Map<String, dynamic> json) {
     return TimeSeriesModel(
@@ -16,20 +43,8 @@ class TimeSeriesModel extends TimeSeries {
   Map<String, dynamic> toJson() {
     return {
       'date': DateFormat('yyyy-MM-dd').format(date),
-      'total': StatsModel(
-              confirmed: total.confirmed,
-              recovered: total.recovered,
-              deceased: total.deceased,
-              tested: total.tested,
-              migrated: total.migrated)
-          .toJson(),
-      'delta': StatsModel(
-              confirmed: delta.confirmed,
-              recovered: delta.recovered,
-              deceased: delta.deceased,
-              tested: delta.tested,
-              migrated: delta.migrated)
-          .toJson()
+      'total': StatsModel.fromEntity(total).toJson(),
+      'delta': StatsModel.fromEntity(delta).toJson(),
     };
   }
 }

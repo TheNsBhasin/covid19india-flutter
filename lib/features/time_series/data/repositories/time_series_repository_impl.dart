@@ -1,10 +1,11 @@
 import 'package:covid19india/core/constants/constants.dart';
+import 'package:covid19india/core/entity/map_codes.dart';
 import 'package:covid19india/core/error/exceptions.dart';
 import 'package:covid19india/core/error/failures.dart';
 import 'package:covid19india/core/network/network_info.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_local_data_source.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_remote_data_source.dart';
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
+import 'package:covid19india/features/time_series/domain/entities/state_time_series.dart';
 import 'package:covid19india/features/time_series/domain/repositories/time_series_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -17,19 +18,19 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
       {this.remoteDataSource, this.localDataSource, this.networkInfo});
 
   @override
-  Future<Either<Failure, List<StateWiseTimeSeries>>> getTimeSeries(
+  Future<Either<Failure, List<StateTimeSeries>>> getTimeSeries(
       {bool forced, bool cache}) async {
     return await _getTimeSeries(forced: forced, cache: cache);
   }
 
-  Future<Either<Failure, List<StateWiseTimeSeries>>> _getTimeSeries(
+  Future<Either<Failure, List<StateTimeSeries>>> _getTimeSeries(
       {bool forced, bool cache}) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
           try {
-            final DateTime lastCached =
-                await localDataSource.getCachedTimeStamp(stateCode: 'TT');
+            final DateTime lastCached = await localDataSource
+                .getCachedTimeStamp(stateCode: MapCodes.TT.key);
             if (new DateTime.now().difference(lastCached).inMinutes <=
                 CACHE_TIMEOUT_IN_MINUTES) {
               final localTimeSeries = await localDataSource.getLastTimeSeries();
@@ -62,14 +63,14 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
   }
 
   @override
-  Future<Either<Failure, StateWiseTimeSeries>> getStateTimeSeries(
-      {bool forced, bool cache, String stateCode}) async {
+  Future<Either<Failure, StateTimeSeries>> getStateTimeSeries(
+      {bool forced, bool cache, MapCodes stateCode}) async {
     if (await networkInfo.isConnected) {
       try {
         if (!forced) {
           try {
-            final DateTime lastCached =
-                await localDataSource.getCachedTimeStamp(stateCode: stateCode);
+            final DateTime lastCached = await localDataSource
+                .getCachedTimeStamp(stateCode: stateCode.key);
             if (new DateTime.now().difference(lastCached).inMinutes <=
                 CACHE_TIMEOUT_IN_MINUTES) {
               final localTimeSeries =
@@ -81,8 +82,10 @@ class TimeSeriesRepositoryImpl implements TimeSeriesRepository {
                 'TimeSeriesRepositoryImpl: getStateTimeSeries: CacheException');
           }
         }
+
         final remoteTimeSeries =
             await remoteDataSource.getStateTimeSeries(stateCode);
+
         if (cache) {
           try {
             localDataSource.cacheStateTimeSeries(remoteTimeSeries, stateCode);

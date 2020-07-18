@@ -1,33 +1,28 @@
-import 'package:covid19india/features/time_series/domain/entities/state_wise_time_series.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
+part of 'time_series_bloc.dart';
 
-abstract class TimeSeriesState extends Equatable {}
+abstract class TimeSeriesState extends Equatable {
+  const TimeSeriesState();
 
-class Empty extends TimeSeriesState {
   @override
   List<Object> get props => [];
-}
 
-class Loading extends TimeSeriesState {
   @override
-  List<Object> get props => [];
+  bool get stringify => true;
 }
 
-class Loaded extends TimeSeriesState {
-  final List<StateWiseTimeSeries> timeSeries;
+class TimeSeriesLoadInProgress extends TimeSeriesState {}
 
-  Loaded({this.timeSeries});
+class TimeSeriesLoadSuccess extends TimeSeriesState {
+  final List<StateTimeSeries> timeSeries;
+
+  const TimeSeriesLoadSuccess([this.timeSeries = const []]);
 
   @override
   List<Object> get props => [timeSeries];
 }
 
-class Error extends TimeSeriesState {
+class TimeSeriesLoadFailure extends TimeSeriesState {
   final String message;
 
-  Error({@required this.message});
-
-  @override
-  List<Object> get props => [message];
+  TimeSeriesLoadFailure({this.message});
 }

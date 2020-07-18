@@ -75,7 +75,7 @@ class _ActionBarState extends State<ActionBar> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          actionBarItems(),
+          buildActionBarItems(),
           if (actionBarOption == ActionBarOption.Update)
             Updates(updateLogs: updateLogs),
           if (actionBarOption == ActionBarOption.Timeline)
@@ -93,7 +93,7 @@ class _ActionBarState extends State<ActionBar> {
     );
   }
 
-  Widget actionBarItems() {
+  Widget buildActionBarItems() {
     if (actionBarOption == ActionBarOption.Timeline) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -171,9 +171,8 @@ class _ActionBarState extends State<ActionBar> {
           color: Colors.grey,
           onPressed: () {
             if (actionBarOption != ActionBarOption.Update) {
-              BlocProvider.of<UpdateLogBloc>(context)
-                ..add(StoreLastViewedTimestampData(
-                    timestamp: updateLogs.last.timestamp));
+              context.bloc<UpdateLogBloc>().add(UpdateLastViewedTimestamp(
+                  timestamp: updateLogs.last.timestamp));
             }
 
             setState(() {
