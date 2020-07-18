@@ -59,6 +59,9 @@ class StateMeta extends StatelessWidget {
     final double growthRate =
         ((confirmed - prevWeekConfirmed) / prevWeekConfirmed) * 100;
 
+    final testedLastUpdated =
+        dailyCount[stateCode].metadata.tested['last_updated'];
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
@@ -180,8 +183,8 @@ class StateMeta extends StatelessWidget {
                 statistic:
                     "≈ ${NumberFormat.decimalPattern('en_IN').format(testPerMillion)}",
                 total: null,
-                date: tested != null
-                    ? "As of ${Formatter.formatDuration(indiaDate.difference(DateTime.parse(dailyCount[stateCode].metadata.tested['last_updated'])))} ago"
+                date: (tested != null && testedLastUpdated != null)
+                    ? "As of ${Formatter.formatDuration(indiaDate.difference(DateTime.parse(testedLastUpdated)))} ago"
                     : "",
                 formula:
                     '(total tests in state / total population of state) * 1 Million',

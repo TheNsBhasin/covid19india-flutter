@@ -6,6 +6,7 @@ import 'package:covid19india/features/daily_count/data/repositories/daily_count_
 import 'package:covid19india/features/daily_count/domain/repositories/daily_count_repository.dart';
 import 'package:covid19india/features/daily_count/domain/usecases/get_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
+import 'package:covid19india/features/home/presentation/bloc/bloc.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_local_data_source.dart';
 import 'package:covid19india/features/time_series/data/datasources/time_series_remote_data_source.dart';
 import 'package:covid19india/features/time_series/data/repositories/time_series_repository_impl.dart';
@@ -32,6 +33,14 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // Bloc
+  sl.registerFactory<RouteBloc>(
+    () => RouteBloc(),
+  );
+
+  sl.registerFactory<TabBloc>(
+    () => TabBloc(),
+  );
+
   sl.registerFactory<StatisticBloc>(
     () => StatisticBloc(statistic: Statistic.confirmed),
   );

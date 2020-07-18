@@ -11,6 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'core/entity/entity.dart';
+import 'features/home/presentation/bloc/bloc.dart';
 import 'injection_container.dart' as di;
 
 Future<void> main() async {
@@ -45,6 +47,12 @@ class MyApp extends StatelessWidget {
       },
       child: MultiBlocProvider(
         providers: [
+          BlocProvider<RouteBloc>(
+            create: (context) => sl<RouteBloc>(),
+          ),
+          BlocProvider<TabBloc>(
+            create: (context) => sl<TabBloc>(),
+          ),
           BlocProvider<DateBloc>(
             create: (context) =>
                 DateBloc(date: DateTime(_now.year, _now.month, _now.day)),
@@ -77,33 +85,69 @@ class MyApp extends StatelessWidget {
             create: (context) => sl<UpdateLogBloc>(),
           ),
         ],
-        child: MaterialApp(
-          title: 'COVID19 INDIA',
-          theme: ThemeData(
-              brightness: Brightness.light,
-              primarySwatch: Colors.blue,
-              visualDensity: VisualDensity.adaptivePlatformDensity),
-          darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              primarySwatch: Colors.grey,
-              accentColor: Colors.white),
-          themeMode: ThemeMode.system,
-          debugShowCheckedModeBanner: false,
-          home: HomePage(),
-          onGenerateRoute: (settings) {
-            if (settings.name == StatePage.routeName) {
-              final StatePageArguments args = settings.arguments;
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<DateBloc, DateTime>(
+              listener: (context, date) {
+                context.bloc<DailyCountBloc>().add(LoadDailyCount(date: date));
+              },
+            ),
+            BlocListener<MapViewBloc, MapView>(
+              listener: (context, mapView) {
+                if (mapView == MapView.states) {
+                  final Region regionHighlighted =
+                      context.bloc<RegionHighlightedBloc>().state;
 
-              return MaterialPageRoute(
-                builder: (context) {
-                  return StatePage(region: args.region);
-                },
-              );
-            }
+                  context.bloc<RegionHighlightedBloc>().add(
+                      RegionHighlightedChanged(
+                          regionHighlighted: Region(
+                              stateCode: regionHighlighted.stateCode,
+                              districtName: null)));
+                }
+              },
+            ),
+            BlocListener<RouteBloc, RouteState>(
+              listener: (context, route) {
+                print(route);
 
-            assert(false, 'Need to implement ${settings.name}');
-            return null;
-          },
+                if (route is HomeRoute) {
+                  final Region regionHighlighted =
+                      context.bloc<RegionHighlightedBloc>().state;
+
+                  context.bloc<RegionHighlightedBloc>().add(
+                      RegionHighlightedChanged(
+                          regionHighlighted: Region(
+                              stateCode: regionHighlighted.stateCode,
+                              districtName: null)));
+                } else if (route is StateRoute) {
+                  context.bloc<RegionHighlightedBloc>().add(
+                      RegionHighlightedChanged(
+                          regionHighlighted: route.region));
+                }
+              },
+            ),
+          ],
+          child: MaterialApp(
+            title: 'COVID19 INDIA',
+            theme: ThemeData(
+                brightness: Brightness.light,
+                primarySwatch: Colors.blue,
+                visualDensity: VisualDensity.adaptivePlatformDensity),
+            darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                primarySwatch: Colors.grey,
+                accentColor: Colors.white),
+            themeMode: ThemeMode.system,
+            debugShowCheckedModeBanner: false,
+            initialRoute: HomePage.routeName,
+            routes: {
+              HomePage.routeName: (context) => HomePage(),
+              StatePage.routeName: (context) => StatePage(
+                    region:
+                        (context.bloc<RouteBloc>().state as StateRoute).region,
+                  ),
+            },
+          ),
         ),
       ),
     );

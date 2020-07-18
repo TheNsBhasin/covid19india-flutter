@@ -1,5 +1,5 @@
 import 'package:covid19india/features/home/presentation/widgets/action_bar/timeline.dart';
-import 'package:covid19india/features/home/presentation/widgets/action_bar/updates.dart';
+import 'package:covid19india/features/update_log/presentation/widgets/updates/updates.dart';
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
 import 'package:covid19india/features/update_log/presentation/bloc/bloc.dart';
 import 'package:covid19india/core/util/extensions.dart';
@@ -77,7 +77,10 @@ class _ActionBarState extends State<ActionBar> {
         children: [
           buildActionBarItems(),
           if (actionBarOption == ActionBarOption.Update)
-            Updates(updateLogs: updateLogs),
+            Updates(
+              updateLogs: updateLogs,
+              limit: 5,
+            ),
           if (actionBarOption == ActionBarOption.Timeline)
             Timeline(
               timeline: this.timeline,

@@ -3,7 +3,7 @@ import 'package:covid19india/core/common/widgets/message_display.dart';
 import 'package:covid19india/core/entity/entity.dart';
 import 'package:covid19india/features/daily_count/domain/entities/state_daily_count.dart';
 import 'package:covid19india/features/daily_count/presentation/bloc/bloc.dart';
-import 'package:covid19india/features/states/presentation/widgets/header/header.dart';
+import 'package:covid19india/features/daily_count/presentation/widgets/header/header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

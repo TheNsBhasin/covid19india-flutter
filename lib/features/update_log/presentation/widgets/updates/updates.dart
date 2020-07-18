@@ -1,51 +1,52 @@
-import 'package:covid19india/core/util/formatter.dart';
+import 'dart:math';
+
 import 'package:covid19india/core/util/extensions.dart';
+import 'package:covid19india/core/util/formatter.dart';
 import 'package:covid19india/features/update_log/domain/entities/update_log.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:math';
 
-class Updates extends StatefulWidget {
+class Updates extends StatelessWidget {
   final List<UpdateLog> updateLogs;
+  final int limit;
 
-  Updates({this.updateLogs});
-
-  @override
-  _UpdatesState createState() => _UpdatesState(updateLogs: updateLogs);
-}
-
-class _UpdatesState extends State<Updates> {
-  final List<UpdateLog> updateLogs;
-
-  _UpdatesState({this.updateLogs});
+  Updates({this.updateLogs, this.limit});
 
   @override
   Widget build(BuildContext context) {
     Map<DateTime, List<UpdateLog>> dayWiseUpdateLog = _getDayWiseUpdateLog(
-        updateLogs.reversed.toList().sublist(0, min(5, updateLogs.length)));
+        limit != null
+            ? updateLogs.reversed
+                .toList()
+                .sublist(0, min(limit, updateLogs.length))
+            : updateLogs.reversed.toList());
+
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.light;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...dayWiseUpdateLog.entries
-              .map((e) => _buildDayUpdates(e.key, e.value))
+              .map((e) =>
+                  _buildDayUpdates(e.key, e.value, isDarkMode: isDarkMode))
               .toList()
         ],
       ),
     );
   }
 
-  Widget _buildDayUpdates(DateTime day, List<UpdateLog> updateLogs) {
+  Widget _buildDayUpdates(DateTime day, List<UpdateLog> updateLogs,
+      {bool isDarkMode: false}) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 16.0),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Container(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -59,14 +60,15 @@ class _UpdatesState extends State<Updates> {
         ),
         SizedBox(height: 16.0),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ...updateLogs.reversed
                   .toList()
-                  .map((updateLog) => _buildUpdateTile(updateLog))
+                  .map((updateLog) =>
+                      _buildUpdateTile(updateLog, isDarkMode: isDarkMode))
                   .toList()
             ],
           ),
@@ -75,7 +77,7 @@ class _UpdatesState extends State<Updates> {
     );
   }
 
-  _buildUpdateTile(UpdateLog updateLog) {
+  _buildUpdateTile(UpdateLog updateLog, {bool isDarkMode: false}) {
     List<String> notes = updateLog.update.split("\n");
     notes.removeLast();
 
@@ -103,9 +105,7 @@ class _UpdatesState extends State<Updates> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: (Theme.of(context).brightness == Brightness.light)
-                          ? Colors.black87
-                          : Colors.white70),
+                      color: isDarkMode ? Colors.black87 : Colors.white70),
                 ))
           ],
         ),

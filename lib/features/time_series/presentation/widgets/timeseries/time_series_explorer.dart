@@ -47,7 +47,6 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
             builder: (context, regionHighlighted) {
           Region selectedRegion =
               _getSelectedRegion(widget.timeSeries, regionHighlighted);
-
           List<TimeSeries> selectedTimeSeries =
               _getSelectedTimeSeries(widget.timeSeries, selectedRegion);
 
@@ -122,7 +121,7 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
       Map<MapCodes, StateTimeSeries> timeSeries, MapCodes stateCode) {
     List<Region> states = timeSeries.entries
         .where((stateData) => stateData.value.stateCode != stateCode)
-        .map((stateData) => new Region(
+        .map((stateData) => Region(
               stateCode: stateData.value.stateCode,
               districtName: null,
             ))
@@ -130,7 +129,7 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
 
     List<Region> districts = List<Region>();
     timeSeries.forEach((stateCode, stateData) {
-      districts.addAll(stateData.districts.map((districtData) => new Region(
+      districts.addAll(stateData.districts.map((districtData) => Region(
             stateCode: stateCode,
             districtName: districtData.name,
           )));

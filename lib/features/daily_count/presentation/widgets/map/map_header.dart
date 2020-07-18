@@ -161,13 +161,14 @@ class MapHeader extends StatelessWidget {
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8.0)),
-                                        onPressed: () => context
-                                            .bloc<MapViewBloc>()
-                                            .add(MapViewChanged(
-                                                mapView:
-                                                    mapView == MapView.districts
-                                                        ? MapView.states
-                                                        : MapView.districts)),
+                                        onPressed: () {
+                                          context.bloc<MapViewBloc>().add(
+                                              MapViewChanged(
+                                                  mapView: mapView ==
+                                                          MapView.districts
+                                                      ? MapView.states
+                                                      : MapView.districts));
+                                        },
                                         child: FaIcon(
                                           FontAwesomeIcons.building,
                                           color: Colors.grey,

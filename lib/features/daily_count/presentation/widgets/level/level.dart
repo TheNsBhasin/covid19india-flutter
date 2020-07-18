@@ -39,13 +39,16 @@ class LevelItem extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(2.0),
-            child: Text(
-                NumberFormat.decimalPattern('en_IN')
-                    .format(getStatisticValue(total, statistics)),
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: STATS_COLOR[statistics])),
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                  NumberFormat.decimalPattern('en_IN')
+                      .format(getStatisticValue(total, statistics)),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: STATS_COLOR[statistics])),
+            ),
           ),
         ],
       ),

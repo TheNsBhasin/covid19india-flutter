@@ -254,11 +254,11 @@ class RegionPlot extends StatelessWidget {
                 return;
               }
 
-              Navigator.pushNamed(
-                context,
-                StatePage.routeName,
-                arguments: StatePageArguments(region: shape.region),
-              );
+              context
+                  .bloc<RouteBloc>()
+                  .add(NavigateToStatePage(region: shape.region));
+
+              Navigator.pushNamed(context, StatePage.routeName);
             },
             child: CustomPaint(
               child: SizedBox.expand(),
@@ -357,7 +357,7 @@ class RegionPainter extends CustomPainter {
       ..color = highlighted
           ? highlightColor ?? strokeColor
           : strokeColor.withAlpha(50)
-      ..strokeWidth = 2.5
+      ..strokeWidth = highlighted ? 4.0 : 2.5
       ..style = PaintingStyle.stroke;
     canvas.drawPath(shape.path, _paint);
   }

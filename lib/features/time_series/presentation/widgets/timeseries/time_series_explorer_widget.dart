@@ -22,13 +22,19 @@ class TimeSeriesExplorerWidget extends StatelessWidget {
           if (state is TimeSeriesLoadInProgress) {
             return LoadingWidget(height: 72);
           } else if (state is TimeSeriesLoadSuccess) {
-            Map<MapCodes, StateTimeSeries> timeSeriesMap =
+            final Map<MapCodes, StateTimeSeries> timeSeriesMap =
                 _getTimeSeriesMap(state.timeSeries);
+
+            if (!timeSeriesMap.containsKey(stateCode)) {
+              return Container();
+            }
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: TimeSeriesExplorer(
-                timeSeries: timeSeriesMap,
+                timeSeries: stateCode == MapCodes.TT
+                    ? timeSeriesMap
+                    : {stateCode: timeSeriesMap[stateCode]},
                 stateCode: stateCode,
               ),
             );

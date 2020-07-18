@@ -2,11 +2,14 @@ import 'package:autotrie/autotrie.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/entity/entity.dart';
 import 'package:covid19india/core/entity/region.dart';
-import 'package:covid19india/features/states/presentation/pages/state_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 class SearchBar extends StatefulWidget {
+  final Null Function(Region region) navigate;
+
+  SearchBar({this.navigate});
+
   @override
   _SearchBarState createState() => _SearchBarState();
 }
@@ -34,14 +37,20 @@ class _SearchBarState extends State<SearchBar> {
     _textController.addListener(_onTextChange);
 
     MapCodes.values.forEach((mapCode) {
-      _statesBox.put(mapCode.name,
-          {'name': mapCode.name, 'type': 'state', 'route': mapCode.key});
+      _statesBox.put(mapCode.name, {
+        'name': mapCode.name,
+        'type': 'state',
+        'route': mapCode.key,
+      });
     });
 
-    STATE_DISTRICT_MAP.entries.forEach((e) {
-      e.value.forEach((districtName) {
-        _districtsBox.put(districtName,
-            {'name': districtName, 'type': 'district', 'route': e.key});
+    STATE_DISTRICT_MAP.entries.forEach((stateData) {
+      stateData.value.forEach((districtName) {
+        _districtsBox.put(districtName, {
+          'name': districtName,
+          'type': 'district',
+          'route': stateData.key.key
+        });
       });
     });
   }
@@ -150,15 +159,10 @@ class _SearchBarState extends State<SearchBar> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0)),
                             onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                StatePage.routeName,
-                                arguments: StatePageArguments(
-                                    region: new Region(
-                                        stateCode: (e.value['route'] as String)
-                                            .toMapCode(),
-                                        districtName: null)),
-                              );
+                              widget.navigate(Region(
+                                  stateCode:
+                                      (e.value['route'] as String).toMapCode(),
+                                  districtName: null));
                             },
                             child: Text(e.value['route'],
                                 style: TextStyle(
@@ -198,16 +202,10 @@ class _SearchBarState extends State<SearchBar> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8.0)),
                                 onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    StatePage.routeName,
-                                    arguments: StatePageArguments(
-                                        region: new Region(
-                                            stateCode:
-                                                (e.value['route'] as String)
-                                                    .toMapCode(),
-                                            districtName: e.value['name'])),
-                                  );
+                                  widget.navigate(Region(
+                                      stateCode: (e.value['route'] as String)
+                                          .toMapCode(),
+                                      districtName: e.value['name']));
                                 },
                                 child: Text(e.value['route'],
                                     style: TextStyle(

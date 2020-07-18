@@ -163,7 +163,8 @@ class TimeSeriesHeader extends StatelessWidget {
                       districtName: selectedRegion.districtName)
                   .toJson()),
               onChanged: (region) {
-                setRegionHighlighted(RegionModel.fromJson(jsonDecode(region)));
+                setRegionHighlighted(
+                    RegionModel.fromJson(jsonDecode(region)).toEntity());
               },
               isExpanded: true,
               items: regions
