@@ -15,6 +15,8 @@ class TabSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color accentColor = Theme.of(context).accentColor;
+
     return BottomNavigationBar(
       showSelectedLabels: false,
       showUnselectedLabels: false,
@@ -25,7 +27,7 @@ class TabSelector extends StatelessWidget {
         return BottomNavigationBarItem(
           icon: Icon(
             tab.icon,
-            color: Colors.grey,
+            color: activeTab == tab ? accentColor : Colors.grey,
           ),
           title: Text(
             tab.name,

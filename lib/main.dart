@@ -69,11 +69,8 @@ class MyApp extends StatelessWidget {
           BlocProvider<MapVizBloc>(
             create: (context) => sl<MapVizBloc>(),
           ),
-          BlocProvider<TimeSeriesChartTypeBloc>(
-            create: (context) => sl<TimeSeriesChartTypeBloc>(),
-          ),
-          BlocProvider<TimeSeriesOptionBloc>(
-            create: (context) => sl<TimeSeriesOptionBloc>(),
+          BlocProvider<TimeSeriesChartBloc>(
+            create: (context) => sl<TimeSeriesChartBloc>(),
           ),
           BlocProvider<DailyCountBloc>(
             create: (context) => sl<DailyCountBloc>(),

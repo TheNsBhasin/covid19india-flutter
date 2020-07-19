@@ -41,37 +41,35 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TabBloc, HomeTab>(
-      builder: (context, activeTab) {
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: MyAppBarTitle(),
-          ),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              switch (activeTab) {
-                case HomeTab.table:
-                  return TableTab();
-                case HomeTab.map:
-                  return MapTab();
-                case HomeTab.chart:
-                  return ChartTab();
-                case HomeTab.notification:
-                  return NotificationTab();
-                default:
-                  return NotFound();
-              }
-            },
-          ),
-          bottomNavigationBar: TabSelector(
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: MyAppBarTitle(),
+        ),
+        body: BlocBuilder<TabBloc, HomeTab>(
+          builder: (context, activeTab) {
+            switch (activeTab) {
+              case HomeTab.table:
+                return TableTab();
+              case HomeTab.map:
+                return MapTab();
+              case HomeTab.chart:
+                return ChartTab();
+              case HomeTab.notification:
+                return NotificationTab();
+              default:
+                return NotFound();
+            }
+          },
+        ),
+        bottomNavigationBar:
+            BlocBuilder<TabBloc, HomeTab>(builder: (context, activeTab) {
+          return TabSelector(
             activeTab: activeTab,
             onTabSelected: (tab) =>
                 BlocProvider.of<TabBloc>(context).add(TabChanged(tab: tab)),
-          ),
-        );
-      },
-    );
+          );
+        }));
   }
 }
 

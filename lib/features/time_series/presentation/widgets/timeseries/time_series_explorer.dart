@@ -11,7 +11,7 @@ import 'package:covid19india/features/time_series/presentation/widgets/timeserie
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class TimeSeriesExplorer extends StatefulWidget {
+class TimeSeriesExplorer extends StatelessWidget {
   final Map<MapCodes, StateTimeSeries> timeSeries;
   final MapCodes stateCode;
 
@@ -21,24 +21,8 @@ class TimeSeriesExplorer extends StatefulWidget {
   });
 
   @override
-  _TimeSeriesExplorerState createState() => _TimeSeriesExplorerState();
-}
-
-class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
-  bool isUniform;
-  bool isLog;
-
-  @override
-  void initState() {
-    super.initState();
-
-    isUniform = true;
-    isLog = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    List<Region> regions = _getRegions(widget.timeSeries, widget.stateCode);
+    List<Region> regions = _getRegions(timeSeries, stateCode);
 
     return Center(
       child: Padding(
@@ -46,71 +30,29 @@ class _TimeSeriesExplorerState extends State<TimeSeriesExplorer> {
         child: BlocBuilder<RegionHighlightedBloc, Region>(
             builder: (context, regionHighlighted) {
           Region selectedRegion =
-              _getSelectedRegion(widget.timeSeries, regionHighlighted);
+              _getSelectedRegion(timeSeries, regionHighlighted);
           List<TimeSeries> selectedTimeSeries =
-              _getSelectedTimeSeries(widget.timeSeries, selectedRegion);
+              _getSelectedTimeSeries(timeSeries, selectedRegion);
 
-          return BlocBuilder<TimeSeriesChartTypeBloc, TimeSeriesChartType>(
-            builder: (context, chartType) {
-              return BlocBuilder<TimeSeriesOptionBloc, TimeSeriesOption>(
-                builder: (context, option) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      TimeSeriesHeader(
-                        chartType: chartType,
-                        isUniform: isUniform,
-                        isLog: isLog,
-                        selectedRegion: selectedRegion,
-                        regions: regions,
-                        setChartType: (TimeSeriesChartType newChartType) {
-                          context.bloc<TimeSeriesChartTypeBloc>().add(
-                              TimeSeriesChartTypeChanged(
-                                  chartType: newChartType));
-                        },
-                        setUniform: (bool newIsUniform) {
-                          setState(() {
-                            this.isUniform = newIsUniform;
-                          });
-                        },
-                        setLog: (bool newIsLog) {
-                          setState(() {
-                            this.isLog = newIsLog;
-                          });
-                        },
-                        setRegionHighlighted: (Region regionHighlighted) {
-                          context.bloc<RegionHighlightedBloc>().add(
-                              RegionHighlightedChanged(
-                                  regionHighlighted: regionHighlighted));
-                        },
-                      ),
-                      BlocBuilder<DateBloc, DateTime>(
-                        builder: (context, timelineDate) {
-                          return TimeSeriesVisualizer(
-                            timeSeries: selectedTimeSeries,
-                            timelineDate: timelineDate,
-                            timeSeriesOption: option,
-                            chartType: chartType,
-                            isUniform: isUniform,
-                            isLog: isLog,
-                          );
-                        },
-                      ),
-                      TimeSeriesPills(
-                        timeSeriesOption: option,
-                        setTimeSeriesOption: (TimeSeriesOption newOption) {
-                          context
-                              .bloc<TimeSeriesOptionBloc>()
-                              .add(TimeSeriesOptionChanged(option: newOption));
-                        },
-                      ),
-                      TimeSeriesAlerts()
-                    ],
-                  );
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TimeSeriesHeader(
+                selectedRegion: selectedRegion,
+                regions: regions,
+                setRegionHighlighted: (Region regionHighlighted) {
+                  context.bloc<RegionHighlightedBloc>().add(
+                      RegionHighlightedChanged(
+                          regionHighlighted: regionHighlighted));
                 },
-              );
-            },
+              ),
+              TimeSeriesVisualizer(
+                timeSeries: selectedTimeSeries,
+              ),
+              TimeSeriesPills(),
+              TimeSeriesAlerts()
+            ],
           );
         }),
       ),

@@ -29,7 +29,8 @@ class Header extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
+                    FittedBox(
+                      fit: BoxFit.contain,
                       child: Text(
                         stateDailyCount.stateCode.name,
                         style: TextStyle(
@@ -69,14 +70,18 @@ class Header extends StatelessWidget {
                     ),
                     Container(
                       padding: const EdgeInsets.all(2.0),
-                      child: Text(
-                          NumberFormat.decimalPattern('en_IN').format(
-                              getStatisticValue(
-                                  stateDailyCount.total, Statistic.tested)),
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: STATS_COLOR[Statistic.tested])),
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: Text(
+                            NumberFormat.decimalPattern('en_IN').format(
+                                getStatisticValue(
+                                    stateDailyCount.total, Statistic.tested)),
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: STATS_COLOR[Statistic.tested])),
+                      ),
                     ),
                     if (stateDailyCount.metadata.tested
                         .containsKey('last_updated'))

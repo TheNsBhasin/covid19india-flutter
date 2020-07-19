@@ -58,12 +58,12 @@ Future<void> init() async {
     () => MapVizBloc(mapViz: MapViz.choropleth),
   );
 
-  sl.registerFactory<TimeSeriesChartTypeBloc>(
-    () => TimeSeriesChartTypeBloc(chartType: TimeSeriesChartType.total),
-  );
-
-  sl.registerFactory<TimeSeriesOptionBloc>(
-    () => TimeSeriesOptionBloc(option: TimeSeriesOption.two_weeks),
+  sl.registerFactory<TimeSeriesChartBloc>(
+    () => TimeSeriesChartBloc(
+        isLog: false,
+        isUniform: true,
+        chartType: TimeSeriesChartType.total,
+        option: TimeSeriesOption.two_weeks),
   );
 
   sl.registerFactory<DailyCountBloc>(

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:covid19india/core/bloc/bloc.dart';
 import 'package:covid19india/core/constants/constants.dart';
 import 'package:covid19india/core/entity/statistic.dart';
 import 'package:covid19india/core/entity/time_series_chart_type.dart';
@@ -9,6 +10,7 @@ import 'package:covid19india/core/util/util.dart';
 import 'package:covid19india/features/time_series/domain/entities/time_series.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:grizzly_range/grizzly_range.dart' as ranger;
 import 'package:grizzly_scales/grizzly_scales.dart';
 import 'package:intl/intl.dart';
@@ -468,48 +470,38 @@ class TimeSeriesItem extends StatelessWidget {
 class TimeSeriesVisualizer extends StatelessWidget {
   final List<TimeSeries> timeSeries;
 
-  final DateTime timelineDate;
-
-  final TimeSeriesOption timeSeriesOption;
-  final TimeSeriesChartType chartType;
-
-  final bool isUniform;
-  final bool isLog;
-
-  TimeSeriesVisualizer(
-      {this.timeSeries,
-      this.timelineDate,
-      this.timeSeriesOption,
-      this.chartType,
-      this.isUniform,
-      this.isLog});
+  TimeSeriesVisualizer({this.timeSeries});
 
   @override
   Widget build(BuildContext context) {
-    List<TimeSeries> filteredTimeSeries =
-        _getFilteredTimeSeries(timeSeries, timelineDate, timeSeriesOption);
+    return BlocBuilder<DateBloc, DateTime>(builder: (context, timelineDate) {
+      return BlocBuilder<TimeSeriesChartBloc, TimeSeriesChartState>(
+        builder: (context, state) {
+          List<TimeSeries> filteredTimeSeries =
+              _getFilteredTimeSeries(timeSeries, timelineDate, state.option);
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ...TIME_SERIES_STATISTICS
-              .map((statistic) => Padding(
+          return Center(
+            child: ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: PRIMARY_STATISTICS.length,
+                itemBuilder: (context, index) {
+                  return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: TimeSeriesItem(
                       timeSeries: filteredTimeSeries,
-                      statistic: statistic,
-                      chartType: chartType,
-                      timeSeriesOption: timeSeriesOption,
-                      isUniform: isUniform,
-                      isLog: isLog,
+                      statistic: TIME_SERIES_STATISTICS[index],
+                      chartType: state.chartType,
+                      timeSeriesOption: state.option,
+                      isUniform: state.isUniform,
+                      isLog: state.isLog,
                     ),
-                  ))
-              .toList()
-        ],
-      ),
-    );
+                  );
+                }),
+          );
+        },
+      );
+    });
   }
 
   List<TimeSeries> _getFilteredTimeSeries(List<TimeSeries> timeSeries,
